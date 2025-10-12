@@ -1,6 +1,6 @@
-# PastelArte - Proyecto de Repostería
+# Cookies and Cakes - Proyecto de Repostería
 
-Este es el repositorio para el sitio web de "PastelArte", una pastelería ficticia. El proyecto incluye una vista pública para clientes y un panel de administración privado para gestionar los productos.
+Este es el repositorio para el sitio web de "Cookies and Cakes", una pastelería real. El proyecto incluye una vista pública para clientes y un panel de administración privado para gestionar los productos.
 
 El sistema está diseñado para ser desacoplado, con un frontend (lo que ve el usuario) que consume datos a través de un servicio centralizado, preparándolo para una futura integración con un backend y una base de datos real.
 
