@@ -1,0 +1,150 @@
+/* Estilos específicos para el panel de administración */
+
+.admin-main {
+    background-color: #f4f6f9; /* Un gris claro para el fondo del admin */
+    min-height: 80vh;
+    padding: 2rem;
+}
+
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: var(--light-color);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.admin-header h1 {
+    font-family: var(--font-headings);
+    font-size: 2rem;
+    color: var(--dark-color);
+}
+
+/* Estilos para botones del admin */
+.admin-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-btn.primary {
+    background-color: var(--primary-color);
+    color: var(--light-color);
+}
+.admin-btn.primary:hover {
+    background-color: #d14a7a;
+}
+
+.admin-btn.edit {
+    background-color: #ffc107; /* Amarillo */
+    color: var(--dark-color);
+}
+.admin-btn.edit:hover { background-color: #e0a800; }
+
+.admin-btn.delete {
+    background-color: #dc3545; /* Rojo */
+    color: var(--light-color);
+}
+.admin-btn.delete:hover { background-color: #c82333; }
+
+.admin-btn.secondary {
+    background-color: #6c757d; /* Gris */
+    color: var(--light-color);
+}
+.admin-btn.secondary:hover { background-color: #5a6268; }
+
+/* Tabla de productos */
+.product-table-container {
+    overflow-x: auto; /* Para que la tabla sea responsive en pantallas pequeñas */
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.product-table th, .product-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.product-table th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+}
+
+.product-table img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Formularios */
+.product-form {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Estilo para el botón de salir en el admin */
+.navbar .admin-logout {
+    font-size: 1rem;
+}
+
+.navbar .admin-logout i {
+    margin-right: 5px;
+}

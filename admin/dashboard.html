@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - PastelArte</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <nav class="navbar">
+            <a href="dashboard.html" class="nav-logo">PastelArte - Admin</a>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li class="nav-item"><a href="../index.html" class="nav-link" target="_blank">Ver Sitio</a></li>
+            </ul>
+            <div class="nav-icons">
+                <a href="../index.html" class="nav-link admin-logout"><i class="fas fa-sign-out-alt"></i> Salir</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="admin-main">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Gestión de Productos</h1>
+                <a href="add-product.html" class="admin-btn primary">
+                    <i class="fas fa-plus"></i> Añadir Producto
+                </a>
+            </div>
+
+            <div class="product-table-container">
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Nombre del Producto</th>
+                            <th>Categoría</th>
+                            <th>Precio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Ejemplo de producto en la tabla -->
+                        <tr>
+                            <td><img src="https://images.unsplash.com/photo-1589119912997-a1a8f313a7de?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=100" alt="Torta Selva Negra"></td>
+                            <td>Torta Selva Negra</td>
+                            <td>Tortas y Kuchen</td>
+                            <td>$25.000</td>
+                            <td class="action-buttons">
+                                <a href="edit-product.html" class="admin-btn edit"><i class="fas fa-edit"></i> Editar</a>
+                                <button class="admin-btn delete"><i class="fas fa-trash"></i> Eliminar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><img src="https://images.unsplash.com/photo-1621996346565-e326e20f4423?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=100" alt="Galletas con Chips"></td>
+                            <td>Galletas con Chips</td>
+                            <td>Galletas y Tortas Temáticas</td>
+                            <td>$8.500</td>
+                            <td class="action-buttons">
+                                <a href="edit-product.html" class="admin-btn edit"><i class="fas fa-edit"></i> Editar</a>
+                                <button class="admin-btn delete"><i class="fas fa-trash"></i> Eliminar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=100" alt="Cupcakes"></td>
+                            <td>Cupcakes de Vainilla</td>
+                            <td>Repostería y Otros Dulces</td>
+                            <td>$12.000</td>
+                            <td class="action-buttons">
+                                <a href="edit-product.html" class="admin-btn edit"><i class="fas fa-edit"></i> Editar</a>
+                                <button class="admin-btn delete"><i class="fas fa-trash"></i> Eliminar</button>
+                            </td>
+                        </tr>
+                        <!-- Repetirías una fila <tr> por cada producto -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            <p>&copy; 2024 Panel de Administración de PastelArte.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simulación de eliminación
+        document.querySelectorAll('.delete').forEach(button => {
+            button.addEventListener('click', (e) => {
+                if(confirm('¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.')) {
+                    e.target.closest('tr').remove();
+                    alert('Producto eliminado (simulación).');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

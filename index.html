@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PastelArte - Repostería con Amor</title>
+    
+    <!-- Enlace a la hoja de estilos CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Enlace a Google Fonts para un look más profesional -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Enlace a Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+
+    <!-- ==================== HEADER Y NAVEGACIÓN ==================== -->
+    <header class="main-header">
+        <nav class="navbar">
+            <a href="index.html" class="nav-logo">PastelArte</a>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="index.html" class="nav-link">Inicio</a></li>
+                <li class="nav-item"><a href="#tortas-kuchen" class="nav-link">Productos</a></li>
+                <li class="nav-item"><a href="#sobre-nosotros" class="nav-link">Sobre Nosotros</a></li>
+                <li class="nav-item"><a href="#contacto" class="nav-link">Contacto</a></li>
+            </ul>
+            <div class="nav-icons">
+                <i class="fas fa-shopping-cart"></i>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- ==================== SECCIÓN HERO ==================== -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>El Arte de la Repostería Hecho con Amor</h1>
+                <p>Descubre nuestras creaciones únicas, horneadas cada día para ti.</p>
+                <a href="#tortas-kuchen" class="cta-button">Ver Productos</a>
+            </div>
+        </section>
+
+        <!-- ==================== SECCIÓN DE TORTAS Y KUCHEN (CARRUSEL) ==================== -->
+        <section class="featured-products" id="tortas-kuchen">
+            <h2 class="section-title">Tortas y Kuchen</h2>
+            <div class="product-slider-container">
+                <button class="slider-arrow prev-arrow"><i class="fas fa-chevron-left"></i></button>
+                <div class="product-slider-wrapper">
+                    <div class="product-grid">
+                        <!-- Productos de ejemplo (8 en total) -->
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1589119912997-a1a8f313a7de?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Torta Selva Negra"><div class="product-info"><h3 class="product-name">Torta Selva Negra</h3><p class="product-price">$25.000</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Torta de Cumpleaños"><div class="product-info"><h3 class="product-name">Torta de Cumpleaños</h3><p class="product-price">$30.000</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1562440102-83df351b65b9?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Kuchen de Manzana"><div class="product-info"><h3 class="product-name">Kuchen de Manzana</h3><p class="product-price">$18.000</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1571114577494-7f4a5e390074?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Torta de Zanahoria"><div class="product-info"><h3 class="product-name">Torta de Zanahoria</h3><p class="product-price">$22.000</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Torta Tres Leches"><div class="product-info"><h3 class="product-name">Torta Tres Leches</h3><p class="product-price">$24.000</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1616690710400-a15d444df790?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Kuchen de Nuez"><div class="product-info"><h3 class="product-name">Kuchen de Nuez</h3><p class="product-price">$19.500</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1542826438-643292d59490?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Torta de Frutos Rojos"><div class="product-info"><h3 class="product-name">Torta Frutos Rojos</h3><p class="product-price">$28.000</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1607478900766-efe13248b125?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Torta de Moka"><div class="product-info"><h3 class="product-name">Torta de Moka</h3><p class="product-price">$26.000</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                    </div>
+                </div>
+                <button class="slider-arrow next-arrow"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="view-all-container">
+                <a href="pages/tortas-kuchen.html" class="view-all-btn">Ver todos los productos</a>
+            </div>
+        </section>
+
+        <!-- ==================== SECCIÓN DE GALLETAS Y TORTAS TEMÁTICAS (CARRUSEL) ==================== -->
+        <section class="featured-products" id="galletas-tematicas">
+            <h2 class="section-title">Galletas y Tortas Temáticas</h2>
+            <div class="product-slider-container">
+                <button class="slider-arrow prev-arrow"><i class="fas fa-chevron-left"></i></button>
+                <div class="product-slider-wrapper">
+                    <div class="product-grid">
+                        <!-- Productos de ejemplo (8 en total) -->
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1621996346565-e326e20f4423?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Galletas con Chips"><div class="product-info"><h3 class="product-name">Galletas con Chips</h3><p class="product-price">$8.500 (docena)</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1614052824345-53c521320cb1?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Torta Unicornio"><div class="product-info"><h3 class="product-name">Torta Temática Unicornio</h3><p class="product-price">Desde $45.000</p><button class="add-to-cart-btn">Cotizar</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1599785298243-f2d517413ety?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Galletas de Avena"><div class="product-info"><h3 class="product-name">Galletas de Avena</h3><p class="product-price">$7.500 (docena)</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1551879411-7453075a05b1?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Torta Superhéroes"><div class="product-info"><h3 class="product-name">Torta Superhéroes</h3><p class="product-price">Desde $50.000</p><button class="add-to-cart-btn">Cotizar</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1598836357490-30cf0f25ce5a?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Galletas Decoradas"><div class="product-info"><h3 class="product-name">Galletas Decoradas</h3><p class="product-price">$15.000 (docena)</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1604353829399-43a65214856f?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Torta de Boda"><div class="product-info"><h3 class="product-name">Torta de Boda</h3><p class="product-price">Desde $80.000</p><button class="add-to-cart-btn">Cotizar</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1585750826555-5dc583433583?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Galletas de Jengibre"><div class="product-info"><h3 class="product-name">Galletas de Jengibre</h3><p class="product-price">$9.000 (docena)</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1607485343358-5a7c7c350154?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Torta Baby Shower"><div class="product-info"><h3 class="product-name">Torta Baby Shower</h3><p class="product-price">Desde $40.000</p><button class="add-to-cart-btn">Cotizar</button></div></div>
+                    </div>
+                </div>
+                <button class="slider-arrow next-arrow"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="view-all-container">
+                <a href="pages/galletas-tematicas.html" class="view-all-btn">Ver todos los productos</a>
+            </div>
+        </section>
+
+        <!-- ==================== SECCIÓN DE REPOSTERÍA Y OTROS DULCES (CARRUSEL) ==================== -->
+        <section class="featured-products" id="reposteria-dulces">
+            <h2 class="section-title">Repostería y Otros Dulces</h2>
+            <div class="product-slider-container">
+                <button class="slider-arrow prev-arrow"><i class="fas fa-chevron-left"></i></button>
+                <div class="product-slider-wrapper">
+                    <div class="product-grid">
+                        <!-- Productos de ejemplo (8 en total) -->
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Cupcakes de Vainilla"><div class="product-info"><h3 class="product-name">Cupcakes de Vainilla</h3><p class="product-price">$12.000 (6 un)</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1587665993330-a04bb09a51a3?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Macarons"><div class="product-info"><h3 class="product-name">Macarons Surtidos</h3><p class="product-price">$15.000 (docena)</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Donas Glaseadas"><div class="product-info"><h3 class="product-name">Donas Glaseadas</h3><p class="product-price">$9.000 (6 un)</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1506354666786-959d6d497f1a?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Brownies de Chocolate"><div class="product-info"><h3 class="product-name">Brownies de Chocolate</h3><p class="product-price">$10.000 (6 un)</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1605382028635-39ac4be85473?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Cheesecake de Fresa"><div class="product-info"><h3 class="product-name">Cheesecake de Fresa</h3><p class="product-price">$20.000</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1567171466295-4a093311ae84?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Alfajores"><div class="product-info"><h3 class="product-name">Alfajores de Manjar</h3><p class="product-price">$11.000 (docena)</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1599456643763-996996a036ed?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Pie de Limón"><div class="product-info"><h3 class="product-name">Pie de Limón</h3><p class="product-price">$16.000</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                        <div class="product-card"><img src="https://images.unsplash.com/photo-1534539325211-331ce4355343?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400" alt="Profiteroles"><div class="product-info"><h3 class="product-name">Profiteroles</h3><p class="product-price">$13.000 (docena)</p><button class="add-to-cart-btn">Añadir al Carrito</button></div></div>
+                    </div>
+                </div>
+                <button class="slider-arrow next-arrow"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="view-all-container">
+                <a href="pages/reposteria-dulces.html" class="view-all-btn">Ver todos los productos</a>
+            </div>
+        </section>
+
+        <!-- ==================== SECCIÓN SOBRE NOSOTROS ==================== -->
+        <section class="featured-products" id="sobre-nosotros" style="background-color: var(--light-color);">
+            <h2 class="section-title">Sobre Nosotros</h2>
+            <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <p>En PastelArte, cada postre es una obra de arte creada con pasión y los ingredientes más frescos. Nacimos en 2023 con el sueño de hornear momentos de felicidad y convertirlos en recuerdos inolvidables para ti y los tuyos.</p>
+            </div>
+        </section>
+
+        <!-- ==================== SECCIÓN CONTACTO ==================== -->
+        <section class="featured-products" id="contacto">
+            <h2 class="section-title">Contacto</h2>
+            <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <p>¿Tienes un evento especial o un antojo? ¡Nos encantaría ser parte de él!</p>
+                <p>Escríbenos a <strong>hola@pastelarte.cl</strong> o síguenos en nuestras redes sociales.</p>
+                 <div class="social-icons" style="justify-content: center; font-size: 2rem; margin-top: 1.5rem;">
+                    <a href="#" style="color: var(--dark-color);"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" style="color: var(--dark-color);"><i class="fab fa-instagram"></i></a>
+                    <a href="#" style="color: var(--dark-color);"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>PastelArte</h4>
+                <p>Horneando momentos de felicidad desde 2023.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Navegación</h4>
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="#tortas-kuchen">Productos</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Síguenos</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 PastelArte. Creado como proyecto de aprendizaje. | <a href="admin/dashboard.html" class="admin-link">Admin</a></p>
+        </div>
+    </footer>
+
+    <!-- Enlace al archivo JavaScript -->
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
