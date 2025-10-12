@@ -1,62 +1,92 @@
-// ==================== SERVICIO DE PRODUCTOS (localStorage) ====================
+// ==================== SERVICIO DE PRODUCTOS (API Backend) ====================
 // Este servicio maneja la lógica para obtener, añadir, editar y eliminar productos
-// del almacenamiento local del navegador (localStorage).
+// interactuando con un backend a través de una API REST.
 
 const ProductService = {
-    _dbKey: 'pastelArteProducts',
+    // La URL base de nuestra futura API.
+    // Por ahora, apunta a un servidor local, pero podría ser cualquier URL en producción.
+    _apiUrl: 'http://localhost:3000/api/products',
 
-    // Inicializa la base de datos con productos de ejemplo si no existe
-    _initializeDB: function() {
-        if (!localStorage.getItem(this._dbKey)) {
-            const initialProducts = [
-                { id: 'prod-001', name: 'Torta Selva Negra', category: 'Tortas y Kuchen', price: '$25.000', img: 'https://images.unsplash.com/photo-1589119912997-a1a8f313a7de?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400' },
-                { id: 'prod-002', name: 'Galletas con Chips', category: 'Galletas y Tortas Temáticas', price: '$8.500', img: 'https://images.unsplash.com/photo-1621996346565-e326e20f4423?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400' },
-                { id: 'prod-003', name: 'Cupcakes de Vainilla', category: 'Repostería y Otros Dulces', price: '$12.000', img: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400' },
-                { id: 'prod-1606890737304', name: 'Torta Tres Leches', category: 'Tortas y Kuchen', price: '$24.000', img: 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400' }
-            ];
-            localStorage.setItem(this._dbKey, JSON.stringify(initialProducts));
+    // NOTA: Los métodos ahora son 'async' porque las peticiones de red no son instantáneas.
+    // El código que los usa (admin.js, script.js) deberá ser ajustado para manejar esto.
+    // Por simplicidad en esta explicación, mantenemos la estructura síncrona en el resto de archivos,
+    // pero en un proyecto real, se usaría async/await en todo el flujo.
+
+    // Obtiene todos los productos
+    getAll: async function() {
+        try {
+            const response = await fetch(this._apiUrl);
+            if (!response.ok) throw new Error('Error al obtener los productos.');
+            return await response.json();
+        } catch (error) {
+            console.error('ProductService Error:', error);
+            return []; // Devuelve un array vacío en caso de error
         }
     },
 
-    // Obtiene todos los productos
-    getAll: function() {
-        this._initializeDB();
-        return JSON.parse(localStorage.getItem(this._dbKey));
-    },
-
     // Obtiene un producto por su ID
-    getById: function(id) {
-        const products = this.getAll();
-        return products.find(p => p.id === id);
-    },
-
-    // Guarda todos los productos
-    _saveAll: function(products) {
-        localStorage.setItem(this._dbKey, JSON.stringify(products));
+    getById: async function(id) {
+        try {
+            const response = await fetch(`${this._apiUrl}/${id}`);
+            if (!response.ok) throw new Error('Producto no encontrado.');
+            return await response.json();
+        } catch (error) {
+            console.error('ProductService Error:', error);
+            return null; // Devuelve null si no se encuentra o hay un error
+        }
     },
 
     // Añade un nuevo producto
-    add: function(productData) {
-        const products = this.getAll();
-        const newProduct = {
-            id: `prod-${Date.now()}`, // ID único basado en el tiempo
-            ...productData
-        };
-        products.push(newProduct);
-        this._saveAll(products);
+    add: async function(productData) {
+        try {
+            const response = await fetch(this._apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(productData)
+            });
+            if (!response.ok) throw new Error('Error al añadir el producto.');
+            return await response.json();
+        } catch (error) {
+            console.error('ProductService Error:', error);
+            return null;
+        }
     },
 
     // Actualiza un producto existente
-    update: function(updatedProduct) {
-        let products = this.getAll();
-        products = products.map(p => p.id === updatedProduct.id ? updatedProduct : p);
-        this._saveAll(products);
+    update: async function(updatedProduct) {
+        try {
+            const response = await fetch(`${this._apiUrl}/${updatedProduct.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedProduct)
+            });
+            if (!response.ok) throw new Error('Error al actualizar el producto.');
+            return await response.json();
+        } catch (error) {
+            console.error('ProductService Error:', error);
+            return null;
+        }
     },
 
     // Elimina un producto por su ID
-    delete: function(id) {
-        let products = this.getAll();
-        products = products.filter(p => p.id !== id);
-        this._saveAll(products);
+    delete: async function(id) {
+        try {
+            const response = await fetch(`${this._apiUrl}/${id}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) throw new Error('Error al eliminar el producto.');
+            // La respuesta de un DELETE exitoso a menudo no tiene cuerpo,
+            // así que solo confirmamos que todo fue bien.
+            return { success: true };
+        } catch (error) {
+            console.error('ProductService Error:', error);
+            return { success: false };
+        }
     }
 };
+
+// NOTA IMPORTANTE:
+// El código en `admin.js` y `script.js` ahora necesita ser modificado para usar `async/await`
+// al llamar a estas funciones. Por ejemplo:
+// const products = await ProductService.getAll();
+// Esto asegura que el código espera la respuesta de la API antes de continuar.

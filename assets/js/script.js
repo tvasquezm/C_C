@@ -25,14 +25,16 @@ document.querySelectorAll(".nav-link").forEach(n => n.addEventListener("click", 
 function createProductCard(product) {
     const buttonText = product.category === 'Galletas y Tortas Temáticas' ? 'Cotizar' : 'Añadir al Carrito';
     return `
-        <div class="product-card">
-            <img src="${product.img}" alt="${product.name}">
-            <div class="product-info">
-                <h3 class="product-name">${product.name}</h3>
-                <p class="product-price">${product.price}</p>
-                <button class="add-to-cart-btn">${buttonText}</button>
+        <a href="/pages/product-detail.html?id=${product.id}" class="product-card-link">
+            <div class="product-card">
+                <img src="${product.img}" alt="${product.name}">
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-price">${product.price}</p>
+                    <button class="add-to-cart-btn">${buttonText}</button>
+                </div>
             </div>
-        </div>
+        </a>
     `;
 }
 
@@ -41,11 +43,12 @@ function createProductCard(product) {
  * @param {string} containerSelector - El selector CSS del contenedor de la grilla.
  * @param {string|null} categoryFilter - El nombre de la categoría para filtrar, o null para mostrar todos.
  */
-function renderProducts(containerSelector, categoryFilter = null) {
+async function renderProducts(containerSelector, categoryFilter = null) {
     const container = document.querySelector(containerSelector);
     if (!container) return;
 
-    const allProducts = ProductService.getAll();
+    container.innerHTML = '<p>Cargando productos...</p>'; // Mensaje de carga
+    const allProducts = await ProductService.getAll();
     const productsToRender = categoryFilter ? allProducts.filter(p => p.category === categoryFilter) : allProducts;
 
     container.innerHTML = productsToRender.map(createProductCard).join('');
@@ -147,16 +150,16 @@ function inicializarCarrusel(selectorSeccion) {
 }
 
 // Inicializa un carrusel para cada sección de productos
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     // Renderizar productos en la página de inicio
-    renderProducts("#tortas-kuchen .product-grid", "Tortas y Kuchen");
-    renderProducts("#galletas-tematicas .product-grid", "Galletas y Tortas Temáticas");
-    renderProducts("#reposteria-dulces .product-grid", "Repostería y Otros Dulces");
+    await renderProducts("#tortas-kuchen .product-grid", "Tortas y Kuchen");
+    await renderProducts("#galletas-tematicas .product-grid", "Galletas y Tortas Temáticas");
+    await renderProducts("#reposteria-dulces .product-grid", "Repostería y Otros Dulces");
 
     // Renderizar productos en las páginas de categoría
-    renderProducts("#category-tortas-kuchen .product-grid-full", "Tortas y Kuchen");
-    renderProducts("#category-galletas-tematicas .product-grid-full", "Galletas y Tortas Temáticas");
-    renderProducts("#category-reposteria-dulces .product-grid-full", "Repostería y Otros Dulces");
+    await renderProducts("#category-tortas-kuchen .product-grid-full", "Tortas y Kuchen");
+    await renderProducts("#category-galletas-tematicas .product-grid-full", "Galletas y Tortas Temáticas");
+    await renderProducts("#category-reposteria-dulces .product-grid-full", "Repostería y Otros Dulces");
 
     // Inicializar carruseles DESPUÉS de renderizar los productos
     inicializarCarrusel("#tortas-kuchen");

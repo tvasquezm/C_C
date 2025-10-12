@@ -205,6 +205,12 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Enlace que envuelve la tarjeta de producto */
+.product-card-link {
+    text-decoration: none;
+    color: inherit; /* Hereda el color del texto para no tener links azules */
+}
+
 .product-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);

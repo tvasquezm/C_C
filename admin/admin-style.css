@@ -148,3 +148,32 @@
 .navbar .admin-logout i {
     margin-right: 5px;
 }
+
+/* Contenedor para notificaciones */
+#notification-container {
+    position: fixed;
+    top: 80px; /* Debajo del header */
+    right: 20px;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification {
+    padding: 15px 20px;
+    border-radius: 5px;
+    color: var(--light-color);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideInAndOut 3s ease-in-out forwards;
+}
+
+.notification.success { background-color: #28a745; } /* Verde */
+.notification.error { background-color: #dc3545; } /* Rojo */
+
+@keyframes slideInAndOut {
+    0%, 100% { opacity: 0; transform: translateX(100%); }
+    10%, 90% { opacity: 1; transform: translateX(0); }
+}
