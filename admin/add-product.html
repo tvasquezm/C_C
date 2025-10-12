@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Añadir Producto - Admin</title>
+    <title>Añadir Producto - PastelArte</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="admin-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
     <header class="main-header">
@@ -15,9 +16,6 @@
                 <li class="nav-item"><a href="dashboard.html" class="nav-link">Dashboard</a></li>
                 <li class="nav-item"><a href="../index.html" class="nav-link" target="_blank">Ver Sitio</a></li>
             </ul>
-            <div class="nav-icons">
-                <a href="../index.html" class="nav-link admin-logout"><i class="fas fa-sign-out-alt"></i> Salir</a>
-            </div>
         </nav>
     </header>
 
@@ -27,30 +25,27 @@
                 <h1>Añadir Nuevo Producto</h1>
             </div>
 
-            <form class="product-form" onsubmit="event.preventDefault(); alert('Producto guardado (simulación).'); window.location.href='dashboard.html';">
+            <form class="product-form" id="addProductForm">
                 <div class="form-group">
-                    <label for="name">Nombre del Producto</label>
-                    <input type="text" id="name" name="name" required>
+                    <label for="product-name">Nombre del Producto</label>
+                    <input type="text" id="product-name" name="product-name" required>
                 </div>
                 <div class="form-group">
-                    <label for="price">Precio</label>
-                    <input type="text" id="price" name="price" placeholder="$25.000" required>
-                </div>
-                <div class="form-group">
-                    <label for="category">Categoría</label>
-                    <select id="category" name="category" required>
-                        <option value="tortas-kuchen">Tortas y Kuchen</option>
-                        <option value="galletas-tematicas">Galletas y Tortas Temáticas</option>
-                        <option value="reposteria-dulces">Repostería y Otros Dulces</option>
+                    <label for="product-category">Categoría</label>
+                    <select id="product-category" name="product-category" required>
+                        <option value="">Selecciona una categoría</option>
+                        <option value="Tortas y Kuchen">Tortas y Kuchen</option>
+                        <option value="Galletas y Tortas Temáticas">Galletas y Tortas Temáticas</option>
+                        <option value="Repostería y Otros Dulces">Repostería y Otros Dulces</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="image">Subir Imagen del Producto</label>
-                    <input type="file" id="image" name="image" accept="image/png, image/jpeg, image/webp" required>
+                    <label for="product-price">Precio</label>
+                    <input type="text" id="product-price" name="product-price" placeholder="$25.000" required>
                 </div>
                 <div class="form-group">
-                    <label for="description">Descripción (Opcional)</label>
-                    <textarea id="description" name="description" rows="4"></textarea>
+                    <label for="product-image">URL de la Imagen</label>
+                    <input type="url" id="product-image" name="product-image" placeholder="https://images.unsplash.com/...">
                 </div>
                 <div class="form-actions">
                     <a href="dashboard.html" class="admin-btn secondary">Cancelar</a>
@@ -65,5 +60,7 @@
             <p>&copy; 2024 Panel de Administración de PastelArte.</p>
         </div>
     </footer>
+
+    <script src="admin.js"></script>
 </body>
 </html>

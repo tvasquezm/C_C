@@ -43,38 +43,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Ejemplo de producto en la tabla -->
-                        <tr>
-                            <td><img src="https://images.unsplash.com/photo-1589119912997-a1a8f313a7de?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=100" alt="Torta Selva Negra"></td>
-                            <td>Torta Selva Negra</td>
-                            <td>Tortas y Kuchen</td>
-                            <td>$25.000</td>
-                            <td class="action-buttons">
-                                <a href="edit-product.html" class="admin-btn edit"><i class="fas fa-edit"></i> Editar</a>
-                                <button class="admin-btn delete"><i class="fas fa-trash"></i> Eliminar</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><img src="https://images.unsplash.com/photo-1621996346565-e326e20f4423?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=100" alt="Galletas con Chips"></td>
-                            <td>Galletas con Chips</td>
-                            <td>Galletas y Tortas Temáticas</td>
-                            <td>$8.500</td>
-                            <td class="action-buttons">
-                                <a href="edit-product.html" class="admin-btn edit"><i class="fas fa-edit"></i> Editar</a>
-                                <button class="admin-btn delete"><i class="fas fa-trash"></i> Eliminar</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=100" alt="Cupcakes"></td>
-                            <td>Cupcakes de Vainilla</td>
-                            <td>Repostería y Otros Dulces</td>
-                            <td>$12.000</td>
-                            <td class="action-buttons">
-                                <a href="edit-product.html" class="admin-btn edit"><i class="fas fa-edit"></i> Editar</a>
-                                <button class="admin-btn delete"><i class="fas fa-trash"></i> Eliminar</button>
-                            </td>
-                        </tr>
-                        <!-- Repetirías una fila <tr> por cada producto -->
+                        <!-- Las filas de productos se generarán aquí con JavaScript -->
+                        <!-- Si no hay productos, se podría mostrar un mensaje -->
                     </tbody>
                 </table>
             </div>
@@ -87,16 +57,8 @@
         </div>
     </footer>
 
-    <script>
-        // Simulación de eliminación
-        document.querySelectorAll('.delete').forEach(button => {
-            button.addEventListener('click', (e) => {
-                if(confirm('¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.')) {
-                    e.target.closest('tr').remove();
-                    alert('Producto eliminado (simulación).');
-                }
-            });
-        });
-    </script>
+    <!-- Enlace al script de administración -->
+    <script src="../assets/js/product-service.js"></script>
+    <script src="admin.js"></script>
 </body>
 </html>

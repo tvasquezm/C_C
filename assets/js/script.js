@@ -15,6 +15,42 @@ document.querySelectorAll(".nav-link").forEach(n => n.addEventListener("click", 
     navMenu.classList.remove("active");
 }));
 
+// ==================== RENDERIZADO DINÁMICO DE PRODUCTOS ====================
+
+/**
+ * Crea el HTML para una tarjeta de producto.
+ * @param {object} product - El objeto del producto.
+ * @returns {string} - El string HTML de la tarjeta.
+ */
+function createProductCard(product) {
+    const buttonText = product.category === 'Galletas y Tortas Temáticas' ? 'Cotizar' : 'Añadir al Carrito';
+    return `
+        <div class="product-card">
+            <img src="${product.img}" alt="${product.name}">
+            <div class="product-info">
+                <h3 class="product-name">${product.name}</h3>
+                <p class="product-price">${product.price}</p>
+                <button class="add-to-cart-btn">${buttonText}</button>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Renderiza los productos en un contenedor específico, opcionalmente filtrados por categoría.
+ * @param {string} containerSelector - El selector CSS del contenedor de la grilla.
+ * @param {string|null} categoryFilter - El nombre de la categoría para filtrar, o null para mostrar todos.
+ */
+function renderProducts(containerSelector, categoryFilter = null) {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+
+    const allProducts = ProductService.getAll();
+    const productsToRender = categoryFilter ? allProducts.filter(p => p.category === categoryFilter) : allProducts;
+
+    container.innerHTML = productsToRender.map(createProductCard).join('');
+}
+
 // ==================== LÓGICA DEL CARRUSEL DE PRODUCTOS ====================
 
 /**
@@ -22,69 +58,77 @@ document.querySelectorAll(".nav-link").forEach(n => n.addEventListener("click", 
  * @param {string} selectorSeccion - El selector CSS de la sección del carrusel (ej: '#tortas-kuchen').
  */
 function inicializarCarrusel(selectorSeccion) {
+    // --- 1. Selección de Elementos y Estado Inicial ---
     const seccion = document.querySelector(selectorSeccion);
     if (!seccion) return; // Si la sección no existe, no hace nada
 
     const productGrid = seccion.querySelector('.product-grid');
     const prevArrow = seccion.querySelector('.prev-arrow');
     const nextArrow = seccion.querySelector('.next-arrow');
-    let productCards = Array.from(seccion.querySelectorAll('.product-card'));
-    
-    if (productCards.length === 0) return;
+    const productCards = Array.from(productGrid.children);
 
-    const totalProducts = productCards.length;
-    // Determina cuántos items se ven a la vez según el tamaño de la pantalla
-    const getItemsToShow = () => window.innerWidth <= 768 ? 1 : 4;
-    let itemsToShow = getItemsToShow();
+    let currentIndex;
+    let itemsToShow;
+    let totalProducts = productCards.length;
 
-    // --- Lógica de clonación para el bucle infinito ---
-    // Clonar los primeros 'itemsToShow' y añadirlos al final
-    for (let i = 0; i < itemsToShow; i++) {
-        const clone = productCards[i].cloneNode(true);
-        clone.classList.add('clone');
-        productGrid.appendChild(clone);
-    }
-    // Clonar los últimos 'itemsToShow' y añadirlos al principio
-    for (let i = totalProducts - 1; i >= totalProducts - itemsToShow; i--) {
-        const clone = productCards[i].cloneNode(true);
-        clone.classList.add('clone');
-        productGrid.insertBefore(clone, productGrid.firstChild);
-    }
+    // --- 2. Funciones Principales del Carrusel ---
 
-    let currentIndex = itemsToShow; // Empezamos en la posición de los primeros items reales
-
-    function updateCarousel(withTransition = true) {
+    const updateCarousel = (withTransition = true) => {
         const cardWidth = productGrid.children[0].getBoundingClientRect().width;
         const gap = parseInt(window.getComputedStyle(productGrid).gap);
         const scrollAmount = cardWidth + gap;
         
         productGrid.style.transition = withTransition ? 'transform 0.5s ease-in-out' : 'none';
         productGrid.style.transform = `translateX(-${currentIndex * scrollAmount}px)`;
-    }
+    };
 
-    function handleTransitionEnd() {
-        // Si estamos en un clon del final, saltamos al principio real
+    const handleTransitionEnd = () => {
         if (currentIndex >= totalProducts + itemsToShow) {
             currentIndex = itemsToShow;
-            updateCarousel(false); // Salto instantáneo sin transición
+            updateCarousel(false);
         }
-        // Si estamos en un clon del principio, saltamos al final real
-        if (currentIndex <= 0) { // Usamos <= 0 para ser más robustos
+        if (currentIndex <= 0) {
             currentIndex = totalProducts;
-            updateCarousel(false); // Salto instantáneo sin transición
+            updateCarousel(false);
         }
-    }
+    };
 
-    nextArrow.addEventListener('click', () => {
+    const moveNext = () => {
         currentIndex++;
         updateCarousel();
-    });
+    };
 
-    prevArrow.addEventListener('click', () => {
+    const movePrev = () => {
         currentIndex--;
         updateCarousel();
-    });
+    };
 
+    // --- 3. Función para Construir y Reconstruir el Carrusel ---
+    const buildCarousel = () => {
+        // Limpiar clones y listeners anteriores
+        productGrid.querySelectorAll('.clone').forEach(clone => clone.remove());
+        productGrid.innerHTML = productCards.map(card => card.outerHTML).join('');
+
+        totalProducts = productGrid.children.length;
+        if (totalProducts === 0) return;
+
+        itemsToShow = window.innerWidth <= 768 ? 1 : 4;
+
+        // Añadir nuevos clones
+        for (let i = 0; i < itemsToShow; i++) {
+            productGrid.appendChild(productGrid.children[i].cloneNode(true)).classList.add('clone');
+        }
+        for (let i = totalProducts - 1; i >= totalProducts - itemsToShow; i--) {
+            productGrid.insertBefore(productGrid.children[i].cloneNode(true), productGrid.firstChild).classList.add('clone');
+        }
+
+        currentIndex = itemsToShow;
+        updateCarousel(false);
+    };
+
+    // --- 4. Asignación de Eventos y Ejecución Inicial ---
+    nextArrow.addEventListener('click', moveNext);
+    prevArrow.addEventListener('click', movePrev);
     productGrid.addEventListener('transitionend', handleTransitionEnd);
 
     // Inicializa la posición del carrusel
@@ -93,18 +137,29 @@ function inicializarCarrusel(selectorSeccion) {
 
     // Re-inicializar en cambio de tamaño de ventana si cambia el número de items visibles
     window.addEventListener('resize', () => {
-        let newItemsToShow = getItemsToShow();
+        const newItemsToShow = window.innerWidth <= 768 ? 1 : 4;
         if (newItemsToShow !== itemsToShow) {
-            // Para evitar errores de cálculo al cambiar el número de clones,
-            // la forma más robusta es recargar la página para que el script se reinicie.
-            location.reload();
+            buildCarousel(); // Reconstruye el carrusel en lugar de recargar
         }
     });
+
+    buildCarousel(); // Construye el carrusel por primera vez
 }
 
 // Inicializa un carrusel para cada sección de productos
-document.addEventListener('DOMContentLoaded', () => {
-    inicializarCarrusel('#tortas-kuchen');
-    inicializarCarrusel('#galletas-tematicas');
-    inicializarCarrusel('#reposteria-dulces');
+document.addEventListener("DOMContentLoaded", () => {
+    // Renderizar productos en la página de inicio
+    renderProducts("#tortas-kuchen .product-grid", "Tortas y Kuchen");
+    renderProducts("#galletas-tematicas .product-grid", "Galletas y Tortas Temáticas");
+    renderProducts("#reposteria-dulces .product-grid", "Repostería y Otros Dulces");
+
+    // Renderizar productos en las páginas de categoría
+    renderProducts("#category-tortas-kuchen .product-grid-full", "Tortas y Kuchen");
+    renderProducts("#category-galletas-tematicas .product-grid-full", "Galletas y Tortas Temáticas");
+    renderProducts("#category-reposteria-dulces .product-grid-full", "Repostería y Otros Dulces");
+
+    // Inicializar carruseles DESPUÉS de renderizar los productos
+    inicializarCarrusel("#tortas-kuchen");
+    inicializarCarrusel("#galletas-tematicas");
+    inicializarCarrusel("#reposteria-dulces");
 });
