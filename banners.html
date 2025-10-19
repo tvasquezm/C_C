@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Cookies and Cakes</title>
+    <title>Gestión de Banners - Cookies and Cakes</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="admin-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
-<body id="admin-dashboard">
+<body id="admin-banners-dashboard">
     <div id="notification-container"></div>
     <header class="main-header">
         <nav class="navbar">
@@ -28,9 +28,9 @@
     <main class="admin-main">
         <div class="admin-container">
             <div class="admin-header">
-                <h1>Gestión de Productos</h1>
-                <a href="add-product.html" class="admin-btn primary">
-                    <i class="fas fa-plus"></i> Añadir Producto
+                <h1>Gestión de Banners</h1>
+                <a href="add-banner.html" class="admin-btn primary">
+                    <i class="fas fa-plus"></i> Añadir Banner
                 </a>
             </div>
 
@@ -39,15 +39,13 @@
                     <thead>
                         <tr>
                             <th>Imagen</th>
-                            <th>Nombre del Producto</th>
-                            <th>Categoría</th>
-                            <th>Precio</th>
+                            <th>Título</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Las filas de productos se generarán aquí con JavaScript -->
-                        <!-- Si no hay productos, se podría mostrar un mensaje -->
+                        <!-- Las filas de banners se generarán aquí con JavaScript -->
                     </tbody>
                 </table>
             </div>
@@ -60,8 +58,8 @@
         </div>
     </footer>
 
-    <!-- Enlace al script de administración -->
-    <script src="../assets/js/product-service.js"></script>
+    <!-- Enlace a los scripts de administración -->
+    <script src="../assets/js/banner-service.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

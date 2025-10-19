@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Añadir Banner - Cookies and Cakes</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body id="admin-add-banner">
+    <header class="main-header">
+        <nav class="navbar">
+            <a href="dashboard.html" class="nav-logo">Cookies and Cakes - Admin</a>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Gestión de Productos</a></li>
+                <li class="nav-item"><a href="banners.html" class="nav-link">Gestión de Banners</a></li>
+                <li class="nav-item"><a href="statistics.html" class="nav-link">Estadísticas</a></li>
+                <li class="nav-item"><a href="../index.html" class="nav-link" target="_blank">Ver Sitio</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="admin-main">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Añadir Nuevo Banner</h1>
+            </div>
+
+            <form class="product-form" id="addBannerForm">
+                <div class="form-group">
+                    <label for="banner-title">Título</label>
+                    <input type="text" id="banner-title" name="banner-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="banner-subtitle">Subtítulo</label>
+                    <input type="text" id="banner-subtitle" name="banner-subtitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="banner-imageUrl">URL de la Imagen</label>
+                    <input type="url" id="banner-imageUrl" name="banner-imageUrl" placeholder="https://images.unsplash.com/..." required>
+                </div>
+                <div class="form-group">
+                    <label for="banner-linkUrl">URL del Botón (Enlace)</label>
+                    <input type="text" id="banner-linkUrl" name="banner-linkUrl" placeholder="/pages/tortas-kuchen.html" required>
+                </div>
+                <div class="form-group">
+                    <label for="banner-buttonText">Texto del Botón</label>
+                    <input type="text" id="banner-buttonText" name="banner-buttonText" placeholder="Ver Productos" required>
+                </div>
+                <div class="form-group form-group-checkbox">
+                    <label for="banner-isActive">¿Activo?</label>
+                    <input type="checkbox" id="banner-isActive" name="banner-isActive" checked>
+                    <span class="checkbox-label">Marcar para que el banner sea visible en la página de inicio.</span>
+                </div>
+                <div class="form-actions">
+                    <a href="banners.html" class="admin-btn secondary">Cancelar</a>
+                    <button type="submit" class="admin-btn primary">Guardar Banner</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            <p>&copy; 2024 Panel de Administración de Cookies and Cakes.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/banner-service.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

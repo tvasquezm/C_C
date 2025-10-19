@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- El título se cambiará dinámicamente -->
+    <title>Cargando producto... - Cookies and Cakes</title>
+    
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <nav class="navbar">
+            <a href="../index.html" class="nav-logo">Cookies and Cakes</a>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="../index.html" class="nav-link">Inicio</a></li>
+                <li class="nav-item"><a href="../index.html#tortas-kuchen" class="nav-link">Productos</a></li>
+                <li class="nav-item"><a href="../index.html#sobre-nosotros" class="nav-link">Sobre Nosotros</a></li>
+                <li class="nav-item"><a href="../index.html#contacto" class="nav-link">Contacto</a></li>
+            </ul>
+            <div class="nav-icons">
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Contenedor principal para el detalle del producto -->
+        <div class="product-detail-container" id="product-detail">
+            <!-- El contenido se cargará aquí. Mostramos un mensaje de carga inicial. -->
+            <p>Cargando detalles del producto...</p>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Cookies and Cakes</h4>
+                <p>Horneando momentos de felicidad desde 2023.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Navegación</h4>
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="../index.html#tortas-kuchen">Productos</a></li>
+                    <li><a href="../index.html#contacto">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Síguenos</h4>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/people/Cookies-and-CAKES/100063689823078/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/c_y_c_cookies_and_cakes?igsh=b3c4aHNmMXpuazNs" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/56992228157" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Cookies and Cakes. Creado como proyecto de aprendizaje.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/js/product-service.js"></script>
+    <script>
+        // ==================== CONFIGURACIÓN ====================
+        // ¡IMPORTANTE! Reemplaza este número con el WhatsApp de tu negocio.
+        // Debe incluir el código de país, sin el signo '+' ni ceros al principio. (Ej: 56912345678 para Chile)
+        const WHATSAPP_NUMBER = '56992228157';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const productDetailContainer = document.getElementById('product-detail');
+            
+            // 1. Leer el ID del producto desde la URL
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id');
+
+            if (!productId) {
+                productDetailContainer.innerHTML = '<p>Error: No se especificó un producto.</p>';
+                return;
+            }
+
+            // --- CONEXIÓN BACKEND ---
+            // 2. Se pide la información de ESE producto específico al servicio.
+            // Esto dispara una petición a la API: GET /api/products/:id
+            // El backend debe devolver los datos del producto que coincida con el ID.
+            const product = await ProductService.getById(productId);
+
+            if (!product) {
+                productDetailContainer.innerHTML = '<p>Error: Producto no encontrado.</p>';
+                return;
+            }
+
+            // --- RENDERIZADO ---
+            // 3. Se usa la información recibida del backend para construir el HTML de la página.
+
+            // 3. Actualizar el título de la página y renderizar el HTML con los datos
+            document.title = `${product.name} - Cookies and Cakes`;
+            
+            const buttonText = product.category === 'Galletas y Tortas Temáticas' ? 'Cotizar por WhatsApp' : 'Pedir por WhatsApp';
+
+            productDetailContainer.innerHTML = `
+                <img src="${product.img}" alt="${product.name}" class="product-detail-image">
+                <div class="product-detail-info">
+                    <h1 class="product-detail-name">${product.name}</h1>
+                    <p class="product-detail-price">${product.price}</p>
+                    <p class="product-detail-description">Aquí iría una descripción detallada del producto. Por ahora, es un texto de ejemplo para mostrar cómo se estructuraría la información. Este postre es perfecto para cualquier ocasión especial.</p>
+                    <button class="add-to-cart-btn" data-id="${product.id}">Añadir al Carrito</button>
+                </div>
+            `;
+
+            // La lógica para añadir al carrito ya está en script.js y es global
+        });
+    </script>
+    <!-- El script principal debe ir después del script en línea para que el carrito funcione -->
+    <script src="../assets/js/script.js"></script>
+</body>
+</html>

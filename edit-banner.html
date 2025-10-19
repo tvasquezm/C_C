@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Añadir Producto - Cookies and Cakes</title>
+    <title>Editar Banner - Cookies and Cakes</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="admin-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
-<body>
+<body id="admin-edit-banner">
     <header class="main-header">
         <nav class="navbar">
             <a href="dashboard.html" class="nav-logo">Cookies and Cakes - Admin</a>
@@ -24,34 +24,40 @@
     <main class="admin-main">
         <div class="admin-container">
             <div class="admin-header">
-                <h1>Añadir Nuevo Producto</h1>
+                <h1>Editar Banner</h1>
             </div>
 
-            <form class="product-form" id="addProductForm">
+            <form class="product-form" id="editBannerForm">
+                <input type="hidden" id="banner-id" name="banner-id">
+
                 <div class="form-group">
-                    <label for="product-name">Nombre del Producto</label>
-                    <input type="text" id="product-name" name="product-name" required>
+                    <label for="banner-title">Título</label>
+                    <input type="text" id="banner-title" name="banner-title" required>
                 </div>
                 <div class="form-group">
-                    <label for="product-category">Categoría</label>
-                    <select id="product-category" name="product-category" required>
-                        <option value="">Selecciona una categoría</option>
-                        <option value="Tortas y Kuchen">Tortas y Kuchen</option>
-                        <option value="Galletas y Tortas Temáticas">Galletas y Tortas Temáticas</option>
-                        <option value="Repostería y Otros Dulces">Repostería y Otros Dulces</option>
-                    </select>
+                    <label for="banner-subtitle">Subtítulo</label>
+                    <input type="text" id="banner-subtitle" name="banner-subtitle" required>
                 </div>
                 <div class="form-group">
-                    <label for="product-price">Precio</label>
-                    <input type="text" id="product-price" name="product-price" placeholder="$25.000" required>
+                    <label for="banner-imageUrl">URL de la Imagen</label>
+                    <input type="url" id="banner-imageUrl" name="banner-imageUrl" required>
                 </div>
                 <div class="form-group">
-                    <label for="product-image">URL de la Imagen</label>
-                    <input type="url" id="product-image" name="product-image" placeholder="https://images.unsplash.com/...">
+                    <label for="banner-linkUrl">URL del Botón (Enlace)</label>
+                    <input type="text" id="banner-linkUrl" name="banner-linkUrl" required>
+                </div>
+                <div class="form-group">
+                    <label for="banner-buttonText">Texto del Botón</label>
+                    <input type="text" id="banner-buttonText" name="banner-buttonText" required>
+                </div>
+                <div class="form-group form-group-checkbox">
+                    <label for="banner-isActive">¿Activo?</label>
+                    <input type="checkbox" id="banner-isActive" name="banner-isActive">
+                    <span class="checkbox-label">Marcar para que el banner sea visible en la página de inicio.</span>
                 </div>
                 <div class="form-actions">
-                    <a href="dashboard.html" class="admin-btn secondary">Cancelar</a>
-                    <button type="submit" class="admin-btn primary">Guardar Producto</button>
+                    <a href="banners.html" class="admin-btn secondary">Cancelar</a>
+                    <button type="submit" class="admin-btn primary">Actualizar Banner</button>
                 </div>
             </form>
         </div>
@@ -63,7 +69,7 @@
         </div>
     </footer>
 
-    <script src="../assets/js/product-service.js"></script>
+    <script src="../assets/js/banner-service.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

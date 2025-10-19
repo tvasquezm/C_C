@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PastelArte - Repostería con Amor</title>
+    <title>Cookies and Cakes - Repostería con Amor</title>
     
     <!-- Enlace a la hoja de estilos CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
@@ -21,7 +21,7 @@
     <!-- ==================== HEADER Y NAVEGACIÓN ==================== -->
     <header class="main-header">
         <nav class="navbar">
-            <a href="index.html" class="nav-logo">PastelArte</a>
+            <a href="index.html" class="nav-logo">Cookies and Cakes</a>
             <ul class="nav-menu">
                 <li class="nav-item"><a href="index.html" class="nav-link">Inicio</a></li>
                 <li class="nav-item"><a href="#tortas-kuchen" class="nav-link">Productos</a></li>
@@ -29,7 +29,6 @@
                 <li class="nav-item"><a href="#contacto" class="nav-link">Contacto</a></li>
             </ul>
             <div class="nav-icons">
-                <i class="fas fa-shopping-cart"></i>
                 <div class="hamburger">
                     <span class="bar"></span>
                     <span class="bar"></span>
@@ -41,12 +40,8 @@
 
     <main>
         <!-- ==================== SECCIÓN HERO ==================== -->
-        <section class="hero">
-            <div class="hero-content">
-                <h1>El Arte de la Repostería Hecho con Amor</h1>
-                <p>Descubre nuestras creaciones únicas, horneadas cada día para ti.</p>
-                <a href="#tortas-kuchen" class="cta-button">Ver Productos</a>
-            </div>
+        <section class="hero-slider" id="hero-slider">
+            <!-- Los banners dinámicos se cargarán aquí -->
         </section>
 
         <!-- ==================== SECCIÓN DE TORTAS Y KUCHEN (CARRUSEL) ==================== -->
@@ -104,7 +99,7 @@
         <section class="featured-products light-bg" id="sobre-nosotros">
             <h2 class="section-title">Sobre Nosotros</h2>
             <div class="info-section-content">
-                <p>En PastelArte, cada postre es una obra de arte creada con pasión y los ingredientes más frescos. Nacimos en 2023 con el sueño de hornear momentos de felicidad y convertirlos en recuerdos inolvidables para ti y los tuyos.</p>
+                <p>En Cookies and Cakes, cada postre es una obra de arte creada con pasión y los ingredientes más frescos. Nacimos en 2023 con el sueño de hornear momentos de felicidad y convertirlos en recuerdos inolvidables para ti y los tuyos.</p>
             </div>
         </section>
 
@@ -113,11 +108,11 @@
             <h2 class="section-title">Contacto</h2>
             <div class="info-section-content">
                 <p>¿Tienes un evento especial o un antojo? ¡Nos encantaría ser parte de él!</p>
-                <p>Escríbenos a <strong>hola@pastelarte.cl</strong> o síguenos en nuestras redes sociales.</p>
-                 <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                <p>Escríbenos al <strong>WhatsApp</strong> o síguenos en nuestras redes sociales .</p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/people/Cookies-and-CAKES/100063689823078/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/c_y_c_cookies_and_cakes?igsh=b3c4aHNmMXpuazNs" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/56992228157" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
         </section>
@@ -127,7 +122,7 @@
     <footer class="main-footer">
         <div class="footer-content">
             <div class="footer-section">
-                <h4>PastelArte</h4>
+                <h4>Cookies and Cakes</h4>
                 <p>Horneando momentos de felicidad desde 2023.</p>
             </div>
             <div class="footer-section">
@@ -141,19 +136,43 @@
             <div class="footer-section">
                 <h4>Síguenos</h4>
                 <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.facebook.com/people/Cookies-and-CAKES/100063689823078/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/c_y_c_cookies_and_cakes?igsh=b3c4aHNmMXpuazNs" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/56992228157" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2024 PastelArte. Creado como proyecto de aprendizaje. | <a href="admin/dashboard.html" class="admin-link">Admin</a></p>
+            <p>&copy; 2024 Cookies and Cakes. Creado como proyecto de aprendizaje. | <a href="admin/dashboard.html" class="admin-link">Admin</a></p>
         </div>
     </footer>
 
+    <!-- ==================== CARRITO DE COMPRAS FLOTANTE Y MODAL ==================== -->
+    <div class="cart-fab" id="cart-fab">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-counter" id="cart-counter">0</span>
+    </div>
+
+    <div class="cart-modal-overlay" id="cart-modal-overlay">
+        <div class="cart-modal">
+            <div class="cart-modal-header">
+                <h2>Tu Pedido</h2>
+                <button class="close-cart-btn" id="close-cart-btn">&times;</button>
+            </div>
+            <div class="cart-modal-body" id="cart-modal-body">
+                <!-- Los productos del carrito se renderizarán aquí -->
+            </div>
+            <div class="cart-modal-footer">
+                <button class="cart-checkout-btn" id="send-whatsapp-order">
+                    <i class="fab fa-whatsapp"></i> Realizar Pedido por WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Enlace al archivo JavaScript -->
     <script src="assets/js/product-service.js"></script>
+    <script src="assets/js/banner-service.js"></script>
     <script src="assets/js/script.js"></script>
 </body>
 </html>
