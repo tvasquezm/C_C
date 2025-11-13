@@ -1,30 +1,34 @@
-// ==================== SERVICIO DE PRODUCTOS (API Backend) ====================
-// Este servicio maneja la lógica para obtener, añadir, editar y eliminar productos
-// interactuando con un backend a través de una API REST.
+// ==================== SERVICIO DE PRODUCTOS (CONEXIÓN CON BACKEND) ====================
+// Este archivo es la capa que se comunica con el backend para gestionar los productos.
 
 const ProductService = {
-    // La URL base de nuestra futura API.
-    // Por ahora, apunta a un servidor local, pero podría ser cualquier URL en producción.
+    // --- PUNTO DE CONFIGURACIÓN ---
+    // Apuntamos a la URL de nuestra API creada con Node.js y Express.
     _apiUrl: 'http://localhost:3000/api/products',
 
-    // NOTA: Los métodos ahora son 'async' porque las peticiones de red no son instantáneas.
-    // El código que los usa (admin.js, script.js) deberá ser ajustado para manejar esto.
-    // Por simplicidad en esta explicación, mantenemos la estructura síncrona en el resto de archivos,
-    // pero en un proyecto real, se usaría async/await en todo el flujo.
-
-    // Obtiene todos los productos
-    getAll: async function() {
+   /**
+    * Obtiene productos desde el backend.
+    * @param {boolean} all - Si es true, obtiene todos (para admin). Si es false, solo los activos (para el público).
+    */
+    getAll: async function(all = false) {
         try {
-            const response = await fetch(this._apiUrl);
+            // El sitio público llamará a /api/products/active
+            // El admin llamará a /api/products
+            const url = all ? this._apiUrl : `${this._apiUrl}/active`;
+            const response = await fetch(url);
             if (!response.ok) throw new Error('Error al obtener los productos.');
             return await response.json();
         } catch (error) {
             console.error('ProductService Error:', error);
-            return []; // Devuelve un array vacío en caso de error
+            return [];
         }
     },
 
-    // Obtiene un producto por su ID
+    /**
+     * Obtiene un producto por su ID desde el backend.
+     * --- CONEXIÓN BACKEND ---
+     * Endpoint: GET /api/products/:id
+     */
     getById: async function(id) {
         try {
             const response = await fetch(`${this._apiUrl}/${id}`);
@@ -32,11 +36,15 @@ const ProductService = {
             return await response.json();
         } catch (error) {
             console.error('ProductService Error:', error);
-            return null; // Devuelve null si no se encuentra o hay un error
+            return null;
         }
     },
 
-    // Añade un nuevo producto
+    /**
+     * Añade un nuevo producto enviándolo al backend.
+     * --- CONEXIÓN BACKEND ---
+     * Endpoint: POST /api/products
+     */
     add: async function(productData) {
         try {
             const response = await fetch(this._apiUrl, {
@@ -52,7 +60,11 @@ const ProductService = {
         }
     },
 
-    // Actualiza un producto existente
+    /**
+     * Actualiza un producto existente en el backend.
+     * --- CONEXIÓN BACKEND ---
+     * Endpoint: PUT /api/products/:id
+     */
     update: async function(updatedProduct) {
         try {
             const response = await fetch(`${this._apiUrl}/${updatedProduct.id}`, {
@@ -68,25 +80,37 @@ const ProductService = {
         }
     },
 
-    // Elimina un producto por su ID
+    /**
+     * Cambia el estado de habilitado/deshabilitado de un producto.
+     * --- CONEXIÓN BACKEND ---
+     * Endpoint: PATCH /api/products/:id/toggle
+     */
+    toggleStatus: async function(id) {
+        try {
+            const response = await fetch(`${this._apiUrl}/${id}/toggle`, {
+                method: 'PATCH'
+            });
+            if (!response.ok) throw new Error('Error al cambiar el estado del producto.');
+            return await response.json();
+        } catch (error) {
+            console.error('ProductService Error:', error);
+            return null;
+        }
+    },
+
+    /**
+     * Elimina un producto por su ID en el backend.
+     * --- CONEXIÓN BACKEND ---
+     * Endpoint: DELETE /api/products/:id
+     */
     delete: async function(id) {
         try {
-            const response = await fetch(`${this._apiUrl}/${id}`, {
-                method: 'DELETE'
-            });
+            const response = await fetch(`${this._apiUrl}/${id}`, { method: 'DELETE' });
             if (!response.ok) throw new Error('Error al eliminar el producto.');
-            // La respuesta de un DELETE exitoso a menudo no tiene cuerpo,
-            // así que solo confirmamos que todo fue bien.
-            return { success: true };
+            return await response.json();
         } catch (error) {
             console.error('ProductService Error:', error);
             return { success: false };
         }
     }
 };
-
-// NOTA IMPORTANTE:
-// El código en `admin.js` y `script.js` ahora necesita ser modificado para usar `async/await`
-// al llamar a estas funciones. Por ejemplo:
-// const products = await ProductService.getAll();
-// Esto asegura que el código espera la respuesta de la API antes de continuar.

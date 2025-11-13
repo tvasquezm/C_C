@@ -13,7 +13,8 @@
         <nav class="navbar">
             <a href="dashboard.html" class="nav-logo">Cookies and Cakes - Admin</a>
             <ul class="nav-menu">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Productos</a></li>
+                <li class="nav-item"><a href="manage-categories.html" class="nav-link">Categorías</a></li>
                 <li class="nav-item"><a href="../index.html" class="nav-link" target="_blank">Ver Sitio</a></li>
             </ul>
             <div class="nav-icons">
@@ -53,8 +54,16 @@
                     <input type="text" id="product-price" name="product-price" required>
                 </div>
                 <div class="form-group">
+                    <label for="product-size">Tamaño (opcional)</label>
+                    <input type="text" id="product-size" name="product-size">
+                </div>
+                <div class="form-group">
+                    <label for="product-description">Descripción</label>
+                    <textarea id="product-description" name="product-description" rows="4"></textarea>
+                </div>
+                <div class="form-group">
                     <label for="product-image">URL de la Imagen</label>
-                    <input type="url" id="product-image" name="product-image">
+                    <input type="url" id="product-image" name="product-image" required>
                 </div>
                 <div class="form-actions">
                     <a href="dashboard.html" class="admin-btn secondary">Cancelar</a>
@@ -70,6 +79,7 @@
         </div>
     </footer>
 
+    <script src="../assets/js/product-service.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

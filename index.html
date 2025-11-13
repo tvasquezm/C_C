@@ -41,7 +41,9 @@
 
     <main>
         <!-- ==================== SECCIÓN HERO ==================== -->
-        <section class="hero">
+        <!-- Dejamos el contenedor listo para que JS lo llene con los banners de la BD -->
+        <section class="hero" id="hero-section">
+            <!-- El slider se generará aquí dinámicamente -->
             <div class="hero-content">
                 <h1>El Arte de la Repostería Hecho con Amor</h1>
                 <p>Descubre nuestras creaciones únicas, horneadas cada día para ti.</p>
@@ -152,8 +154,24 @@
         </div>
     </footer>
 
+    <!-- ==================== CARRITO DE COMPRAS (SIDEBAR) ==================== -->
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>Mi Carrito</h3>
+            <button id="close-cart-btn" class="close-cart-btn">&times;</button>
+        </div>
+        <div id="cart-items" class="cart-items">
+            <!-- Los productos del carrito se insertarán aquí -->
+        </div>
+        <div class="cart-footer">
+            <p>Total: <span id="cart-total">$0</span></p>
+            <button class="checkout-btn">Finalizar Compra</button>
+        </div>
+    </div>
+    <div id="cart-overlay" class="cart-overlay"></div>
     <!-- Enlace al archivo JavaScript -->
     <script src="assets/js/product-service.js"></script>
+    <script src="assets/js/banner-service.js"></script>
     <script src="assets/js/script.js"></script>
 </body>
 </html>

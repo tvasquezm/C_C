@@ -70,6 +70,12 @@
 }
 .admin-btn.secondary:hover { background-color: #5a6268; }
 
+.admin-btn.toggle-status {
+    background-color: #17a2b8; /* Cian */
+    color: var(--light-color);
+}
+.admin-btn.toggle-status:hover { background-color: #138496; }
+
 /* Tabla de productos */
 .product-table-container {
     overflow-x: auto; /* Para que la tabla sea responsive en pantallas pequeñas */
@@ -104,6 +110,30 @@
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+}
+.action-buttons .admin-btn {
+    font-size: 0.85rem; /* Hacemos los botones un poco más pequeños */
+    padding: 8px 12px;
+}
+
+/* Estilos para el estado del producto */
+.status-active {
+    background-color: #28a745; /* Verde */
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+.status-inactive {
+    background-color: #6c757d; /* Gris */
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+.inactive-product {
+    opacity: 0.6;
+    background-color: #f8f9fa;
 }
 
 /* Formularios */

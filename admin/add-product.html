@@ -13,7 +13,8 @@
         <nav class="navbar">
             <a href="dashboard.html" class="nav-logo">Cookies and Cakes - Admin</a>
             <ul class="nav-menu">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Productos</a></li>
+                <li class="nav-item"><a href="manage-categories.html" class="nav-link">Categorías</a></li>
                 <li class="nav-item"><a href="../index.html" class="nav-link" target="_blank">Ver Sitio</a></li>
             </ul>
             <div class="nav-icons">
@@ -47,8 +48,16 @@
                     <input type="text" id="product-price" name="product-price" placeholder="$25.000" required>
                 </div>
                 <div class="form-group">
+                    <label for="product-size">Tamaño (opcional)</label>
+                    <input type="text" id="product-size" name="product-size" placeholder="Ej: Pequeña, 20 personas...">
+                </div>
+                <div class="form-group">
+                    <label for="product-description">Descripción</label>
+                    <textarea id="product-description" name="product-description" rows="4" placeholder="Descripción detallada del producto..."></textarea>
+                </div>
+                <div class="form-group">
                     <label for="product-image">URL de la Imagen</label>
-                    <input type="url" id="product-image" name="product-image" placeholder="https://images.unsplash.com/...">
+                    <input type="url" id="product-image" name="product-image" placeholder="https://images.pexels.com/..." required>
                 </div>
                 <div class="form-actions">
                     <a href="dashboard.html" class="admin-btn secondary">Cancelar</a>

@@ -1,0 +1,28 @@
+{
+    "products": [
+        {
+            "id": "1",
+            "name": "Torta de Chocolate Intenso",
+            "category": "Tortas y Kuchen",
+            "price": "$25.000",
+            "img": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=400&q=80",
+            "description": "Una deliciosa torta con capas de bizcocho de chocolate húmedo y un rico frosting de cacao."
+        },
+        {
+            "id": "2",
+            "name": "Galletas de Avena y Pasas",
+            "category": "Repostería y Otros Dulces",
+            "price": "$5.000",
+            "img": "https://images.unsplash.com/photo-1590630948839-3ac3c4a7c8b8?auto=format&fit=crop&w=400&q=80",
+            "description": "Galletas caseras, crujientes por fuera y suaves por dentro, llenas de avena y pasas jugosas."
+        },
+        {
+            "id": "3",
+            "name": "Torta Temática de Unicornio",
+            "category": "Galletas y Tortas Temáticas",
+            "price": "Cotizar",
+            "img": "https://images.unsplash.com/photo-1599785298244-e23b7d100c4b?auto=format&fit=crop&w=400&q=80",
+            "description": "Una torta mágica de vainilla y colores, perfecta para celebraciones especiales. El diseño se personaliza a tu gusto."
+        }
+    ]
+}
