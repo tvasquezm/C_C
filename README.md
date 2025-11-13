@@ -1,112 +1,78 @@
 # Cookies and Cakes - Proyecto de Repostería
 
-Este es el repositorio para el sitio web de "Cookies and Cakes", una pastelería real. El proyecto incluye una vista pública para clientes y un panel de administración privado para gestionar los productos.
+Este es el repositorio para el sitio web de "Cookies and Cakes", una pastelería real. El proyecto incluye una vista pública para clientes y un panel de administración privado para gestionar el catálogo de productos.
 
-El sistema está diseñado para ser desacoplado, con un frontend (lo que ve el usuario) que consume datos a través de un servicio centralizado, preparándolo para una futura integración con un backend y una base de datos real.
+El sistema está construido con un frontend de HTML, CSS y JavaScript puro, y un backend (API) desarrollado con Node.js y Express, conectado a una base de datos MySQL.
 
 ## Características Principales
 
 ### Sitio Público
 - **Página de Inicio (`index.html`):** Presenta la marca y muestra carruseles de productos destacados por categoría.
-- **Páginas de Categoría:** Vistas que muestran todos los productos de una categoría específica.
 - **Página de Detalle de Producto (`pages/product-detail.html`):** Una página plantilla que carga dinámicamente la información de cualquier producto basándose en un ID en la URL.
+- **Carrito de Compras:** Funcionalidad para añadir productos, ajustar cantidades y finalizar la cotización a través de un mensaje pre-generado de WhatsApp.
 - **Diseño Responsivo:** Adaptable a dispositivos móviles y de escritorio.
 
 ### Panel de Administración (`/admin`)
-- **Dashboard (`admin/dashboard.html`):** Muestra todos los productos en una tabla. Permite editar o eliminar productos.
+- **Dashboard (`admin/dashboard.html`):** Muestra todos los productos en una tabla. Permite editar, eliminar y habilitar/deshabilitar productos.
 - **Añadir Producto (`admin/add-product.html`):** Formulario para crear nuevos productos.
 - **Editar Producto (`admin/edit-product.html`):** Formulario para modificar un producto existente.
+- **Gestión de Categorías (`admin/manage-categories.html`):** Interfaz para crear, editar y eliminar las categorías de productos.
 - **Notificaciones:** Sistema de notificaciones para confirmar acciones (ej. "Producto añadido con éxito").
 
 ---
 
-## Estructura del Proyecto
+## 🚀 Guía de Instalación y Uso
 
-El proyecto está organizado de la siguiente manera para separar las responsabilidades:
+Sigue estos pasos para configurar y ejecutar el proyecto en tu computadora local.
 
-```
-pastelarte/
-├── admin/                  # Contiene todo lo relacionado con el panel de administración
-│   ├── add-product.html
-│   ├── dashboard.html
-│   ├── edit-product.html
-│   ├── admin.js            # Lógica del panel de administración (CRUD)
-│   └── admin-style.css     # Estilos del panel de administración
-│
-├── assets/                 # Recursos compartidos (CSS, JS, imágenes)
-│   ├── css/
-│   │   └── style.css       # Estilos principales del sitio público
-│   └── js/
-│       ├── script.js       # Lógica del sitio público (carrusel, renderizado)
-│       └── product-service.js # ¡CLAVE! Capa de acceso a datos
-│
-├── pages/                  # Páginas secundarias del sitio público
-│   ├── product-detail.html # Plantilla para mostrar un solo producto
-│   ├── tortas-kuchen.html
-│   └── ...                 # Otras páginas de categoría
-│
-├── index.html              # Página principal del sitio
-└── README.md               # Este archivo
-```
+### 1. Prerrequisitos
 
----
+Asegúrate de tener instalado el siguiente software:
+- **Node.js:** (Versión LTS recomendada). Puedes descargarlo desde nodejs.org.
+- **XAMPP:** Para tener un servidor Apache y MySQL. Puedes descargarlo desde apachefriends.org.
 
-## Funcionamiento del Sistema
+### 2. Configuración de la Base de Datos
 
-El corazón del sistema es el archivo `assets/js/product-service.js`. Este actúa como un intermediario entre la interfaz de usuario y los datos.
+El proyecto utiliza una base de datos MySQL para almacenar toda la información.
 
-1.  **`product-service.js`**:
-    -   Define cómo obtener, crear, actualizar y eliminar productos (`getAll`, `getById`, `add`, `update`, `delete`).
-    -   Actualmente, está configurado para hacer peticiones `fetch` a una API REST en `http://localhost:3000/api/products`. **Este es el punto de conexión con el backend.**
+1.  **Inicia XAMPP:** Abre el panel de control de XAMPP y presiona "Start" en los módulos de **Apache** y **MySQL**.
+2.  **Abre phpMyAdmin:** En tu navegador, ve a la dirección `http://localhost/phpmyadmin`.
+3.  **Importa el Script:**
+    - En la página principal de phpMyAdmin, haz clic en la pestaña **"Importar"**.
+    - Haz clic en "Seleccionar archivo" y busca el archivo `database/schema.sql` que se encuentra en este proyecto.
+    - Desplázate hacia abajo y haz clic en el botón **"Importar"** (o "Go").
 
-2.  **Sitio Público (`script.js` y `product-detail.html`)**:
-    -   Llaman a los métodos de `ProductService` (ej. `ProductService.getAll()`) para obtener la lista de productos.
-    -   Luego, usan esa información para generar el HTML de las tarjetas de producto y mostrarlas en la página.
+Esto creará automáticamente la base de datos `pasteleria_db` con todas las tablas y datos de ejemplo necesarios.
 
-3.  **Panel de Administración (`admin.js`)**:
-    -   También utiliza `ProductService` para todas sus operaciones.
-    -   Cuando se añade un producto, llama a `ProductService.add(productData)`.
-    -   Cuando se elimina, llama a `ProductService.delete(productId)`.
+### 3. Configuración del Backend (Servidor)
 
-Este diseño significa que si cambiamos la forma en que se almacenan los datos (de `localStorage` a una API), solo necesitamos modificar `product-service.js`, y el resto de la aplicación seguirá funcionando sin cambios mayores.
+El backend es el encargado de conectar la base de datos con el sitio web.
+
+1.  **Abre una terminal** en la carpeta `backend` del proyecto.
+2.  **Instala las dependencias:** Ejecuta el siguiente comando. Esto descargará todos los paquetes necesarios (Express, CORS, MySQL2).
+    ```bash
+    npm install
+    ```
+3.  **Inicia el servidor:** Una vez instaladas las dependencias, ejecuta:
+    ```bash
+    npm start
+    ```
+    Si todo está correcto, verás el mensaje `Servidor corriendo en http://localhost:3000` en la terminal. **No cierres esta terminal**, ya que el servidor debe estar corriendo para que el sitio funcione.
+
+### 4. Ejecutar el Frontend (Sitio Web)
+
+Con el backend y la base de datos funcionando, ya puedes usar el sitio.
+
+1.  Navega a la carpeta raíz del proyecto (`pasteleria/`).
+2.  Abre el archivo `index.html` en tu navegador web.
+
+¡Y listo! Ahora deberías poder ver el sitio completo, con los productos cargados desde la base de datos, y utilizar el panel de administración.
 
 ---
 
-## 🚀 Próximos Pasos: Conexión a una Base de Datos
+## Tecnologías Utilizadas
 
-El frontend ya está preparado para funcionar con un backend. Para completar la conexión, debes seguir estos dos pasos principales:
-
-### Paso 1: Construir el Backend (API)
-
-Necesitas crear un servidor que escuche las peticiones en la URL que `product-service.js` espera: `http://localhost:3000/api/products`.
-
-Este servidor será responsable de:
-1.  Conectarse a una base de datos (como MongoDB, PostgreSQL, MySQL, etc.).
-2.  Crear los "endpoints" o rutas que correspondan a las operaciones CRUD:
-    -   `GET /api/products`: Devolver todos los productos.
-    -   `GET /api/products/:id`: Devolver un producto específico.
-    -   `POST /api/products`: Crear un nuevo producto.
-    -   `PUT /api/products/:id`: Actualizar un producto.
-    -   `DELETE /api/products/:id`: Eliminar un producto.
-
-> **Recomendación:** Utilizar **Node.js** con el framework **Express** es una excelente opción para crear esta API de forma rápida y eficiente.
-
-### Paso 2: Adaptar el Frontend a la Asincronía
-
-Como `product-service.js` ahora usa funciones `async` (porque las peticiones de red no son instantáneas), el código que lo llama debe "esperar" la respuesta.
-
-Debes ir a los siguientes archivos y modificar las funciones para que usen `async/await`:
-
-1.  **`admin/admin.js`**:
-    -   En `initDashboardPage`, la función `renderTable` debe ser `async` y usar `const products = await ProductService.getAll();`.
-    -   En `initEditProductPage`, la carga del producto debe ser `const product = await ProductService.getById(productId);`.
-    -   Todos los manejadores de `submit` de formularios y el evento de `delete` deben convertirse en `async` y usar `await` al llamar a los métodos de `ProductService`.
-
-2.  **`assets/js/script.js`**:
-    -   La función `renderProducts` debe ser `async` y usar `const allProducts = await ProductService.getAll();`.
-    -   El evento `DOMContentLoaded` que llama a `renderProducts` también debe ser `async`.
-
-3.  **`pages/product-detail.html`**:
-    -   El script dentro de este archivo ya está correctamente implementado con `async/await`, por lo que puede servir de ejemplo.
-
-Una vez que el backend esté funcionando y el frontend esté adaptado a la asincronía, tu aplicación tendrá un flujo de datos completo y persistente.
+*   **Frontend:** HTML5, CSS3, JavaScript (ES6+)
+*   **Backend:** Node.js, Express.js
+*   **Base de Datos:** MySQL
+*   **Comunicación:** API RESTful
