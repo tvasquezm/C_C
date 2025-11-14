@@ -17,6 +17,7 @@ El sistema está construido con un frontend de HTML, CSS y JavaScript puro, y un
 - **Añadir Producto (`admin/add-product.html`):** Formulario para crear nuevos productos.
 - **Editar Producto (`admin/edit-product.html`):** Formulario para modificar un producto existente.
 - **Gestión de Categorías (`admin/manage-categories.html`):** Interfaz para crear, editar y eliminar las categorías de productos.
+- **Gestión de Banners:** El backend y el servicio frontend están preparados para administrar los banners del carrusel principal. Se requiere implementar la interfaz de usuario en el panel de administración.
 - **Notificaciones:** Sistema de notificaciones para confirmar acciones (ej. "Producto añadido con éxito").
 
 ---
