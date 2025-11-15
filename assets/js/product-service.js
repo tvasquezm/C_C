@@ -41,16 +41,32 @@ const ProductService = {
     },
 
     /**
+     * Obtiene productos por ID de categoría desde el backend.
+     * --- CONEXIÓN BACKEND ---
+     * Endpoint: GET /api/products/category/:id
+     */
+    getByCategoryId: async function(categoryId) {
+        try {
+            const response = await fetch(`${this._apiUrl}/category/${categoryId}`);
+            if (!response.ok) throw new Error('Error al obtener productos de la categoría.');
+            return await response.json();
+        } catch (error) {
+            console.error('ProductService Error:', error);
+            return { categoryName: 'Error', products: [] };
+        }
+    },
+
+    /**
      * Añade un nuevo producto enviándolo al backend.
      * --- CONEXIÓN BACKEND ---
      * Endpoint: POST /api/products
      */
-    add: async function(productData) {
+    add: async function(formData) { // Ahora recibe FormData
         try {
             const response = await fetch(this._apiUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(productData)
+                // No se necesita 'Content-Type', el navegador lo pone automáticamente para FormData
+                body: formData
             });
             if (!response.ok) throw new Error('Error al añadir el producto.');
             return await response.json();
@@ -65,12 +81,12 @@ const ProductService = {
      * --- CONEXIÓN BACKEND ---
      * Endpoint: PUT /api/products/:id
      */
-    update: async function(updatedProduct) {
+    update: async function(id, formData) { // Ahora recibe id y FormData
         try {
-            const response = await fetch(`${this._apiUrl}/${updatedProduct.id}`, {
+            const response = await fetch(`${this._apiUrl}/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedProduct)
+                // No se necesita 'Content-Type'
+                body: formData
             });
             if (!response.ok) throw new Error('Error al actualizar el producto.');
             return await response.json();

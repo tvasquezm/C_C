@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Favicon: Ícono para la pestaña del navegador -->
+    <link rel="icon" type="image/jpeg" href="assets/images/logo.jpg">
+
     <title>Cookies and Cakes - Repostería con Amor</title>
     
     <!-- Enlace a la hoja de estilos CSS -->
@@ -21,7 +24,9 @@
     <!-- ==================== HEADER Y NAVEGACIÓN ==================== -->
     <header class="main-header">
         <nav class="navbar">
-            <a href="index.html" class="nav-logo">Cookies and Cakes</a>
+            <a href="index.html" class="nav-logo">
+                <img src="assets/images/logo.jpg" alt="Cookies and Cakes Logo">
+            </a>
             <ul class="nav-menu">
                 <li class="nav-item"><a href="index.html" class="nav-link">Inicio</a></li>
                 <li class="nav-item"><a href="#tortas-kuchen" class="nav-link">Productos</a></li>
@@ -51,59 +56,11 @@
             </div>
         </section>
 
-        <!-- ==================== SECCIÓN DE TORTAS Y KUCHEN (CARRUSEL) ==================== -->
-        <section class="featured-products" id="tortas-kuchen">
-            <h2 class="section-title">Tortas y Kuchen</h2>
-            <div class="product-slider-container">
-                <button class="slider-arrow prev-arrow"><i class="fas fa-chevron-left"></i></button>
-                <div class="product-slider-wrapper">
-                    <div class="product-grid">
-                        <!-- Los productos se cargarán aquí dinámicamente -->
-                    </div>
-                </div>
-                <button class="slider-arrow next-arrow"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div class="view-all-container">
-                <a href="pages/tortas-kuchen.html" class="view-all-btn">Ver todos los productos</a>
-            </div>
-        </section>
-
-        <!-- ==================== SECCIÓN DE GALLETAS Y TORTAS TEMÁTICAS (CARRUSEL) ==================== -->
-        <section class="featured-products" id="galletas-tematicas">
-            <h2 class="section-title">Galletas y Tortas Temáticas</h2>
-            <div class="product-slider-container">
-                <button class="slider-arrow prev-arrow"><i class="fas fa-chevron-left"></i></button>
-                <div class="product-slider-wrapper">
-                    <div class="product-grid">
-                        <!-- Los productos se cargarán aquí dinámicamente -->
-                    </div>
-                </div>
-                <button class="slider-arrow next-arrow"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div class="view-all-container">
-                <a href="pages/galletas-tematicas.html" class="view-all-btn">Ver todos los productos</a>
-            </div>
-        </section>
-
-        <!-- ==================== SECCIÓN DE REPOSTERÍA Y OTROS DULCES (CARRUSEL) ==================== -->
-        <section class="featured-products" id="reposteria-dulces">
-            <h2 class="section-title">Repostería y Otros Dulces</h2>
-            <div class="product-slider-container">
-                <button class="slider-arrow prev-arrow"><i class="fas fa-chevron-left"></i></button>
-                <div class="product-slider-wrapper">
-                    <div class="product-grid">
-                        <!-- Los productos se cargarán aquí dinámicamente -->
-                    </div>
-                </div>
-                <button class="slider-arrow next-arrow"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div class="view-all-container">
-                <a href="pages/reposteria-dulces.html" class="view-all-btn">Ver todos los productos</a>
-            </div>
-        </section>
+        <!-- Contenedor donde se generarán dinámicamente las secciones de productos -->
+        <div id="product-sections-container"></div>
 
         <!-- ==================== SECCIÓN SOBRE NOSOTROS ==================== -->
-        <section class="featured-products light-bg" id="sobre-nosotros">
+        <section class="info-section light-bg" id="sobre-nosotros">
             <h2 class="section-title">Sobre Nosotros</h2>
             <div class="info-section-content">
                 <p>En PastelArte, cada postre es una obra de arte creada con pasión y los ingredientes más frescos. Nacimos en 2023 con el sueño de hornear momentos de felicidad y convertirlos en recuerdos inolvidables para ti y los tuyos.</p>
@@ -111,15 +68,14 @@
         </section>
 
         <!-- ==================== SECCIÓN CONTACTO ==================== -->
-        <section class="featured-products" id="contacto">
+        <section class="info-section" id="contacto">
             <h2 class="section-title">Contacto</h2>
             <div class="info-section-content">
                 <p>¿Tienes un evento especial o un antojo? ¡Nos encantaría ser parte de él!</p>
                 <p>Escríbenos a <strong>hola@pastelarte.cl</strong> o síguenos en nuestras redes sociales.</p>
                  <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.instagram.com/c_y_c_cookies_and_cakes/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/56961961556" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
         </section>
@@ -143,9 +99,8 @@
             <div class="footer-section">
                 <h4>Síguenos</h4>
                 <div class="social-icons">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.instagram.com/c_y_c_cookies_and_cakes/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/56961961556" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
         </div>
@@ -164,7 +119,6 @@
             <!-- Los productos del carrito se insertarán aquí -->
         </div>
         <div class="cart-footer">
-            <p>Total: <span id="cart-total">$0</span></p>
             <button class="checkout-btn">Finalizar Compra</button>
         </div>
     </div>
@@ -172,6 +126,7 @@
     <!-- Enlace al archivo JavaScript -->
     <script src="assets/js/product-service.js"></script>
     <script src="assets/js/banner-service.js"></script>
+    <script src="assets/js/category-service.js"></script>
     <script src="assets/js/script.js"></script>
 </body>
 </html>

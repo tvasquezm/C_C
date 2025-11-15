@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/jpeg" href="../assets/images/logo.jpg">
+    <title>Gestión de Banners - Cookies and Cakes</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body id="admin-manage-banners">
+    <div id="notification-container"></div>
+    <header class="main-header">
+        <nav class="navbar">
+            <a href="dashboard.html" class="nav-logo">lt="Cookies and Cakes Admin Logo">
+            </a>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link">Productos</a></li>
+                <li class="nav-item"><a href="manage-categories.html" class="nav-link">Categorías</a></li>
+                <li class="nav-item"><a href="manage-banners.html" class="nav-link">Banners</a></li>
+                <li class="nav-item"><a href="../index.html" class="nav-link" target="_blank">Ver Sitio</a></li>
+            </ul>
+            <div class="nav-icons">
+                <a href="../index.html" class="nav-link admin-logout"><i class="fas fa-sign-out-alt"></i> Salir</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="admin-main">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Gestión de Banners</h1>
+            </div>
+
+            <!-- Formulario para añadir nuevo banner -->
+            <form class="category-form" id="addBannerForm">
+                <h3>Añadir Nuevo Banner</h3>
+                <div class="form-group-inline">
+                    <input type="text" id="banner-title" name="banner-title" placeholder="Título del banner (opcional)">
+                    <input type="file" id="banner-image" name="banner-image" accept="image/*" required>
+                    <small class="form-hint">Recomendado: 1920x800 píxeles, formato panorámico (JPG).</small>
+                    <button type="submit" class="admin-btn primary"><i class="fas fa-plus"></i> Añadir Banner</button>
+                </div>
+            </form>
+
+            <!-- Tabla para listar banners existentes -->
+            <div class="product-table-container">
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Título</th>
+                            <th>Estado</th>
+                            <th>Orden</th>
+                            <th style="width: 300px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="banners-table-body">
+                        <!-- Los banners se cargarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            <p>&copy; 2024 Panel de Administración de Cookies and Cakes.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts necesarios -->
+    <script src="../assets/js/banner-service.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

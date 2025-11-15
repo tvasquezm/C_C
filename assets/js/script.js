@@ -55,13 +55,54 @@ async function addToCart(productId) {
     if (existingItem) {
         existingItem.quantity++;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        // --- CORRECCIÓN: Guardamos una versión ligera del producto en el carrito ---
+        // En lugar de guardar el objeto completo con la imagen Base64,
+        // guardamos solo los datos necesarios y una URL para la miniatura.
+        const cartItem = {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            // Usamos la misma URL que el dashboard para la miniatura.
+            img: `http://localhost:3000/api/products/${product.id}/image`
+        };
+        cart.push(cartItem);
     }
 
     saveCart(cart);
     // Aquí podrías añadir una notificación de "Producto añadido"
     console.log(`Producto "${product.name}" añadido al carrito.`);
     openCart(); // Abrir el carrito para mostrar el producto añadido
+}
+
+/**
+ * Aumenta la cantidad de un producto en el carrito.
+ * @param {string} productId - El ID del producto.
+ */
+function increaseQuantity(productId) {
+    const cart = getCart();
+    const item = cart.find(p => p.id === productId);
+    if (item) {
+        item.quantity++;
+        saveCart(cart);
+    }
+}
+
+/**
+ * Disminuye la cantidad de un producto en el carrito.
+ * Si la cantidad llega a 0, elimina el producto.
+ * @param {string} productId - El ID del producto.
+ */
+function decreaseQuantity(productId) {
+    let cart = getCart();
+    const item = cart.find(p => p.id === productId);
+    if (item) {
+        item.quantity--;
+        if (item.quantity <= 0) {
+            cart = cart.filter(p => p.id !== productId);
+        }
+        saveCart(cart);
+    }
 }
 
 /**
@@ -72,21 +113,6 @@ function removeFromCart(productId) {
     let cart = getCart();
     cart = cart.filter(item => item.id !== productId);
     saveCart(cart);
-}
-
-/**
- * Calcula el precio total del carrito.
- * @param {Array} cart - El array de items del carrito.
- * @returns {string} - El total formateado como moneda.
- */
-function calculateTotal(cart) {
-    const total = cart.reduce((sum, item) => {
-        // Extraer el número del string de precio (ej: "$25.000" -> 25000)
-        const price = parseFloat(item.price.replace(/[^0-9.-]+/g, '')) || 0;
-        return sum + (price * item.quantity);
-    }, 0);
-
-    return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(total);
 }
 
 /**
@@ -106,7 +132,12 @@ function updateCartUI() {
                 <img src="${item.img}" alt="${item.name}">
                 <div class="cart-item-info">
                     <p>${item.name}</p>
-                    <small>${item.price} x ${item.quantity}</small>
+                    <small>${item.price}</small>
+                </div>
+                <div class="cart-item-quantity">
+                    <button class="quantity-btn decrease-quantity" data-id="${item.id}">-</button>
+                    <span>${item.quantity}</span>
+                    <button class="quantity-btn increase-quantity" data-id="${item.id}">+</button>
                 </div>
                 <button class="cart-item-remove" data-id="${item.id}">&times;</button>
             `;
@@ -117,9 +148,6 @@ function updateCartUI() {
     // Actualizar contador del ícono
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     cartIcon.dataset.count = totalItems > 0 ? totalItems : '';
-
-    // Actualizar el total
-    cartTotalEl.textContent = calculateTotal(cart);
 }
 
 function openCart() {
@@ -145,7 +173,7 @@ cartOverlay.addEventListener('click', closeCart);
  * @returns {string} - El string HTML de la tarjeta.
  */
 function createProductCard(product) {
-    const buttonText = product.category === 'Galletas y Tortas Temáticas' ? 'Cotizar' : 'Añadir al Carrito';
+    const buttonText = product.price === 'Cotizar' ? 'Cotizar' : 'Añadir al Carrito';
     return `
         <div class="product-card" data-id="${product.id}">
             <img src="${product.img}" alt="${product.name}">
@@ -161,10 +189,11 @@ function createProductCard(product) {
 /**
  * Renderiza los productos en un contenedor específico, opcionalmente filtrados por categoría.
  * @param {string} containerSelector - El selector CSS del contenedor de la grilla.
+ * @param {string} sectionSelector - El selector CSS de la sección que contiene el carrusel.
  * @param {string|null} categoryFilter - El nombre de la categoría para filtrar, o null para mostrar todos.
  */
-async function renderProducts(containerSelector, categoryFilter = null) {
-    const container = document.querySelector(containerSelector);
+async function renderProducts(sectionSelector, categoryFilter = null) {
+    const container = document.querySelector(`${sectionSelector} .product-grid`);
     if (!container) return;
 
     container.innerHTML = '<p>Cargando productos...</p>'; // Mensaje de carga
@@ -202,6 +231,9 @@ async function renderProducts(containerSelector, categoryFilter = null) {
             window.location.href = `/pages/product-detail.html?id=${productId}`;
         }
     });
+
+    // Una vez que los productos están renderizados, inicializamos el carrusel de esa sección.
+    inicializarCarrusel(sectionSelector);
 }
 
 /**
@@ -247,39 +279,60 @@ async function renderProductDetailPage() {
 }
 
 /**
- * Renderiza el carrusel principal (hero slider) con los banners activos.
+ * Renderiza la página de una categoría específica.
  */
-async function renderHeroSlider() {
-    const heroSection = document.getElementById('hero-section');
-    if (!heroSection) return;
+async function renderCategoryPage() {
+    // Verificamos si estamos en la página de categoría por el ID del body.
+    if (document.body.id !== 'page-category') return;
 
-    const activeBanners = await BannerService.getActive();
-    if (activeBanners.length === 0) {
-        // Si no hay banners, muestra una imagen por defecto
-        heroSection.style.backgroundImage = "url('https://images.pexels.com/photos/1721934/pexels-photo-1721934.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')";
+    const titleElement = document.getElementById('category-page-title');
+    const gridContainer = document.getElementById('category-product-grid');
+    const params = new URLSearchParams(window.location.search);
+    const categoryId = params.get('id');
+
+    if (!categoryId) {
+        titleElement.textContent = 'Categoría no encontrada';
+        gridContainer.innerHTML = '<p>No se ha especificado una categoría.</p>';
         return;
     }
 
-    // Crea los slides
-    const sliderContainer = document.createElement('div');
-    sliderContainer.className = 'hero-slider';
-    sliderContainer.innerHTML = activeBanners.map(banner => 
-        `<div class="slide" style="background-image: url('${banner.img_url}');"></div>`
-    ).join('');
+    const { categoryName, products } = await ProductService.getByCategoryId(categoryId);
 
-    // Inserta el slider al principio de la sección hero
-    heroSection.prepend(sliderContainer);
+    document.title = `${categoryName} - Cookies and Cakes`;
+    titleElement.textContent = categoryName;
 
-    // Lógica para animar el slider
-    const slides = sliderContainer.querySelectorAll('.slide');
-    let currentSlide = 0;
-    slides[currentSlide].classList.add('active');
+    if (products.length === 0) {
+        gridContainer.innerHTML = '<p>No hay productos disponibles en esta categoría en este momento.</p>';
+    } else {
+        gridContainer.innerHTML = products.map(createProductCard).join('');
+    }
 
-    setInterval(() => {
-        slides[currentSlide].classList.remove('active');
-        currentSlide = (currentSlide + 1) % slides.length;
-        slides[currentSlide].classList.add('active');
-    }, 5000); // Cambia de imagen cada 5 segundos
+    // Añadimos el listener de eventos para los botones de "Añadir al carrito".
+    gridContainer.addEventListener('click', handleProductCardClick);
+}
+
+/**
+ * Maneja los clics en las tarjetas de producto, ya sea para añadir al carrito o para ver el detalle.
+ * @param {Event} event - El evento de clic.
+ */
+function handleProductCardClick(event) {
+    const card = event.target.closest('.product-card');
+    if (!card) return;
+
+    const productId = card.dataset.id;
+    const addToCartBtn = event.target.closest('.add-to-cart-btn');
+
+    if (addToCartBtn) {
+        event.preventDefault();
+        const buttonText = addToCartBtn.textContent;
+        if (buttonText === 'Cotizar') {
+            window.location.href = `mailto:hola@pastelarte.cl?subject=Cotización para producto ID: ${productId}`;
+        } else {
+            addToCart(productId);
+        }
+    } else {
+        window.location.href = `/pages/product-detail.html?id=${productId}`;
+    }
 }
 
 // ==================== LÓGICA DEL CARRUSEL DE PRODUCTOS ====================
@@ -297,6 +350,10 @@ function inicializarCarrusel(selectorSeccion) {
     const prevArrow = seccion.querySelector('.prev-arrow');
     const nextArrow = seccion.querySelector('.next-arrow');
     const productCards = Array.from(productGrid.children);
+
+    // --- ¡AQUÍ ESTÁ LA SOLUCIÓN! ---
+    // Si no hay productos en esta sección, no inicializamos el carrusel.
+    if (productCards.length === 0) return;
 
     let currentIndex;
     let itemsToShow;
@@ -345,12 +402,17 @@ function inicializarCarrusel(selectorSeccion) {
 
         itemsToShow = window.innerWidth <= 768 ? 1 : 4;
 
+        // Si no hay productos, no hay nada que clonar.
+        if (totalProducts === 0) return;
+
         // Añadir nuevos clones
         for (let i = 0; i < itemsToShow; i++) {
             productGrid.appendChild(productGrid.children[i].cloneNode(true)).classList.add('clone');
         }
         for (let i = totalProducts - 1; i >= totalProducts - itemsToShow; i--) {
-            productGrid.insertBefore(productGrid.children[i].cloneNode(true), productGrid.firstChild).classList.add('clone');
+            // CORRECCIÓN: Verificamos que el nodo exista antes de clonar e insertar.
+            const nodeToClone = productGrid.children[i];
+            if (nodeToClone) productGrid.insertBefore(nodeToClone.cloneNode(true), productGrid.firstChild).classList.add('clone');
         }
 
         currentIndex = itemsToShow;
@@ -379,33 +441,85 @@ function inicializarCarrusel(selectorSeccion) {
 
 // Inicializa un carrusel para cada sección de productos
 document.addEventListener("DOMContentLoaded", async () => {
-    // Renderizar el slider principal
-    await renderHeroSlider();
-
     // Renderizar la página de detalle si estamos en ella
     await renderProductDetailPage();
 
+    // Renderizar la página de categoría si estamos en ella
+    await renderCategoryPage();
+
     // Renderizar productos en la página de inicio
-    await renderProducts("#tortas-kuchen .product-grid", "Tortas y Kuchen");
-    await renderProducts("#galletas-tematicas .product-grid", "Galletas y Tortas Temáticas");
-    await renderProducts("#reposteria-dulces .product-grid", "Repostería y Otros Dulces");
+    const sectionsContainer = document.getElementById('product-sections-container');
+    if (sectionsContainer) {
+        // --- ¡NUEVA LÓGICA OPTIMIZADA! ---
+        // 1. Pedimos todos los datos necesarios al mismo tiempo.
+        const categories = await CategoryService.getAll();
+        const allProducts = await ProductService.getAll(false);
+
+        let allSectionsHTML = ''; // Creamos un string para acumular todo el HTML.
+
+        // 2. Para cada categoría, construimos el HTML de su sección.
+        categories.forEach(category => {
+            // Filtramos los productos que pertenecen a esta categoría.
+            const productsForCategory = allProducts.filter(p => p.category === category.nombre);
+
+            // Si no hay productos para esta categoría, no creamos la sección.
+            if (productsForCategory.length === 0) return;
+
+            // Creamos un ID único para la sección.
+            const sectionId = `category-${category.id}`;
+
+            // Construimos el HTML para la nueva sección.
+            const sectionHTML = `
+                <section class="featured-products" id="${sectionId}">
+                    <h2 class="section-title">${category.nombre}</h2>
+                    <div class="product-slider-container">
+                        <button class="slider-arrow prev-arrow"><i class="fas fa-chevron-left"></i></button>
+                        <div class="product-slider-wrapper">
+                            <div class="product-grid">${productsForCategory.map(createProductCard).join('')}</div>
+                        </div>
+                        <button class="slider-arrow next-arrow"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="view-all-container">
+                        <a href="/pages/category.html?id=${category.id}" class="view-all-btn">Ver todos los productos</a>
+                    </div>
+                </section>
+            `;
+            allSectionsHTML += sectionHTML; // Lo añadimos al string acumulador.
+        });
+
+        // 3. Insertamos todo el HTML en el DOM de una sola vez.
+        sectionsContainer.innerHTML = allSectionsHTML;
+
+        // 4. Ahora que todo está en el DOM, inicializamos los carruseles y los listeners.
+        categories.forEach(category => {
+            const sectionId = `category-${category.id}`;
+            const sectionElement = document.getElementById(sectionId);
+            if (sectionElement) {
+                inicializarCarrusel(`#${sectionId}`);
+                // Añadimos el listener para los botones "Añadir al carrito"
+                sectionElement.querySelector('.product-grid').addEventListener('click', handleProductCardClick);
+            }
+        });
+    }
 
     // Inicializar la UI del carrito al cargar la página
     updateCartUI();
 
-    // Inicializar carruseles DESPUÉS de renderizar los productos
-    inicializarCarrusel("#tortas-kuchen");
-    inicializarCarrusel("#galletas-tematicas");
-    inicializarCarrusel("#reposteria-dulces");
-
 
     cartItemsContainer.addEventListener('click', (event) => {
-        if (event.target.classList.contains('cart-item-remove')) {
+        const target = event.target;
+        if (target.classList.contains('cart-item-remove')) {
             removeFromCart(event.target.dataset.id);
+        }
+        if (target.classList.contains('increase-quantity')) {
+            increaseQuantity(target.dataset.id);
+        }
+        if (target.classList.contains('decrease-quantity')) {
+            decreaseQuantity(target.dataset.id);
         }
     });
 
-    // --- ¡NUEVO! Lógica para finalizar la compra por WhatsApp ---
+    // --- Lógica para finalizar la compra por WhatsApp ---
     const checkoutBtn = document.querySelector('.checkout-btn');
     if (checkoutBtn) {
         checkoutBtn.addEventListener('click', () => {
@@ -422,18 +536,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                 message += `*Cantidad:* ${item.quantity}\n`;
                 message += '------------------------\n';
             });
-
             message += `\nQuedo a la espera de la cotización. ¡Gracias!`;
 
             // --- 2. Crear la URL de WhatsApp ---
-            // ¡IMPORTANTE! Reemplaza este número con tu número de WhatsApp real, incluyendo el código de país (56 para Chile).
             const phoneNumber = '56961961556'; 
             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
             // --- 3. Redirigir al usuario y limpiar el carrito ---
             window.open(whatsappUrl, '_blank');
-            
-            // Opcional: Limpiar el carrito después de enviar el pedido
             saveCart([]);
             closeCart();
         });

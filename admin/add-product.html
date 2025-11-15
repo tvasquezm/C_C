@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/jpeg" href="../assets/images/logo.jpg">
     <title>Añadir Producto - Cookies and Cakes</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="admin-style.css">
@@ -11,10 +12,13 @@
 <body id="admin-add-product">
     <header class="main-header">
         <nav class="navbar">
-            <a href="dashboard.html" class="nav-logo">Cookies and Cakes - Admin</a>
+            <a href="dashboard.html" class="nav-logo">
+                <img src="../assets/images/logo.jpg" alt="Cookies and Cakes Admin Logo">
+            </a>
             <ul class="nav-menu">
                 <li class="nav-item"><a href="dashboard.html" class="nav-link">Productos</a></li>
                 <li class="nav-item"><a href="manage-categories.html" class="nav-link">Categorías</a></li>
+                <li class="nav-item"><a href="manage-banners.html" class="nav-link">Banners</a></li>
                 <li class="nav-item"><a href="../index.html" class="nav-link" target="_blank">Ver Sitio</a></li>
             </ul>
             <div class="nav-icons">
@@ -37,10 +41,7 @@
                 <div class="form-group">
                     <label for="product-category">Categoría</label>
                     <select id="product-category" name="product-category" required>
-                        <option value="">Selecciona una categoría</option>
-                        <option value="Tortas y Kuchen">Tortas y Kuchen</option>
-                        <option value="Galletas y Tortas Temáticas">Galletas y Tortas Temáticas</option>
-                        <option value="Repostería y Otros Dulces">Repostería y Otros Dulces</option>
+                        <option value="">Cargando categorías...</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -56,8 +57,9 @@
                     <textarea id="product-description" name="product-description" rows="4" placeholder="Descripción detallada del producto..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="product-image">URL de la Imagen</label>
-                    <input type="url" id="product-image" name="product-image" placeholder="https://images.pexels.com/..." required>
+                    <label for="product-image">Imagen del Producto</label>
+                    <input type="file" id="product-image" name="product-image" accept="image/*" required>
+                    <small class="form-hint">Recomendado: 800x450 píxeles, formato horizontal (JPG).</small>
                 </div>
                 <div class="form-actions">
                     <a href="dashboard.html" class="admin-btn secondary">Cancelar</a>

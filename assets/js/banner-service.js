@@ -59,7 +59,17 @@ const BannerService = {
      * Endpoint: POST /api/banners
      */
     add: async function(bannerData) {
-        // Implementación similar a ProductService.add
+        try {
+            const response = await fetch(this._apiUrl, {
+                method: 'POST',
+                body: bannerData // FormData
+            });
+            if (!response.ok) throw new Error('Error al añadir el banner.');
+            return await response.json();
+        } catch (error) {
+            console.error('BannerService Error:', error);
+            return null;
+        }
     },
 
     /**
@@ -67,14 +77,31 @@ const BannerService = {
      * --- CONEXIÓN BACKEND ---
      * Endpoint: PUT /api/banners/:id
      */
-    update: async function(updatedBanner) {
+    update: async function(id, bannerData) {
         try {
-            const response = await fetch(`${this._apiUrl}/${updatedBanner.id}`, {
+            const response = await fetch(`${this._apiUrl}/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedBanner)
+                body: bannerData
             });
             if (!response.ok) throw new Error('Error al actualizar el banner.');
+            return await response.json();
+        } catch (error) {
+            console.error('BannerService Error:', error);
+            return null;
+        }
+    },
+
+    /**
+     * Cambia el estado de un banner.
+     * --- CONEXIÓN BACKEND ---
+     * Endpoint: PATCH /api/banners/:id/toggle
+     */
+    toggleStatus: async function(id) {
+        try {
+            const response = await fetch(`${this._apiUrl}/${id}/toggle`, {
+                method: 'PATCH'
+            });
+            if (!response.ok) throw new Error('Error al cambiar el estado del banner.');
             return await response.json();
         } catch (error) {
             console.error('BannerService Error:', error);
@@ -88,6 +115,13 @@ const BannerService = {
      * Endpoint: DELETE /api/banners/:id
      */
     delete: async function(id) {
-        // Implementación similar a ProductService.delete
+        try {
+            const response = await fetch(`${this._apiUrl}/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Error al eliminar el banner.');
+            return await response.json();
+        } catch (error) {
+            console.error('BannerService Error:', error);
+            return { success: false };
+        }
     }
 };

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/jpeg" href="../assets/images/logo.jpg">
+    <title>Categoría - Cookies and Cakes</title>
+    
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body id="page-category">
+
+    <header class="main-header">
+        <nav class="navbar">
+            <a href="../index.html" class="nav-logo">
+                <img src="../assets/images/logo.jpg" alt="Cookies and Cakes Logo">
+            </a>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="../index.html" class="nav-link">Inicio</a></li>
+                <li class="nav-item"><a href="../index.html#product-sections-container" class="nav-link">Productos</a></li>
+                <li class="nav-item"><a href="../index.html#sobre-nosotros" class="nav-link">Sobre Nosotros</a></li>
+                <li class="nav-item"><a href="../index.html#contacto" class="nav-link">Contacto</a></li>
+            </ul>
+            <div class="nav-icons">
+                <i class="fas fa-shopping-cart"></i>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="category-page" id="category-products-section">
+            <h1 class="page-title" id="category-page-title">Cargando categoría...</h1>
+            <div class="product-grid-full" id="category-product-grid">
+                <!-- Los productos se cargarán aquí dinámicamente -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            <p>&copy; 2024 Cookies and Cakes. Creado como proyecto de aprendizaje. | <a href="../admin/dashboard.html" class="admin-link">Admin</a></p>
+        </div>
+    </footer>
+
+    <!-- ==================== CARRITO DE COMPRAS (SIDEBAR) ==================== -->
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>Mi Carrito</h3>
+            <button id="close-cart-btn" class="close-cart-btn">&times;</button>
+        </div>
+        <div id="cart-items" class="cart-items">
+            <!-- Los productos del carrito se insertarán aquí -->
+        </div>
+        <div class="cart-footer">
+            <button class="checkout-btn">Finalizar Compra</button>
+        </div>
+    </div>
+    <div id="cart-overlay" class="cart-overlay"></div>
+
+    <!-- Scripts necesarios para esta página -->
+    <script src="../assets/js/product-service.js"></script>
+    <script src="../assets/js/category-service.js"></script>
+    <script src="../assets/js/script.js"></script>
+</body>
+</html>

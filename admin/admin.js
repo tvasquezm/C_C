@@ -113,24 +113,48 @@ async function initDashboardPage() {
 }
 
 /**
+ * Rellena un <select> con las categorías obtenidas de la base de datos.
+ * @param {string} selectId - El ID del elemento <select> a rellenar.
+ * @param {string|number|null} selectedValue - El valor que debe quedar seleccionado (opcional).
+ */
+async function populateCategoryDropdown(selectId, selectedValue = null) {
+    const selectElement = document.getElementById(selectId);
+    if (!selectElement) return;
+
+    const categories = await CategoryService.getAll();
+    selectElement.innerHTML = '<option value="">Selecciona una categoría</option>'; // Opción por defecto
+
+    categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category.id; // Usamos el ID numérico como valor
+        option.textContent = category.nombre;
+        if (selectedValue && category.id == selectedValue) {
+            option.selected = true;
+        }
+        selectElement.appendChild(option);
+    });
+}
+
+/**
  * Inicializa la lógica para la página de añadir producto.
  */
 async function initAddProductPage() {
     const form = document.getElementById('addProductForm');
     if (!form) return;
 
+    // Rellenar el dropdown de categorías
+    await populateCategoryDropdown('product-category');
+
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
+        // Usamos FormData para poder enviar el archivo de imagen
         const formData = new FormData(form);
-        const productData = {
-            name: formData.get('product-name'),
-            category: formData.get('product-category'),
-            price: formData.get('product-price'),
-            size: formData.get('product-size'),
-            description: formData.get('product-description'),
-            img: formData.get('product-image') || 'https://via.placeholder.com/400x220.png?text=Sin+Imagen'
-        };
-        await ProductService.add(productData);
+
+        // El nombre del campo en formData.append debe coincidir con el de upload.single() en el backend
+        // formData.append('product-image', document.getElementById('product-image').files[0]);
+        // FormData ya lo hace automáticamente si el input tiene name="product-image"
+
+        await ProductService.add(formData); // Enviamos el objeto FormData directamente
         redirectWithNotification('¡Producto añadido con éxito!', 'dashboard.html');
     });
 }
@@ -157,28 +181,33 @@ async function initEditProductPage() {
         return;
     }
 
+    // Rellenar el dropdown de categorías y seleccionar la correcta
+    await populateCategoryDropdown('product-category', product.category_id);
+
     // Rellenar el formulario con los datos del producto
     document.getElementById('product-id').value = product.id;
     document.getElementById('product-name').value = product.name;
-    document.getElementById('product-category').value = product.category;
+    // El precio se guarda como número, lo formateamos para mostrarlo si es necesario, o lo dejamos como número.
     document.getElementById('product-price').value = product.price;
     document.getElementById('product-size').value = product.size || '';
     document.getElementById('product-description').value = product.description || '';
-    document.getElementById('product-image').value = product.img;
+    
+    // --- ¡AQUÍ ESTÁ LA MEJORA! ---
+    // Mostramos la imagen actual del producto.
+    const imagePreview = document.querySelector('#current-image-preview img');
+    if (product.img && imagePreview) {
+        imagePreview.src = product.img;
+        imagePreview.style.display = 'block';
+    }
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
+        // Usamos FormData para poder enviar el archivo de imagen si se selecciona uno nuevo
         const formData = new FormData(form);
-        const updatedProduct = {
-            id: formData.get('product-id'),
-            name: formData.get('product-name'),
-            category: formData.get('product-category'),
-            price: formData.get('product-price'),
-            size: formData.get('product-size'),
-            description: formData.get('product-description'),
-            img: formData.get('product-image') || 'https://via.placeholder.com/400x220.png?text=Sin+Imagen'
-        };
-        await ProductService.update(updatedProduct);
+        const id = formData.get('product-id');
+
+        // El servicio se encargará de enviar el FormData
+        await ProductService.update(id, formData);
         redirectWithNotification('¡Producto actualizado con éxito!', 'dashboard.html');
     });
 }
@@ -257,6 +286,75 @@ async function initManageCategoriesPage() {
     await renderCategories();
 }
 
+/**
+ * Inicializa la lógica para la página de gestión de banners.
+ */
+async function initManageBannersPage() {
+    const tableBody = document.getElementById('banners-table-body');
+    const form = document.getElementById('addBannerForm');
+    if (!tableBody || !form) return;
+
+    // Función para renderizar la tabla de banners
+    const renderBanners = async () => {
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Cargando banners...</td></tr>';
+        const banners = await BannerService.getAll();
+        tableBody.innerHTML = '';
+
+        if (banners.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay banners para mostrar.</td></tr>';
+            return;
+        }
+
+        banners.forEach(banner => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><img src="${banner.img}" alt="${banner.titulo || 'Banner'}"></td>
+                <td>${banner.titulo || 'Sin título'}</td>
+                <td>${banner.activo ? '<span class="status-active">Activo</span>' : '<span class="status-inactive">Inactivo</span>'}</td>
+                <td>${banner.orden}</td>
+                <td class="action-buttons">
+                    <button class="admin-btn toggle-status-banner" data-id="${banner.id}">${banner.activo ? 'Deshabilitar' : 'Habilitar'}</button>
+                    <button class="admin-btn delete-banner" data-id="${banner.id}"><i class="fas fa-trash"></i> Eliminar</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    };
+
+    // Manejar la adición de un nuevo banner
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        await BannerService.add(formData);
+        showNotification('Banner añadido con éxito.');
+        form.reset(); // Limpiar el formulario
+        await renderBanners();
+    });
+
+    // Manejar clics en botones de la tabla
+    tableBody.addEventListener('click', async (event) => {
+        const toggleButton = event.target.closest('.toggle-status-banner');
+        const deleteButton = event.target.closest('.delete-banner');
+
+        if (toggleButton) {
+            const bannerId = toggleButton.dataset.id;
+            await BannerService.toggleStatus(bannerId);
+            await renderBanners();
+        }
+
+        if (deleteButton) {
+            const bannerId = deleteButton.dataset.id;
+            if (confirm('¿Estás seguro de que quieres eliminar este banner?')) {
+                await BannerService.delete(bannerId);
+                showNotification('Banner eliminado con éxito.');
+                await renderBanners();
+            }
+        }
+    });
+
+    await renderBanners();
+}
+
 // ==================== ENRUTADOR PRINCIPAL ====================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -265,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'admin-add-product': initAddProductPage,
         'admin-edit-product': initEditProductPage,
         'admin-manage-categories': initManageCategoriesPage,
+        'admin-manage-banners': initManageBannersPage,
     };
 
     const pageId = document.body.id;
