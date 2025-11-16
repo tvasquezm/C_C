@@ -1,11 +1,14 @@
 /* ==================== VARIABLES Y ESTILOS GLOBALES ==================== */
 :root {
-    --primary-color: #e75b8d; /* Un rosa similar al de la web original */
-    --secondary-color: #f8f0e3; /* Un fondo crema claro */
-    --dark-color: #333;
+    /* Paleta de colores "Mágica" */
+    --primary-color: #d0a2e0; /* Un lavanda soñador */
+    --secondary-color: #fdfaf6; /* Crema muy claro */
+    --accent-color: #f7d9a3; /* Un dorado más brillante y mágico */
+    --dark-color: #4a4a68; /* Un gris azulado oscuro para el texto */
     --light-color: #fff;
+    --box-shadow-glow: 0 0 20px rgba(208, 162, 224, 0.4); /* Sombra con brillo lavanda */
     --font-headings: 'Playfair Display', serif;
-    --font-body: 'Montserrat', sans-serif;
+    --font-body: 'Montserrat', sans-serif;    --font-special: 'Great Vibes', cursive; /* Nueva fuente decorativa */
     --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -19,6 +22,9 @@ body {
     font-family: var(--font-body);
     color: var(--dark-color);
     line-height: 1.6;
+    /* Efecto de fondo mágico con gradiente */
+    background-color: var(--secondary-color); /* Color de respaldo */
+    background-image: linear-gradient(180deg, #f7f2fa 0%, var(--secondary-color) 100%);
 }
 
 /* ==================== HEADER Y NAVEGACIÓN ==================== */
@@ -121,12 +127,20 @@ body {
     justify-content: center;
     text-align: center;
     color: var(--light-color);
-    height: 60vh; /* 60% de la altura de la ventana */
+    height: 75vh; /* Aún más alto para un efecto más inmersivo */
     position: relative;
-    /* Imagen de fondo estática */
-    background-image: url('https://images.pexels.com/photos/1721934/pexels-photo-1721934.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');
     background-size: cover;
     background-position: center;
+    transition: background-image 1.5s ease-in-out; /* Transición más suave para el carrusel */
+}
+
+/* Overlay con gradiente para un look más mágico */
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.5) 100%);
+    z-index: 1;
 }
 
 .hero-content {
@@ -137,13 +151,15 @@ body {
 }
 
 .hero h1 {
-    font-family: var(--font-headings);
-    font-size: 3.5rem;
+    font-family: var(--font-special); /* Usamos la nueva fuente especial */
+    font-size: 5rem; /* Más grande para un efecto dramático */
     margin-bottom: 1rem;
+    font-weight: 500;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5); /* Sombra para legibilidad */
 }
 
 .hero p {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     margin-bottom: 2rem;
 }
 
@@ -158,7 +174,8 @@ body {
 }
 
 .cta-button:hover {
-    background-color: #d14a7a; /* Un tono más oscuro del rosa */
+    background-color: var(--accent-color);
+    box-shadow: var(--box-shadow-glow); /* Efecto de brillo al pasar el mouse */
 }
 
 /* --- NUEVO: Estilos para secciones de información (Sobre Nosotros, Contacto) --- */
@@ -412,8 +429,8 @@ body {
 
 .section-title {
     text-align: center;
-    font-family: var(--font-headings);
-    font-size: 2.5rem;
+    font-family: var(--font-special); /* Usamos la nueva fuente especial */
+    font-size: 3rem;
     margin-bottom: 3rem;
     color: var(--dark-color);
 }
@@ -504,12 +521,13 @@ body {
 }
 
 .add-to-cart-btn:hover {
-    background-color: #555;
+    background-color: var(--primary-color);
+    box-shadow: var(--box-shadow-glow);
 }
 
 .slider-arrow {
     position: absolute;
-    top: 50%;
+    top: 45%;
     transform: translateY(-50%);
     background-color: rgba(255, 255, 255, 0.8);
     border: none;
@@ -551,6 +569,7 @@ body {
 .view-all-btn:hover {
     background-color: var(--primary-color);
     color: var(--light-color);
+    border-color: var(--primary-color);
 }
 
 /* ==================== FOOTER ==================== */

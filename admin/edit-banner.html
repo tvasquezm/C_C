@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/jpeg" href="../assets/images/logo.jpg">
-    <title>Panel de Administración - Cookies and Cakes</title>
+    <title>Editar Banner - Cookies and Cakes</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="admin-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
-<body id="admin-dashboard">
+<body id="admin-edit-banner">
     <div id="notification-container"></div>
     <header class="main-header">
         <nav class="navbar">
@@ -23,7 +23,6 @@
                 <li class="nav-item"><a href="../index.html" class="nav-link" target="_blank">Ver Sitio</a></li>
             </ul>
             <div class="nav-icons">
-                <a href="../index.html" class="nav-link admin-logout"><i class="fas fa-sign-out-alt"></i> Salir</a>
                 <div class="hamburger">
                     <span class="bar"></span>
                     <span class="bar"></span>
@@ -36,43 +35,28 @@
     <main class="admin-main">
         <div class="admin-container">
             <div class="admin-header">
-                <h1>Gestión de Productos</h1>
-                <a href="add-product.html" class="admin-btn primary">
-                    <i class="fas fa-plus"></i> Añadir Producto
+                <h1>Editar Banner</h1>
+                <a href="manage-banners.html" class="admin-btn secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a Banners
                 </a>
             </div>
 
-            <div class="product-table-container">
-                <table class="product-table">
-                    <thead>
-                        <tr>
-                            <th>Imagen</th>
-                            <th>Nombre del Producto</th>
-                            <th>Categoría</th>
-                            <th>Precio</th>
-                            <th>Tamaño</th>
-                            <th>Estado</th>
-                            <th style="width: 320px;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Las filas de productos se generarán aquí con JavaScript -->
-                        <!-- Si no hay productos, se podría mostrar un mensaje -->
-                    </tbody>
-                </table>
-            </div>
+            <form class="admin-form" id="editBannerForm">
+                <div class="form-group">
+                    <label for="banner-image">Cambiar Imagen (opcional)</label>
+                    <input type="file" id="banner-image" name="banner-image" accept="image/*">
+                    <small class="form-hint">Recomendado: 1920x800px. Si no seleccionas una nueva, se mantendrá la actual.</small>
+                    <img id="current-banner-image" src="" alt="Imagen actual del banner" class="form-image-preview">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="admin-btn primary"><i class="fas fa-save"></i> Guardar Cambios</button>
+                </div>
+            </form>
         </div>
     </main>
 
-    <footer class="main-footer">
-        <div class="footer-bottom">
-            <p>&copy; 2024 Panel de Administración de Cookies and Cakes.</p>
-        </div>
-    </footer>
-
-    <!-- Enlace al script de administración -->
-    <script src="../assets/js/product-service.js"></script>
-    <script src="../assets/js/category-service.js"></script>
+    <script src="../assets/js/banner-service.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

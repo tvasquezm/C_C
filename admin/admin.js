@@ -1,4 +1,4 @@
-// Lógica para el panel de administración de PastelArte
+// Lógica para el panel de administración de Cookies and Cakes
 
 // ==================== FUNCIÓN DE NOTIFICACIÓN ====================
 /**
@@ -68,7 +68,7 @@ async function initDashboardPage() {
                 row.classList.add('inactive-product');
             }
             row.innerHTML = `
-                <td><img src="${product.img}" alt="${product.name}"></td>
+                <td><img src="${product.img}" alt="${product.name}" class="table-img-preview"></td>
                 <td>${product.name}</td>
                 <td>${product.category}</td>
                 <td>${product.price}</td>
@@ -308,12 +308,12 @@ async function initManageBannersPage() {
         banners.forEach(banner => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><img src="${banner.img}" alt="${banner.titulo || 'Banner'}"></td>
-                <td>${banner.titulo || 'Sin título'}</td>
+                <td><img src="${banner.img}" alt="Banner ${banner.id}" class="table-img-preview"></td>
+                <td>Banner #${banner.id}</td>
                 <td>${banner.activo ? '<span class="status-active">Activo</span>' : '<span class="status-inactive">Inactivo</span>'}</td>
-                <td>${banner.orden}</td>
                 <td class="action-buttons">
                     <button class="admin-btn toggle-status-banner" data-id="${banner.id}">${banner.activo ? 'Deshabilitar' : 'Habilitar'}</button>
+                    <a href="edit-banner.html?id=${banner.id}" class="admin-btn edit"><i class="fas fa-edit"></i> Editar</a>
                     <button class="admin-btn delete-banner" data-id="${banner.id}"><i class="fas fa-trash"></i> Eliminar</button>
                 </td>
             `;
@@ -329,6 +329,23 @@ async function initManageBannersPage() {
         showNotification('Banner añadido con éxito.');
         form.reset(); // Limpiar el formulario
         await renderBanners();
+    });
+
+    // Manejar el guardado de la velocidad del carrusel
+    const settingsForm = document.getElementById('bannerSettingsForm');
+    const speedInput = document.getElementById('banner-speed');
+
+    // Cargar la velocidad guardada al iniciar
+    speedInput.value = localStorage.getItem('bannerSpeedInSeconds') || 5;
+
+    settingsForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const speedInSeconds = speedInput.value;
+        // Guardamos el valor en milisegundos para usarlo directamente en el script.js
+        localStorage.setItem('bannerSpeed', speedInSeconds * 1000);
+        // Guardamos también el valor en segundos para mostrarlo en el input
+        localStorage.setItem('bannerSpeedInSeconds', speedInSeconds);
+        showNotification('Velocidad del carrusel guardada.', 'success');
     });
 
     // Manejar clics en botones de la tabla
@@ -355,21 +372,102 @@ async function initManageBannersPage() {
     await renderBanners();
 }
 
-// ==================== ENRUTADOR PRINCIPAL ====================
+/**
+ * Inicializa la lógica para la página de editar banner.
+ */
+async function initEditBannerPage() {
+    const form = document.getElementById('editBannerForm');
+    if (!form) return;
 
-document.addEventListener('DOMContentLoaded', () => {
-    const pageInitializers = {
-        'admin-dashboard': initDashboardPage,
-        'admin-add-product': initAddProductPage,
-        'admin-edit-product': initEditProductPage,
-        'admin-manage-categories': initManageCategoriesPage,
-        'admin-manage-banners': initManageBannersPage,
-    };
+    const params = new URLSearchParams(window.location.search);
+    const bannerId = params.get('id');
 
-    const pageId = document.body.id;
-    const initFunction = pageInitializers[pageId];
-
-    if (initFunction) {
-        initFunction();
+    if (!bannerId) {
+        return redirectWithNotification('ID de banner no especificado.', 'manage-banners.html', 'error');
     }
-});
+
+    // 1. Cargar datos del banner
+    const banner = await BannerService.getById(bannerId);
+    if (!banner) {
+        return redirectWithNotification('Banner no encontrado.', 'manage-banners.html', 'error');
+    }
+
+    // 2. Rellenar el formulario
+    const imagePreview = document.getElementById('current-banner-image');
+    if (banner.img) {
+        imagePreview.src = banner.img;
+        imagePreview.style.display = 'block';
+    } else {
+        imagePreview.style.display = 'none';
+    }
+
+    // 3. Manejar el envío del formulario
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        
+        // El servicio se encarga de enviar el FormData al backend
+        const result = await BannerService.update(bannerId, formData);
+
+        if (result) {
+            redirectWithNotification('¡Banner actualizado con éxito!', 'manage-banners.html');
+        } else {
+            showNotification('Error al actualizar el banner.', 'error');
+        }
+    });
+}
+
+/**
+ * Objeto principal de la aplicación de administración.
+ */
+const AdminApp = {
+    init() {
+        this.initMenu();
+        this.runPageInitializer();
+    },
+
+    initMenu() {
+        const hamburger = document.querySelector(".hamburger");
+        const navMenu = document.querySelector(".nav-menu");
+        if (!hamburger || !navMenu) return;
+
+        hamburger.addEventListener("click", () => {
+            hamburger.classList.toggle("active");
+            navMenu.classList.toggle("active");
+        });
+    },
+
+    runPageInitializer() {
+        const pageInitializers = {
+            'admin-dashboard': initDashboardPage,
+            'admin-add-product': initAddProductPage,
+            'admin-edit-product': initEditProductPage,
+            'admin-manage-categories': initManageCategoriesPage,
+            'admin-manage-banners': initManageBannersPage,
+            'admin-edit-banner': initEditBannerPage,
+        };
+        const pageId = document.body.id;
+        const initFunction = pageInitializers[pageId];
+        if (initFunction) {
+            initFunction();
+        }
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => AdminApp.init());
+
+// ==================== MENÚ HAMBURGUESA PARA EL ADMIN ====================
+const hamburger = document.querySelector(".hamburger");
+const navMenu = document.querySelector(".nav-menu");
+
+if (hamburger && navMenu) {
+    hamburger.addEventListener("click", () => {
+        hamburger.classList.toggle("active");
+        navMenu.classList.toggle("active");
+    });
+
+    document.querySelectorAll(".nav-link").forEach(n => n.addEventListener("click", () => {
+        hamburger.classList.remove("active");
+        navMenu.classList.remove("active");
+    }));
+}

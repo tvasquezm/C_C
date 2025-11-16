@@ -10,8 +10,31 @@ const PORT = 3000;
 
 // Configuración de Multer para guardar archivos en memoria
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
 
+// --- ¡AQUÍ ESTÁ LA MEJORA! ---
+// Creamos un filtro para asegurarnos de que solo se suban imágenes.
+const fileFilter = (req, file, cb) => {
+    // Lista de formatos de imagen permitidos (mimetypes)
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    
+    // Comprueba tanto la extensión del archivo como el mimetype
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+        // Si el formato es válido, permite la subida
+        return cb(null, true);
+    } else {
+        // Si no, rechaza el archivo con un error
+        cb(new Error('Error: Solo se permiten imágenes en formato JPG, PNG, GIF o WEBP.'));
+    }
+};
+
+const upload = multer({ 
+    storage: storage, 
+    fileFilter: fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // Límite de 5MB por archivo
+});
 // Middlewares
 app.use(cors());
 app.use(express.json()); // Para entender JSON
@@ -67,8 +90,8 @@ app.get('/api/products/active', async (req, res) => {
         const productsWithBase64Image = rows.map(product => {
             if (product.img) {
                 const imageBase64 = Buffer.from(product.img).toString('base64');
-                // Asumimos que las imágenes son jpeg, podrías guardar el mimetype en la BD también
-                product.img = `data:image/jpeg;base64,${imageBase64}`;
+                // MEJORA: Usamos el mimetype guardado en la BD para mostrar la imagen correctamente.
+                product.img = `data:${product.img_mimetype};base64,${imageBase64}`;
             } else {
                 // CORRECCIÓN: Usamos una imagen local para evitar errores de red.
                 product.img = 'http://localhost:3000/static/placeholder.png';
@@ -104,7 +127,7 @@ app.get('/api/products/category/:id', async (req, res) => {
         // Convertimos el blob a Base64 para las imágenes
         const productsWithBase64Image = products.map(product => {
             if (product.img) {
-                product.img = `data:image/jpeg;base64,${Buffer.from(product.img).toString('base64')}`;
+                product.img = `data:${product.img_mimetype};base64,${Buffer.from(product.img).toString('base64')}`;
             } else {
                 product.img = 'http://localhost:3000/static/placeholder.png';
             }
@@ -139,7 +162,7 @@ app.get('/api/products/:id', async (req, res) => {
         // Convertimos el blob a Base64
         if (product.img) {
             const imageBase64 = Buffer.from(product.img).toString('base64');
-            product.img = `data:image/jpeg;base64,${imageBase64}`;
+            product.img = `data:${product.img_mimetype};base64,${imageBase64}`;
         } else {
             // CORRECCIÓN: Usamos una imagen local.
             product.img = 'http://localhost:3000/static/placeholder.png';
@@ -158,9 +181,9 @@ app.get('/api/products/:id', async (req, res) => {
 app.get('/api/products/:id/image', async (req, res) => {
     try {
         const { id } = req.params;
-        const [rows] = await pool.query('SELECT img FROM productos WHERE id = ?', [id]);
+        const [rows] = await pool.query('SELECT img, img_mimetype FROM productos WHERE id = ?', [id]);
         if (rows.length > 0 && rows[0].img) {
-            res.setHeader('Content-Type', 'image/jpeg'); // O el tipo que sea
+            res.setHeader('Content-Type', rows[0].img_mimetype); // MEJORA: Usamos el mimetype correcto.
             res.send(rows[0].img);
         } else {
             // CORRECCIÓN: Redirigimos a nuestra imagen local.
@@ -179,11 +202,12 @@ app.post('/api/products', upload.single('product-image'), async (req, res) => {
     try {
         const { name, 'product-category': categoryId, price, size, description } = req.body;
         // El archivo de la imagen está en req.file.buffer
-        const img = req.file ? req.file.buffer : null;
+        const img = req.file ? req.file.buffer : null; // Guardamos el buffer de la imagen
+        const img_mimetype = req.file ? req.file.mimetype : null; // Guardamos el mimetype
 
         const [result] = await pool.query(
-            'INSERT INTO productos (name, category_id, price, size, description, img) VALUES (?, ?, ?, ?, ?, ?)',
-            [name, categoryId, price, size, description, img]
+            'INSERT INTO productos (name, category_id, price, size, description, img, img_mimetype) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [name, categoryId, price, size, description, img, img_mimetype]
         );
         res.status(201).json({
             id: result.insertId,
@@ -222,6 +246,7 @@ app.put('/api/products/:id', upload.single('product-image'), async (req, res) =>
         // Si se subió una nueva imagen, la añadimos a los campos a actualizar.
         if (req.file) {
             fieldsToUpdate.img = req.file.buffer;
+            fieldsToUpdate.img_mimetype = req.file.mimetype;
         }
 
         // Ejecutamos la actualización en la base de datos.
@@ -358,7 +383,7 @@ app.delete('/api/categories/:id', async (req, res) => {
  */
 app.get('/api/banners', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT id, titulo, activo, orden FROM banners ORDER BY orden ASC');
+        const [rows] = await pool.query('SELECT id, activo, orden FROM banners ORDER BY orden ASC');
         // Creamos URLs virtuales para las imágenes, igual que con los productos
         const bannersWithImageUrls = rows.map(b => ({
             ...b,
@@ -372,15 +397,41 @@ app.get('/api/banners', async (req, res) => {
 });
 
 /**
+ * GET /api/banners/:id
+ * Obtiene un solo banner por su ID.
+ */
+app.get('/api/banners/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [rows] = await pool.query('SELECT * FROM banners WHERE id = ?', [id]);
+
+        if (rows.length <= 0) {
+            return res.status(404).json({ message: 'Banner no encontrado' });
+        }
+        const banner = rows[0];
+        // Creamos una URL para la imagen para mostrarla en el formulario de edición
+        if (banner.img) {
+            banner.img = `http://localhost:3000/api/banners/${banner.id}/image`;
+        } else {
+            banner.img = 'http://localhost:3000/static/placeholder.png';
+        }
+        res.json(banner);
+    } catch (error) {
+        console.error('Error al obtener el banner:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+});
+
+/**
  * GET /api/banners/active
  * Obtiene solo los banners que están marcados como activos.
  */
 app.get('/api/banners/active', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT id, img, titulo FROM banners WHERE activo = 1 ORDER BY orden ASC');
+        const [rows] = await pool.query('SELECT id, img, img_mimetype FROM banners WHERE activo = 1 ORDER BY orden ASC');
         const bannersWithBase64 = rows.map(banner => {
             if (banner.img) {
-                banner.img = `data:image/jpeg;base64,${Buffer.from(banner.img).toString('base64')}`;
+                banner.img = `data:${banner.img_mimetype};base64,${Buffer.from(banner.img).toString('base64')}`;
             } else {
                 banner.img = 'http://localhost:3000/static/placeholder.png';
             }
@@ -400,9 +451,9 @@ app.get('/api/banners/active', async (req, res) => {
 app.get('/api/banners/:id/image', async (req, res) => {
     try {
         const { id } = req.params;
-        const [rows] = await pool.query('SELECT img FROM banners WHERE id = ?', [id]);
+        const [rows] = await pool.query('SELECT img, img_mimetype FROM banners WHERE id = ?', [id]);
         if (rows.length > 0 && rows[0].img) {
-            res.setHeader('Content-Type', 'image/jpeg');
+            res.setHeader('Content-Type', rows[0].img_mimetype);
             res.send(rows[0].img);
         } else {
             res.redirect('http://localhost:3000/static/placeholder.png');
@@ -418,14 +469,14 @@ app.get('/api/banners/:id/image', async (req, res) => {
  */
 app.post('/api/banners', upload.single('banner-image'), async (req, res) => {
     try {
-        const { 'banner-title': titulo } = req.body;
         const img = req.file ? req.file.buffer : null;
+        const img_mimetype = req.file ? req.file.mimetype : null;
 
         const [result] = await pool.query(
-            'INSERT INTO banners (titulo, img) VALUES (?, ?)',
-            [titulo, img]
+            'INSERT INTO banners (img, img_mimetype) VALUES (?, ?)',
+            [img, img_mimetype]
         );
-        res.status(201).json({ id: result.insertId, titulo });
+        res.status(201).json({ id: result.insertId });
     } catch (error) {
         console.error('Error al añadir banner:', error);
         res.status(500).json({ message: 'Error interno del servidor.' });
@@ -439,23 +490,55 @@ app.post('/api/banners', upload.single('banner-image'), async (req, res) => {
 app.put('/api/banners/:id', upload.single('banner-image'), async (req, res) => {
     try {
         const { id } = req.params;
-        const { 'banner-title': titulo } = req.body;
-
-        let query = 'UPDATE banners SET titulo = ? WHERE id = ?';
-        let params = [titulo, id];
-
+        
+        // Ahora solo actualizamos la imagen si se sube una nueva.
+        const fieldsToUpdate = {};
         if (req.file) {
-            query = 'UPDATE banners SET titulo = ?, img = ? WHERE id = ?';
-            params = [titulo, req.file.buffer, id];
+            fieldsToUpdate.img = req.file.buffer;
+            fieldsToUpdate.img_mimetype = req.file.mimetype;
+        }
+        const [result] = await pool.query('UPDATE banners SET ? WHERE id = ?', [fieldsToUpdate, id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Banner no encontrado para actualizar.' });
         }
 
-        await pool.query(query, params);
+        if (Object.keys(fieldsToUpdate).length === 0) {
+            return res.json({ message: 'No se subió una nueva imagen, no se realizaron cambios.' });
+        }
+
         res.json({ message: 'Banner actualizado correctamente.' });
     } catch (error) {
         console.error('Error al actualizar banner:', error);
         res.status(500).json({ message: 'Error interno del servidor.' });
     }
 });
+
+/**
+ * PATCH /api/banners/order
+ * Actualiza el orden de los banners.
+ */
+app.patch('/api/banners/order', async (req, res) => {
+    try {
+        const { ids } = req.body; // Recibe un array de IDs en el nuevo orden.
+        if (!ids || !Array.isArray(ids)) {
+            return res.status(400).json({ message: 'Se requiere un array de IDs.' });
+        }
+
+        // Creamos una promesa para cada actualización.
+        const updatePromises = ids.map((id, index) => {
+            return pool.query('UPDATE banners SET orden = ? WHERE id = ?', [index, id]);
+        });
+
+        // Ejecutamos todas las promesas.
+        await Promise.all(updatePromises);
+
+        res.json({ message: 'Orden de los banners actualizado correctamente.' });
+    } catch (error) {
+        console.error('Error al reordenar banners:', error);
+        res.status(500).json({ message: 'Error interno del servidor al reordenar.' });
+    }
+});
+
 /**
  * PATCH /api/banners/:id/toggle
  * Cambia el estado de un banner.

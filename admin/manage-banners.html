@@ -13,7 +13,7 @@
     <div id="notification-container"></div>
     <header class="main-header">
         <nav class="navbar">
-            <a href="dashboard.html" class="nav-logo">lt="Cookies and Cakes Admin Logo">
+            <a href="dashboard.html" class="nav-logo"><img src="../assets/images/logo.jpg" alt="Cookies and Cakes Admin Logo">
             </a>
             <ul class="nav-menu">
                 <li class="nav-item"><a href="dashboard.html" class="nav-link">Productos</a></li>
@@ -23,6 +23,11 @@
             </ul>
             <div class="nav-icons">
                 <a href="../index.html" class="nav-link admin-logout"><i class="fas fa-sign-out-alt"></i> Salir</a>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
             </div>
         </nav>
     </header>
@@ -37,10 +42,19 @@
             <form class="category-form" id="addBannerForm">
                 <h3>Añadir Nuevo Banner</h3>
                 <div class="form-group-inline">
-                    <input type="text" id="banner-title" name="banner-title" placeholder="Título del banner (opcional)">
                     <input type="file" id="banner-image" name="banner-image" accept="image/*" required>
-                    <small class="form-hint">Recomendado: 1920x800 píxeles, formato panorámico (JPG).</small>
+                    <small class="form-hint">Recomendado: 1920x800 píxeles, formato panorámico.</small>
                     <button type="submit" class="admin-btn primary"><i class="fas fa-plus"></i> Añadir Banner</button>
+                </div>
+            </form>
+
+            <!-- Formulario para ajustar velocidad -->
+            <form class="category-form" id="bannerSettingsForm">
+                <h3>Ajustes del Carrusel</h3>
+                <div class="form-group-inline">
+                    <label for="banner-speed">Velocidad de rotación (en segundos):</label>
+                    <input type="number" id="banner-speed" name="banner-speed" min="1" value="5">
+                    <button type="submit" class="admin-btn secondary"><i class="fas fa-save"></i> Guardar Velocidad</button>
                 </div>
             </form>
 
@@ -50,10 +64,9 @@
                     <thead>
                         <tr>
                             <th>Imagen</th>
-                            <th>Título</th>
+                            <th>ID del Banner</th>
                             <th>Estado</th>
-                            <th>Orden</th>
-                            <th style="width: 300px;">Acciones</th>
+                            <th style="width: 320px;">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="banners-table-body">

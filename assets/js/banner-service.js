@@ -123,5 +123,25 @@ const BannerService = {
             console.error('BannerService Error:', error);
             return { success: false };
         }
+    },
+
+    /**
+     * Actualiza el orden de los banners.
+     * --- CONEXIÓN BACKEND ---
+     * Endpoint: PATCH /api/banners/order
+     */
+    updateOrder: async function(orderedIds) {
+        try {
+            const response = await fetch(`${this._apiUrl}/order`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: orderedIds })
+            });
+            if (!response.ok) throw new Error('Error al reordenar los banners.');
+            return await response.json();
+        } catch (error) {
+            console.error('BannerService Error al reordenar:', error);
+            return null;
+        }
     }
 };

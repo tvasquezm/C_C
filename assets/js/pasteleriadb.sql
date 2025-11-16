@@ -4,9 +4,10 @@
 
 -- 1. CREACIÓN DE LA BASE DE DATOS
 -- Si ya existe, la borra para empezar de cero y evitar errores.
-DROP DATABASE IF EXISTS `pasteleriadb`;
-CREATE DATABASE `pasteleriadb` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `pasteleriadb`;
+-- Las siguientes líneas se han comentado porque la base de datos 'pasteleria_db' ya existe.
+-- DROP DATABASE IF EXISTS `pasteleria_db`;
+-- CREATE DATABASE `pasteleria_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `pasteleria_db`;
 
 -- 2. CREACIÓN DE LA TABLA `categorias`
 -- Aquí se guardarán los tipos de productos (Tortas, Galletas, etc.)
@@ -43,6 +44,7 @@ CREATE TABLE `banners` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `img` LONGBLOB NULL,
   `img_mimetype` VARCHAR(50) NULL COMMENT 'Guarda el tipo MIME de la imagen (ej: image/png) para servirla correctamente.',
+  `titulo` VARCHAR(150),
   `activo` TINYINT(1) NOT NULL DEFAULT 1,
   `orden` INT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
@@ -93,8 +95,7 @@ INSERT INTO `productos` (`name`, `category_id`, `price`, `size`, `description`, 
 ('Pie de Calabaza (Otoño)', 4, '$18.000', 'Grande (10 porc.)', 'El clásico "Pumpkin Pie" americano, cremoso y lleno de sabor a especias de otoño.', 1);
 
 -- Banners de ejemplo
--- Ahora solo insertamos banners vacíos, listos para que les subas una imagen desde el admin.
-INSERT INTO `banners` (`activo`, `orden`) VALUES
-(1, 0),
-(1, 1),
-(1, 2);
+INSERT INTO `banners` (`titulo`, `activo`, `orden`) VALUES
+('Pastelería Artesanal', 1, 0),
+('Tortas para toda Ocasión', 1, 1),
+('Nuevos Sabores de Temporada', 1, 2);
