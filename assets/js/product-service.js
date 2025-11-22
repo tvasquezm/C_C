@@ -1,132 +1,99 @@
-// ==================== SERVICIO DE PRODUCTOS (CONEXIÓN CON BACKEND) ====================
-// Este archivo es la capa que se comunica con el backend para gestionar los productos.
+// c:/Users/tmmsv/Documents/pasteleria/assets/js/product-service.js
 
 const ProductService = {
-    // --- PUNTO DE CONFIGURACIÓN ---
-    // Apuntamos a la URL de nuestra API creada con Node.js y Express.
+    // La URL base de nuestra API de productos. Apunta al servidor local que crearemos.
     _apiUrl: 'http://localhost:3000/api/products',
 
-   /**
-    * Obtiene productos desde el backend.
-    * @param {boolean} all - Si es true, obtiene todos (para admin). Si es false, solo los activos (para el público).
-    */
-    getAll: async function(all = false) {
-        try {
-            // El sitio público llamará a /api/products/active
-            // El admin llamará a /api/products
-            const url = all ? this._apiUrl : `${this._apiUrl}/active`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error('Error al obtener los productos.');
-            return await response.json();
-        } catch (error) {
-            console.error('ProductService Error:', error);
-            return [];
+    /**
+     * Maneja las respuestas de la API, convirtiendo errores HTTP en excepciones de JavaScript.
+     * @param {Response} response El objeto de respuesta de fetch.
+     * @returns {Promise<any>} El cuerpo de la respuesta en formato JSON.
+     */
+    async _handleResponse(response) {
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: 'Error desconocido en el servidor' }));
+            console.error('Error de API:', errorData.message);
+            throw new Error(errorData.message || `Error HTTP ${response.status}`);
         }
+        // Si la respuesta no tiene contenido (ej. en un DELETE), devolvemos un objeto vacío.
+        if (response.status === 204) {
+            return {};
+        }
+        return response.json();
     },
 
     /**
-     * Obtiene un producto por su ID desde el backend.
-     * --- CONEXIÓN BACKEND ---
-     * Endpoint: GET /api/products/:id
+     * Obtiene todos los productos.
+     * @param {boolean} all - Si es true, obtiene todos los productos (activos e inactivos).
+     * @returns {Promise<Array>} Una lista de productos.
      */
-    getById: async function(id) {
-        try {
-            const response = await fetch(`${this._apiUrl}/${id}`);
-            if (!response.ok) throw new Error('Producto no encontrado.');
-            return await response.json();
-        } catch (error) {
-            console.error('ProductService Error:', error);
-            return null;
-        }
+    async getAll(all = false) {
+        const url = all ? `${this._apiUrl}?all=true` : this._apiUrl;
+        const response = await fetch(url);
+        return this._handleResponse(response);
     },
 
     /**
-     * Obtiene productos por ID de categoría desde el backend.
-     * --- CONEXIÓN BACKEND ---
-     * Endpoint: GET /api/products/category/:id
+     * Obtiene un producto por su ID.
+     * @param {string|number} id El ID del producto.
+     * @returns {Promise<Object>} El objeto del producto.
      */
-    getByCategoryId: async function(categoryId) {
-        try {
-            const response = await fetch(`${this._apiUrl}/category/${categoryId}`);
-            if (!response.ok) throw new Error('Error al obtener productos de la categoría.');
-            return await response.json();
-        } catch (error) {
-            console.error('ProductService Error:', error);
-            return { categoryName: 'Error', products: [] };
-        }
+    async getById(id) {
+        const response = await fetch(`${this._apiUrl}/${id}`);
+        return this._handleResponse(response);
     },
 
     /**
-     * Añade un nuevo producto enviándolo al backend.
-     * --- CONEXIÓN BACKEND ---
-     * Endpoint: POST /api/products
+     * Añade un nuevo producto.
+     * @param {FormData} formData Los datos del producto, incluyendo la imagen.
+     * @returns {Promise<Object>} El producto recién creado.
      */
-    add: async function(formData) { // Ahora recibe FormData
-        try {
-            const response = await fetch(this._apiUrl, {
-                method: 'POST',
-                // No se necesita 'Content-Type', el navegador lo pone automáticamente para FormData
-                body: formData
-            });
-            if (!response.ok) throw new Error('Error al añadir el producto.');
-            return await response.json();
-        } catch (error) {
-            console.error('ProductService Error:', error);
-            return null;
-        }
+    async add(formData) {
+        const response = await fetch(this._apiUrl, {
+            method: 'POST',
+            body: formData, // No se necesita 'Content-Type', el navegador lo establece para FormData.
+        });
+        return this._handleResponse(response);
     },
 
     /**
-     * Actualiza un producto existente en el backend.
-     * --- CONEXIÓN BACKEND ---
-     * Endpoint: PUT /api/products/:id
+     * Actualiza un producto existente.
+     * @param {string|number} id El ID del producto a actualizar.
+     * @param {FormData} formData Los nuevos datos del producto.
+     * @returns {Promise<Object>} El producto actualizado.
      */
-    update: async function(id, formData) { // Ahora recibe id y FormData
-        try {
-            const response = await fetch(`${this._apiUrl}/${id}`, {
-                method: 'PUT',
-                // No se necesita 'Content-Type'
-                body: formData
-            });
-            if (!response.ok) throw new Error('Error al actualizar el producto.');
-            return await response.json();
-        } catch (error) {
-            console.error('ProductService Error:', error);
-            return null;
-        }
+    async update(id, formData) {
+        const response = await fetch(`${this._apiUrl}/${id}`, {
+            method: 'PUT',
+            body: formData,
+        });
+        return this._handleResponse(response);
     },
 
     /**
-     * Cambia el estado de habilitado/deshabilitado de un producto.
-     * --- CONEXIÓN BACKEND ---
-     * Endpoint: PATCH /api/products/:id/toggle
+     * Elimina un producto por su ID.
+     * @param {string|number} id El ID del producto a eliminar.
+     * @returns {Promise<Object>} Una respuesta vacía si tiene éxito.
      */
-    toggleStatus: async function(id) {
-        try {
-            const response = await fetch(`${this._apiUrl}/${id}/toggle`, {
-                method: 'PATCH'
-            });
-            if (!response.ok) throw new Error('Error al cambiar el estado del producto.');
-            return await response.json();
-        } catch (error) {
-            console.error('ProductService Error:', error);
-            return null;
-        }
+    async delete(id) {
+        const response = await fetch(`${this._apiUrl}/${id}`, {
+            method: 'DELETE',
+        });
+        return this._handleResponse(response);
     },
 
     /**
-     * Elimina un producto por su ID en el backend.
-     * --- CONEXIÓN BACKEND ---
-     * Endpoint: DELETE /api/products/:id
+     * Cambia el estado (activo/inactivo) de un producto.
+     * @param {string|number} id El ID del producto.
+     * @returns {Promise<Object>} El producto con su estado actualizado.
      */
-    delete: async function(id) {
-        try {
-            const response = await fetch(`${this._apiUrl}/${id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error('Error al eliminar el producto.');
-            return await response.json();
-        } catch (error) {
-            console.error('ProductService Error:', error);
-            return { success: false };
-        }
+    async toggleStatus(id) {
+        // Usamos PUT en una ruta específica para cambiar el estado. Es una buena práctica REST.
+        const response = await fetch(`${this._apiUrl}/${id}/status`, {
+            method: 'PUT',
+        });
+        return this._handleResponse(response);
     }
 };
+
+// NOTA: Deberías crear archivos similares para CategoryService y BannerService.
