@@ -174,17 +174,19 @@ async function initEditProductPage() {
         return;
     }
 
-    const product = await ProductService.getById(productId);
+    // --- ¡AQUÍ ESTÁ LA MEJORA! ---
+    // Ejecutamos ambas peticiones (obtener producto y obtener categorías) en paralelo.
+    const [product, categories] = await Promise.all([
+        ProductService.getById(productId),
+        CategoryService.getAll() // Asumimos que populateCategoryDropdown usa CategoryService.getAll()
+    ]);
 
     if (!product) {
         redirectWithNotification('Producto no encontrado.', 'dashboard.html', 'error');
         return;
     }
 
-    // Rellenar el dropdown de categorías y seleccionar la correcta
-    await populateCategoryDropdown('product-category', product.category_id);
-
-    // Rellenar el formulario con los datos del producto
+    // Ahora que tenemos los datos, rellenamos el formulario
     document.getElementById('product-id').value = product.id;
     document.getElementById('product-name').value = product.name;
     // El precio se guarda como número, lo formateamos para mostrarlo si es necesario, o lo dejamos como número.
@@ -192,8 +194,22 @@ async function initEditProductPage() {
     document.getElementById('product-size').value = product.size || '';
     document.getElementById('product-description').value = product.description || '';
     
-    // --- ¡AQUÍ ESTÁ LA MEJORA! ---
-    // Mostramos la imagen actual del producto.
+    // Rellenamos el dropdown de categorías con los datos que ya obtuvimos
+    const selectElement = document.getElementById('product-category');
+    if (selectElement) {
+        selectElement.innerHTML = '<option value="">Selecciona una categoría</option>';
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.nombre;
+            if (product.category_id && category.id == product.category_id) {
+                option.selected = true;
+            }
+            selectElement.appendChild(option);
+        });
+    }
+
+    // Mostramos la imagen actual del producto
     const imagePreview = document.querySelector('#current-image-preview img');
     if (product.img && imagePreview) {
         imagePreview.src = product.img;
@@ -429,12 +445,22 @@ const AdminApp = {
     initMenu() {
         const hamburger = document.querySelector(".hamburger");
         const navMenu = document.querySelector(".nav-menu");
-        if (!hamburger || !navMenu) return;
 
-        hamburger.addEventListener("click", () => {
-            hamburger.classList.toggle("active");
-            navMenu.classList.toggle("active");
-        });
+        if (hamburger && navMenu) {
+            hamburger.addEventListener("click", () => {
+                hamburger.classList.toggle("active");
+                navMenu.classList.toggle("active");
+            });
+
+            // Cierra el menú si se hace clic en un enlace
+            document.querySelectorAll(".nav-link").forEach(n => n.addEventListener("click", () => {
+                // No cerramos si es un enlace para ver el sitio en una nueva pestaña
+                if (!n.closest('.nav-item a[target="_blank"]')) {
+                    hamburger.classList.remove("active");
+                    navMenu.classList.remove("active");
+                }
+            }));
+        }
     },
 
     runPageInitializer() {
@@ -455,19 +481,3 @@ const AdminApp = {
 };
 
 document.addEventListener('DOMContentLoaded', () => AdminApp.init());
-
-// ==================== MENÚ HAMBURGUESA PARA EL ADMIN ====================
-const hamburger = document.querySelector(".hamburger");
-const navMenu = document.querySelector(".nav-menu");
-
-if (hamburger && navMenu) {
-    hamburger.addEventListener("click", () => {
-        hamburger.classList.toggle("active");
-        navMenu.classList.toggle("active");
-    });
-
-    document.querySelectorAll(".nav-link").forEach(n => n.addEventListener("click", () => {
-        hamburger.classList.remove("active");
-        navMenu.classList.remove("active");
-    }));
-}
