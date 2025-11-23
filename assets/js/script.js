@@ -506,7 +506,9 @@ const App = {
         ]);
 
         const allSectionsHTML = categories.map(category => {
-            const productsForCategory = allProducts.filter(p => p.category === category.nombre);
+            // CORRECCIÓN: Filtramos por el ID de la categoría, que es más robusto y fiable
+            // que comparar por el nombre (string).
+            const productsForCategory = allProducts.filter(p => p.category_id === category.id_categoria);
             if (productsForCategory.length === 0) return '';
 
             const sectionId = `category-${category.id}`;
