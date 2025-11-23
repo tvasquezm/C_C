@@ -58,11 +58,12 @@ El proyecto utiliza una base de datos MySQL para almacenar toda la información.
 2.  **Abre phpMyAdmin:** En tu navegador, ve a la dirección `http://localhost/phpmyadmin`.
 3.  **Importa el Script:**
     - En phpMyAdmin, crea una nueva base de datos llamada `pasteleria_db`.
+    - **Nota:** Si tu configuración actual usa `pasteleriadb` (sin guion bajo), asegúrate de usar ese nombre.
     - Selecciona la base de datos recién creada y ve a la pestaña **"Importar"**.
     - Haz clic en "Seleccionar archivo" y busca el archivo `database/pasteleria_db.sql` dentro de la carpeta del proyecto.
     - Haz clic en el botón **"Importar"** para ejecutar el script.
 
-Esto creará automáticamente la base de datos `pasteleria_db` con todas las tablas y datos de ejemplo necesarios.
+Esto creará las tablas y datos de ejemplo necesarios en tu base de datos.
 
 ### 4. Configuración del Backend (Servidor API)
 
