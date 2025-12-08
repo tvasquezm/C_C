@@ -70,9 +70,21 @@
 }
 .admin-btn.secondary:hover { background-color: #5a6268; }
 
+.admin-btn.danger {
+    background-color: #f8f9fa;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+.admin-btn.danger:hover { background-color: #dc3545; color: white; }
+
 .admin-btn.toggle-status {
     background-color: #17a2b8; /* Cian */
     color: var(--light-color);
+}
+.admin-btn.toggle-status:hover { background-color: #138496; }
+
+.admin-btn.toggle-status.activate {
+    background-color: #28a745; /* Verde para activar */
 }
 .admin-btn.toggle-status:hover { background-color: #138496; }
 
@@ -96,16 +108,38 @@
 
 /* Estilo para las imágenes en miniatura dentro de las tablas */
 .table-img-preview {
-    width: 80px;
-    height: 80px;
+    width: 100px;  /* Hacemos la imagen un poco más grande */
+    height: 100px; /* Hacemos la imagen un poco más grande */
     object-fit: cover;
     border-radius: 5px;
+    border: 1px solid #e9ecef; /* Añadimos un borde delgado y sutil */
 }
 
 .product-table th {
     background-color: #f2f2f2;
     font-weight: 600;
 }
+
+/* Estilos para encabezados de tabla ordenables */
+.product-table th.sortable {
+    cursor: pointer;
+    position: relative;
+    user-select: none; /* Evita que el texto se seleccione al hacer clic */
+}
+
+.product-table th.sortable:hover {
+    background-color: #e9ecef;
+}
+
+.product-table th.sortable::after {
+    content: ' \2195'; /* Flecha arriba-abajo */
+    font-size: 0.8em;
+    color: #aaa;
+    position: absolute;
+    right: 10px;
+}
+.product-table th.sort-asc::after { content: ' \25B2'; color: var(--primary-color); } /* Flecha arriba */
+.product-table th.sort-desc::after { content: ' \25BC'; color: var(--primary-color); } /* Flecha abajo */
 
 .action-buttons {
     display: flex;
@@ -118,14 +152,14 @@
 }
 
 /* Estilos para el estado del producto */
-.status-active {
+.status.active {
     background-color: #28a745; /* Verde */
     color: white;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.8rem;
 }
-.status-inactive {
+.status.inactive {
     background-color: #6c757d; /* Gris */
     color: white;
     padding: 4px 8px;
@@ -162,6 +196,13 @@
     border-radius: 5px;
     font-family: var(--font-body);
     font-size: 1rem;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(208, 162, 224, 0.5);
 }
 
 .form-actions {
@@ -207,35 +248,6 @@
     margin-top: 0.5rem;
 }
 
-/* Contenedor para notificaciones */
-#notification-container {
-    position: fixed;
-    top: 80px; /* Debajo del header */
-    right: 20px;
-    z-index: 1050;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.notification {
-    padding: 15px 20px;
-    border-radius: 5px;
-    color: var(--light-color);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    opacity: 0;
-    transform: translateX(100%);
-    animation: slideInAndOut 3s ease-in-out forwards;
-}
-
-.notification.success { background-color: #28a745; } /* Verde */
-.notification.error { background-color: #dc3545; } /* Rojo */
-
-@keyframes slideInAndOut {
-    0%, 100% { opacity: 0; transform: translateX(100%); }
-    10%, 90% { opacity: 1; transform: translateX(0); }
-}
-
 /* Estilos para la vista previa de la imagen en el formulario de edición */
 .image-preview-container {
     margin-top: 1rem;
@@ -247,4 +259,164 @@
     border-radius: 5px;
     border: 1px solid #ddd;
     margin-top: 0.5rem;
+}
+
+/* Estilos para el input de archivo personalizado */
+.file-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.file-input-wrapper input[type="file"] {
+    /* Ocultamos el input por defecto */
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.file-input-wrapper .file-input-label {
+    cursor: pointer;
+}
+
+.file-input-wrapper .file-name {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* Estilos para el formulario de ajustes (banners, etc.) */
+.settings-form-container {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.settings-form-container h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-headings);
+}
+
+.settings-form-container .form-description {
+    margin-bottom: 1.5rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Estilos para la sección de filtros */
+.admin-filters {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    flex-wrap: wrap;
+}
+
+.admin-filters .form-group {
+    flex: 1;
+    min-width: 250px;
+}
+
+/* Estilos para el indicador de carga (spinner) */
+.loader-row td {
+    text-align: center;
+    padding: 2rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3; /* Gris claro */
+    border-top: 5px solid var(--primary-color); /* Color primario */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Estilos de Paginación */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 2rem;
+}
+
+.pagination-btn {
+    background-color: var(--light-color);
+    border: 1px solid #ddd;
+    color: var(--dark-color);
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.pagination-btn:hover:not(.active) {
+    background-color: #f8f9fa;
+    border-color: #ccc;
+}
+
+.pagination-btn.active {
+    background-color: var(--primary-color);
+    color: var(--light-color);
+    border-color: var(--primary-color);
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Estilos para el indicador de carga (spinner) */
+.loader-row td {
+    text-align: center;
+    padding: 2rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3; /* Gris claro */
+    border-top: 5px solid var(--primary-color); /* Color primario */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Estilos para el indicador de carga (spinner) */
+.loader-row td {
+    text-align: center;
+    padding: 2rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3; /* Gris claro */
+    border-top: 5px solid var(--primary-color); /* Color primario */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }

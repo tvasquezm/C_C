@@ -7,7 +7,7 @@
     <title>Gestión de Banners - Cookies and Cakes</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="admin-style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/all.min.css"> <!-- Enlace local a Font Awesome -->
 </head>
 <body id="admin-manage-banners">
     <div id="notification-container"></div>
@@ -43,21 +43,31 @@
             <form class="category-form" id="addBannerForm">
                 <h3>Añadir Nuevo Banner</h3>
                 <div class="form-group-inline">
-                    <input type="file" id="banner-image" name="banner-image" accept="image/*" required>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="banner-image" name="banner-image" accept="image/*" required>
+                        <label for="banner-image" class="admin-btn secondary file-input-label">
+                            <i class="fas fa-upload"></i> Elegir archivo...
+                        </label>
+                        <span class="file-name">Ningún archivo seleccionado</span>
+                    </div>
                     <small class="form-hint">Recomendado: 1920x800 píxeles, formato panorámico.</small>
                     <button type="submit" class="admin-btn primary"><i class="fas fa-plus"></i> Añadir Banner</button>
                 </div>
             </form>
 
             <!-- Formulario para ajustar velocidad -->
-            <form class="category-form" id="bannerSettingsForm">
-                <h3>Ajustes del Carrusel</h3>
-                <div class="form-group-inline">
-                    <label for="banner-speed">Velocidad de rotación (en segundos):</label>
-                    <input type="number" id="banner-speed" name="banner-speed" min="1" value="5">
-                    <button type="submit" class="admin-btn secondary"><i class="fas fa-save"></i> Guardar Velocidad</button>
-                </div>
-            </form>
+            <div class="settings-form-container">
+                <h3>Ajustes del Carrusel de Banners</h3>
+                <p class="form-description">
+                    Controla la rapidez con la que rotan los banners en la página de inicio. Un número más bajo (ej: 3) hará que roten más rápido. Un número más alto (ej: 10) los hará más lentos.
+                </p>
+                <form id="bannerSettingsForm">
+                    <div class="form-group-inline">
+                        <input type="number" id="banner-speed" name="banner-speed" min="1" value="5" aria-label="Velocidad de rotación en segundos">
+                        <button type="submit" class="admin-btn secondary"><i class="fas fa-save"></i> Guardar Velocidad</button>
+                    </div>
+                </form>
+            </div>
 
             <!-- Tabla para listar banners existentes -->
             <div class="product-table-container">
@@ -65,7 +75,7 @@
                     <thead>
                         <tr>
                             <th>Imagen</th>
-                            <th>ID del Banner</th>
+                            <th>Orden</th>
                             <th>Estado</th>
                             <th style="width: 320px;">Acciones</th>
                         </tr>
@@ -86,6 +96,7 @@
 
     <!-- Scripts necesarios -->
     <script src="../assets/js/banner-service.js"></script>
+    <script src="../assets/js/utils.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

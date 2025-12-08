@@ -1,153 +1,5 @@
-/**
- * @class ShoppingCart
- * Encapsula toda la lógica y el estado del carrito de compras.
- */
-class ShoppingCart {
-    constructor() {
-        this.cartIcon = document.querySelector('.fa-shopping-cart');
-        this.cartSidebar = document.getElementById('cart-sidebar');
-        this.cartOverlay = document.getElementById('cart-overlay');
-        this.closeCartBtn = document.getElementById('close-cart-btn');
-        this.cartItemsContainer = document.getElementById('cart-items');
-        this.checkoutBtn = document.querySelector('.checkout-btn');
-        this.cart = this._getCart();
-        this._addEventListeners();
-        this.updateUI();
-    }
-
-    _getCart() {
-        return JSON.parse(localStorage.getItem('cart')) || [];
-    }
-
-    _saveCart() {
-        localStorage.setItem('cart', JSON.stringify(this.cart));
-        this.updateUI();
-    }
-
-    async addProduct(productId) {
-        const product = await ProductService.getById(productId);
-        if (!product) return;
-
-        const existingItem = this.cart.find(item => item.id === productId);
-
-        if (existingItem) {
-            existingItem.quantity++;
-        } else {
-            const cartItem = {
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                quantity: 1,
-                img: `http://localhost:3000/api/products/${product.id}/image`
-            };
-            this.cart.push(cartItem);
-        }
-
-        this._saveCart();
-        console.log(`Producto "${product.name}" añadido al carrito.`);
-        this.open();
-    }
-
-    _increaseQuantity(productId) {
-        const item = this.cart.find(p => p.id === productId);
-        if (item) {
-            item.quantity++;
-            this._saveCart();
-        }
-    }
-
-    _decreaseQuantity(productId) {
-        const itemIndex = this.cart.findIndex(p => p.id === productId);
-        if (itemIndex > -1) {
-            this.cart[itemIndex].quantity--;
-            if (this.cart[itemIndex].quantity <= 0) {
-                this.cart.splice(itemIndex, 1);
-            }
-            this._saveCart();
-        }
-    }
-
-    _removeFromCart(productId) {
-        this.cart = this.cart.filter(item => item.id !== productId);
-        this._saveCart();
-    }
-
-    updateUI() {
-        this.cartItemsContainer.innerHTML = '';
-        if (this.cart.length === 0) {
-            this.cartItemsContainer.innerHTML = '<p class="cart-empty-msg">Tu carrito está vacío.</p>';
-        } else {
-            this.cart.forEach(item => {
-                const cartItemEl = document.createElement('div');
-                cartItemEl.className = 'cart-item';
-                cartItemEl.innerHTML = `
-                    <img src="${item.img}" alt="${item.name}">
-                    <div class="cart-item-info">
-                        <p>${item.name}</p>
-                        <small>${item.price}</small>
-                    </div>
-                    <div class="cart-item-quantity">
-                        <button class="quantity-btn decrease-quantity" data-id="${item.id}">-</button>
-                        <span>${item.quantity}</span>
-                        <button class="quantity-btn increase-quantity" data-id="${item.id}">+</button>
-                    </div>
-                    <button class="cart-item-remove" data-id="${item.id}">&times;</button>
-                `;
-                this.cartItemsContainer.appendChild(cartItemEl);
-            });
-        }
-        const totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
-        this.cartIcon.dataset.count = totalItems > 0 ? totalItems : '';
-    }
-
-    open() {
-        this.cartSidebar.classList.add('active');
-        this.cartOverlay.classList.add('active');
-    }
-
-    close() {
-        this.cartSidebar.classList.remove('active');
-        this.cartOverlay.classList.remove('active');
-    }
-
-    _checkout() {
-        if (this.cart.length === 0) {
-            alert('Tu carrito está vacío. Añade productos antes de finalizar la compra.');
-            return;
-        }
-        let message = '¡Hola Cookies and Cakes! Quisiera cotizar el siguiente pedido:\n\n';
-        this.cart.forEach(item => {
-            message += `*Producto:* ${item.name}\n*Cantidad:* ${item.quantity}\n------------------------\n`;
-        });
-        message += `\nQuedo a la espera de la cotización. ¡Gracias!`;
-
-        const phoneNumber = '56961961556';
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-        window.open(whatsappUrl, '_blank');
-        this.cart = [];
-        this._saveCart();
-        this.close();
-    }
-
-    _addEventListeners() {
-        this.cartIcon.addEventListener('click', () => this.open());
-        this.closeCartBtn.addEventListener('click', () => this.close());
-        this.cartOverlay.addEventListener('click', () => this.close());
-
-        this.cartItemsContainer.addEventListener('click', (event) => {
-            const target = event.target;
-            const productId = target.dataset.id;
-            if (target.classList.contains('cart-item-remove')) this._removeFromCart(productId);
-            if (target.classList.contains('increase-quantity')) this._increaseQuantity(productId);
-            if (target.classList.contains('decrease-quantity')) this._decreaseQuantity(productId);
-        });
-
-        if (this.checkoutBtn) {
-            this.checkoutBtn.addEventListener('click', () => this._checkout());
-        }
-    }
-}
+// Constante para la URL base de la API, facilitando cambios futuros.
+const API_BASE_URL = 'http://localhost:3001';
 
 // ==================== RENDERIZADO DINÁMICO DE PRODUCTOS ====================
 
@@ -160,7 +12,7 @@ function createProductCard(product) {
     const buttonText = product.price === 'Cotizar' ? 'Cotizar' : 'Añadir al Carrito';
     return `
         <div class="product-card" data-id="${product.id}">
-            <img src="${product.img}" alt="${product.name}">
+            <img src="${API_BASE_URL}/api/products/${product.id}/image" alt="${product.name}">
             <div class="product-info">
                 <h3 class="product-name">${product.name}</h3>
                 <p class="product-price">${product.price}</p>
@@ -230,12 +82,20 @@ async function renderProductDetailPage() {
         return;
     }
 
-    const product = await ProductService.getById(productId);
+    // Obtenemos el producto y todas las categorías al mismo tiempo para ser más eficientes.
+    const [product, allCategories] = await Promise.all([
+        ProductService.getById(productId),
+        CategoryService.getAll()
+    ]);
 
     if (!product) {
         container.innerHTML = '<p>Producto no encontrado.</p>';
         return;
     }
+
+    // Buscamos el nombre de la categoría usando el category_id del producto.
+    const category = allCategories.find(cat => cat.id === product.category_id);
+    const categoryName = category ? category.name : 'Categoría desconocida';
 
     // Actualizamos el título de la página
     document.title = `${product.name} - Cookies and Cakes`;
@@ -243,11 +103,11 @@ async function renderProductDetailPage() {
     // Creamos el HTML para el detalle del producto
     container.innerHTML = `
         <div class="product-detail-image">
-            <img src="${product.img}" alt="${product.name}">
+            <img src="${API_BASE_URL}/api/products/${product.id}/image" alt="${product.name}">
         </div>
         <div class="product-detail-info">
             <h1 class="product-detail-title">${product.name}</h1>
-            <p class="product-detail-category">${product.category}</p>
+            <p class="product-detail-category">${categoryName}</p>
             <p class="product-detail-price">${product.price}</p>
             <p class="product-detail-description">
                 ${product.description || 'Descripción no disponible.'}
@@ -255,6 +115,15 @@ async function renderProductDetailPage() {
             <button class="add-to-cart-btn large" data-id="${product.id}">Añadir al Carrito</button>
         </div>
     `;
+
+    // --- ¡AQUÍ ESTÁ LA SOLUCIÓN! ---
+    // Añadimos un listener de eventos al botón recién creado.
+    const addToCartBtn = container.querySelector('.add-to-cart-btn');
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', () => {
+            App.cart.addProduct(product.id);
+        });
+    }
 }
 
 /**
@@ -326,8 +195,8 @@ async function renderHeroBanners() {
     if (!heroContainer) return;
 
     try {
-        // ¡Ahora usamos el servicio real para obtener los banners desde la BD!
-        const banners = await BannerService.getAll();
+        // CORRECCIÓN: Usamos getActive() para obtener solo los banners activos y ordenados.
+        const banners = await BannerService.getActive();
 
         if (!banners || banners.length === 0) {
             heroContainer.innerHTML = '<p>No hay banners para mostrar.</p>';
@@ -339,7 +208,7 @@ async function renderHeroBanners() {
         function showBanner(index) {
             const banner = banners[index];
             // Usamos el estilo 'background-image' para un mejor ajuste y efecto visual.
-            heroContainer.style.backgroundImage = `url('${banner.img}')`;
+            heroContainer.style.backgroundImage = `url('${API_BASE_URL}/api/banners/${banner.id}/image')`;
             // El contenido de texto ahora es estático y está en el index.html
         }
 
@@ -502,19 +371,18 @@ const App = {
 
         const [categories, allProducts] = await Promise.all([
             CategoryService.getAll(),
-            ProductService.getAll(false)
+            ProductService.getAll(false) // Sin paginación, debe devolver un array
         ]);
 
         const allSectionsHTML = categories.map(category => {
-            // CORRECCIÓN: Filtramos por el ID de la categoría, que es más robusto y fiable
-            // que comparar por el nombre (string).
-            const productsForCategory = allProducts.filter(p => p.category_id === category.id_categoria);
+            // CORRECCIÓN: `allProducts` es ahora un array, por lo que .filter funcionará.
+            const productsForCategory = allProducts.filter(p => p.category_id === category.id);
             if (productsForCategory.length === 0) return '';
 
             const sectionId = `category-${category.id}`;
             return `
                 <section class="featured-products" id="${sectionId}">
-                    <h2 class="section-title">${category.nombre}</h2>
+                    <h2 class="section-title">${category.name}</h2>
                     <div class="product-slider-container">
                         <button class="slider-arrow prev-arrow"><i class="fas fa-chevron-left"></i></button>
                         <div class="product-slider-wrapper">

@@ -7,9 +7,9 @@
     <title>Panel de Administración - Cookies and Cakes</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="admin-style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/all.min.css"> <!-- Enlace local a Font Awesome -->
 </head>
-<body id="admin-dashboard">
+<body id="admin-dashboard"> <!-- ID para que JS sepa en qué página está -->
     <div id="notification-container"></div>
     <header class="main-header">
         <nav class="navbar">
@@ -43,16 +43,38 @@
                 </a>
             </div>
 
+            <!-- Sección de Filtros -->
+            <div class="admin-filters">
+                <div class="form-group">
+                    <label for="filter-by-name">Filtrar por nombre:</label>
+                    <input type="text" id="filter-by-name" placeholder="Buscar producto...">
+                </div>
+                <div class="form-group">
+                    <label for="filter-by-category">Filtrar por categoría:</label>
+                    <select id="filter-by-category">
+                        <!-- Las categorías se cargarán aquí con JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filter-by-status">Filtrar por estado:</label>
+                    <select id="filter-by-status">
+                        <option value="all">Todos</option>
+                        <option value="active">Solo Activos</option>
+                        <option value="inactive">Solo Inactivos</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="product-table-container">
                 <table class="product-table">
                     <thead>
                         <tr>
                             <th>Imagen</th>
-                            <th>Nombre del Producto</th>
-                            <th>Categoría</th>
+                            <th class="sortable" data-sort="name">Nombre del Producto</th>
+                            <th class="sortable" data-sort="category">Categoría</th>
                             <th>Precio</th>
                             <th>Tamaño</th>
-                            <th>Estado</th>
+                            <th class="sortable" data-sort="status">Estado</th>
                             <th style="width: 320px;">Acciones</th>
                         </tr>
                     </thead>
@@ -61,6 +83,11 @@
                         <!-- Si no hay productos, se podría mostrar un mensaje -->
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Contenedor para la Paginación -->
+            <div class="pagination-container" id="pagination-controls">
+                <!-- Los botones de paginación se generarán aquí con JS -->
             </div>
         </div>
     </main>
@@ -74,6 +101,7 @@
     <!-- Enlace al script de administración -->
     <script src="../assets/js/product-service.js"></script> <!-- Archivo que acabamos de crear -->
     <script src="../assets/js/category-service.js"></script> <!-- Aún por crear, pero lo dejamos listo -->
+    <script src="../assets/js/utils.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>

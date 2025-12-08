@@ -27,6 +27,18 @@ body {
     background-image: linear-gradient(180deg, #f7f2fa 0%, var(--secondary-color) 100%);
 }
 
+/* --- MEJORA: Estilos para Animación al Desplazar (Scroll) --- */
+.fade-in-section {
+    opacity: 0;
+    transform: translateY(40px); /* Empieza 40px más abajo */
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in-section.is-visible {
+    opacity: 1;
+    transform: translateY(0); /* Vuelve a su posición original */
+}
+
 /* ==================== HEADER Y NAVEGACIÓN ==================== */
 .main-header {
     background-color: var(--light-color);
@@ -192,14 +204,65 @@ body {
     margin: 0 auto;
     text-align: center;
     font-size: 1.1rem;
+    /* --- MEJORA: Marco con brillo sutil --- */
+    background-color: var(--light-color);
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: var(--box-shadow-glow);
+    border: 2px solid var(--primary-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.info-section-content:hover {
+    transform: translateY(-5px); /* Ligero efecto de elevación al pasar el mouse */
+    box-shadow: 0 10px 30px rgba(208, 162, 224, 0.5); /* Sombra más pronunciada */
 }
 
 .info-section-content p {
     margin-bottom: 1.5rem;
 }
 
+.info-section-content .whatsapp-contact-btn {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    background-color: #25D366; /* Color de WhatsApp */
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+.info-section-content .whatsapp-contact-btn:hover {
+    background-color: #128C7E;
+}
+.contact-hint {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-top: 1rem;
+}
 .info-section-content .social-icons {
     margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.info-section-content .social-icons a {
+    font-size: 2.5rem; /* Iconos más grandes */
+    color: var(--dark-color); /* Color base */
+    opacity: 0.8;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.info-section-content .social-icons a:hover {
+    transform: scale(1.2);
+    opacity: 1;
+}
+
+/* Colores específicos para cada red social */
+.info-section-content .social-icons a[aria-label="Instagram"]:hover {
+    color: #E1306C; /* Color de Instagram */
+}
+.info-section-content .social-icons a[aria-label="WhatsApp"]:hover {
+    color: #25D366; /* Color de WhatsApp */
 }
 
 /* ==================== ESTILOS PARA PÁGINAS DE CATEGORÍA ==================== */
@@ -315,31 +378,51 @@ body {
 }
 
 .quantity-btn {
-    width: 28px;
-    height: 28px;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #e9ecef;
+    background-color: #f8f9fa;
     cursor: pointer;
     border-radius: 50%;
     font-weight: bold;
     color: var(--dark-color);
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.2s;
 }
 
 .quantity-btn:hover {
-    background-color: #eee;
+    background-color: #e9ecef;
+    transform: scale(1.1);
+}
+
+.quantity-btn:active {
+    transform: scale(0.95); /* Efecto de "presionado" */
+    background-color: #d1d5db; /* Un gris ligeramente más oscuro */
 }
 
 .cart-item-remove {
-    background: none;
-    border: 1px solid #ddd;
-    color: #aaa;
-    width: 24px;
-    height: 24px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    color: var(--dark-color);
+    opacity: 0.7;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     cursor: pointer;
-    line-height: 22px;
+    line-height: 28px;
     text-align: center;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+}
+
+.cart-item-remove:hover {
+    background-color: #dc3545; /* Rojo de peligro */
+    color: white;
+    opacity: 1;
+    transform: scale(1.1);
+}
+.cart-item-remove:active {
+    background-color: #c82333; /* Un rojo más oscuro al presionar */
+    transform: scale(0.95);
 }
 
 .cart-footer {
@@ -451,6 +534,12 @@ body {
     flex-wrap: nowrap; /* Evita que los productos salten a la siguiente línea */
     gap: 2rem;
     transition: transform 0.5s ease-in-out; /* Animación de deslizamiento */
+}
+
+/* Clase para centrar el grid cuando no hay suficientes productos para un carrusel */
+.product-grid.centered {
+    justify-content: center;
+    flex-wrap: wrap; /* Permite que los elementos se ajusten si es necesario */
 }
 
 /* Estilos específicos para las tarjetas DENTRO del carrusel */

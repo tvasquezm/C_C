@@ -2,7 +2,7 @@
 
 const ProductService = {
     // La URL base de nuestra API de productos. Apunta al servidor local que crearemos.
-    _apiUrl: 'http://localhost:3000/api/products',
+    _apiUrl: 'http://localhost:3001/api/products',
 
     /**
      * Maneja las respuestas de la API, convirtiendo errores HTTP en excepciones de JavaScript.
@@ -27,8 +27,18 @@ const ProductService = {
      * @param {boolean} all - Si es true, obtiene todos los productos (activos e inactivos).
      * @returns {Promise<Array>} Una lista de productos.
      */
-    async getAll(all = false) {
-        const url = all ? `${this._apiUrl}?all=true` : this._apiUrl;
+    async getAll(all = false, { page = null, limit = null, name = null, category = null, status = null, sortBy = null, sortOrder = null } = {}) {
+        const params = new URLSearchParams();
+        if (all) params.append('all', 'true');
+        if (page) params.append('page', page);
+        if (limit) params.append('limit', limit);
+        if (name) params.append('name', name);
+        if (category) params.append('category', category);
+        if (status) params.append('status', status);
+        if (sortBy) params.append('sortBy', sortBy);
+        if (sortOrder) params.append('sortOrder', sortOrder);
+        
+        const url = `${this._apiUrl}?${params.toString()}`;
         const response = await fetch(url);
         return this._handleResponse(response);
     },

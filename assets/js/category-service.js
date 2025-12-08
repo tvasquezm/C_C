@@ -1,7 +1,7 @@
 // ==================== SERVICIO DE CATEGORÍAS (CONEXIÓN CON BACKEND) ====================
 
 const CategoryService = {
-    _apiUrl: 'http://localhost:3000/api/categories',
+    _apiUrl: 'http://localhost:3001/api/categories',
 
     /**
      * Obtiene todas las categorías desde el backend.
@@ -66,12 +66,15 @@ const CategoryService = {
      */
     delete: async function(id) {
         try {
-            const response = await fetch(`${this._apiUrl}/${id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error('Error al eliminar la categoría.');
-            return await response.json();
+            const response = await fetch(`${this._apiUrl}/${id}`, {
+                method: 'DELETE'
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Error al eliminar la categoría.');
+            return { success: true, ...data };
         } catch (error) {
             console.error('CategoryService Error:', error);
-            return { success: false };
+            return { success: false, message: error.message };
         }
     }
 };

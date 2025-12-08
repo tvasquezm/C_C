@@ -3,7 +3,7 @@
 
 const BannerService = {
     // --- PUNTO DE CONFIGURACIÓN ---
-    _apiUrl: 'http://localhost:3000/api/banners',
+    _apiUrl: 'http://localhost:3001/api/banners',
 
     /**
      * Obtiene todos los banners (para el panel de administración).
@@ -94,18 +94,18 @@ const BannerService = {
     /**
      * Cambia el estado de un banner.
      * --- CONEXIÓN BACKEND ---
-     * Endpoint: PATCH /api/banners/:id/toggle
+     * Endpoint: PUT /api/banners/:id/status
      */
     toggleStatus: async function(id) {
         try {
-            const response = await fetch(`${this._apiUrl}/${id}/toggle`, {
-                method: 'PATCH'
+            const response = await fetch(`${this._apiUrl}/${id}/status`, {
+                method: 'PUT'
             });
             if (!response.ok) throw new Error('Error al cambiar el estado del banner.');
             return await response.json();
         } catch (error) {
             console.error('BannerService Error:', error);
-            return null;
+            return { success: false };
         }
     },
 
@@ -116,9 +116,12 @@ const BannerService = {
      */
     delete: async function(id) {
         try {
-            const response = await fetch(`${this._apiUrl}/${id}`, { method: 'DELETE' });
+            const response = await fetch(`${this._apiUrl}/${id}`, {
+                method: 'DELETE'
+            });
             if (!response.ok) throw new Error('Error al eliminar el banner.');
-            return await response.json();
+            // Una respuesta 204 (No Content) no tiene cuerpo, así que no intentamos leerla.
+            return { success: true };
         } catch (error) {
             console.error('BannerService Error:', error);
             return { success: false };

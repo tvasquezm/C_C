@@ -1,14 +1,18 @@
-import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
+const mysql = require('mysql2/promise');
 
-// Carga las variables de entorno desde un archivo .env (para desarrollo local)
-dotenv.config();
+// La configuración de la base de datos se lee desde las variables de entorno
+// que ya cargamos en server.js
+const dbConfig = {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+};
 
-export const pool = mysql.createPool({
-    // Usa las variables de entorno si existen, si no, usa los valores por defecto para desarrollo local.
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 3306,
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_DATABASE || 'pasteleriadb'
-})
+// Creamos un "pool" de conexiones que puede ser reutilizado por toda la aplicación.
+const pool = mysql.createPool(dbConfig);
+
+module.exports = pool;

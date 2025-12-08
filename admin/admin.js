@@ -1,483 +1,535 @@
-// Lógica para el panel de administración de Cookies and Cakes
-
-// ==================== FUNCIÓN DE NOTIFICACIÓN ====================
-/**
- * Muestra una notificación flotante en la pantalla.
- * @param {string} message El mensaje a mostrar.
- * @param {'success'|'error'} type El tipo de notificación.
- */
-function showNotification(message, type = 'success') {
-    // Busca el contenedor de notificaciones. Si no existe, lo crea y lo añade al body.
-    const container = document.getElementById('notification-container');
-    if (!container) {
-        console.error('El elemento #notification-container no se encuentra en el HTML.');
-        // Como fallback, usamos un alert simple si el contenedor no existe.
-        alert(message);
-        return;
+document.addEventListener('DOMContentLoaded', () => {
+    initAdminMenu(); // Inicializa el menú hamburguesa para el admin
+    initFileInputs(); // Inicializa los botones de subida de archivos
+    // Router simple basado en el ID del body para ejecutar el código correcto en cada página
+    switch (document.body.id) {
+        case 'admin-dashboard':
+            loadProductsAdminPage();
+            break;
+        case 'admin-manage-categories':
+            loadCategoriesAdminPage();
+            break;
+        case 'admin-add-product':
+            loadAddProductPage();
+            break;
+        case 'admin-edit-product':
+            loadEditProductPage();
+            break;
+        case 'admin-manage-banners':
+            loadBannersAdminPage();
+            break;
     }
+});
 
-    // Crea y añade la notificación al contenedor.
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
+/**
+ * Inicializa la funcionalidad del menú hamburguesa en el panel de administración.
+ */
+function initAdminMenu() {
+    const hamburger = document.querySelector(".hamburger");
+    const navMenu = document.querySelector(".nav-menu");
+    if (!hamburger || !navMenu) return;
 
-    container.appendChild(notification);
+    hamburger.addEventListener("click", () => {
+        hamburger.classList.toggle("active");
+        navMenu.classList.toggle("active");
+    });
 
-    // La notificación se elimina sola después de 3 segundos (la animación dura 0.5s + 2.5s)
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
+    document.querySelectorAll(".nav-link").forEach(n => n.addEventListener("click", () => {
+        hamburger.classList.remove("active");
+        navMenu.classList.remove("active");
+    }));
 }
 
 /**
- * Muestra una notificación y redirige a una URL después de un breve retraso.
- * @param {string} message Mensaje para la notificación.
- * @param {string} url URL a la que se redirigirá.
- * @param {'success'|'error'} type Tipo de notificación.
+ * Añade listeners a todos los inputs de archivo para mostrar el nombre del archivo seleccionado.
  */
-function redirectWithNotification(message, url, type = 'success') {
-    showNotification(message, type);
-    setTimeout(() => {
-        window.location.href = url;
-    }, 1500); // Retraso para que el usuario pueda leer la notificación.
+function initFileInputs() {
+    document.querySelectorAll('input[type="file"]').forEach(fileInput => {
+        fileInput.addEventListener('change', (e) => {
+            const fileNameSpan = e.target.closest('.file-input-wrapper').querySelector('.file-name');
+            if (e.target.files.length > 0) {
+                fileNameSpan.textContent = e.target.files[0].name;
+                fileNameSpan.style.color = 'var(--dark-color)';
+            } else {
+                fileNameSpan.textContent = 'Ningún archivo seleccionado';
+                fileNameSpan.style.color = '#6c757d';
+            }
+        });
+    });
 }
 
-// ==================== INICIALIZADORES DE PÁGINA ====================
-
 /**
- * Inicializa la lógica para la página del dashboard.
+ * Carga y renderiza la tabla de productos en el dashboard.
  */
-async function initDashboardPage() {
+async function loadProductsAdminPage(page = 1, filters = {}) {
+    // Elementos del DOM
     const tableBody = document.querySelector('.product-table tbody');
+    const filterNameInput = document.getElementById('filter-by-name');
+    const filterCategorySelect = document.getElementById('filter-by-category');
+    const filterStatusSelect = document.getElementById('filter-by-status');
+    const paginationContainer = document.getElementById('pagination-controls');
+    
     if (!tableBody) return;
 
-    // 1. Función para renderizar la tabla
-    async function renderTable() {
-        tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Cargando productos...</td></tr>';
-        const products = await ProductService.getAll(true); // Pedimos TODOS los productos para el admin
-        tableBody.innerHTML = ''; // Limpiar mensaje de "cargando"
-        if (products.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay productos para mostrar.</td></tr>';
-            return;
+    tableBody.innerHTML = '<tr class="loader-row"><td colspan="7"><div class="spinner"></div></td></tr>';
+    if (paginationContainer) paginationContainer.innerHTML = '';
+    
+    try {
+        const queryOptions = {
+            page,
+            limit: 10,
+            ...filters
+        };
+        const state = {
+            sortColumn: filters.sortBy || 'id',
+            sortDirection: filters.sortOrder || 'desc'
+        };
+
+        // Obtenemos todas las categorías y productos en paralelo para mayor eficiencia
+        const [allCategories, allProducts] = await Promise.all([
+            CategoryService.getAll(),
+            ProductService.getAll(true, queryOptions) // Pedimos la página actual con filtros
+        ]);
+
+        // --- Estado de la tabla (filtros y ordenamiento) ---
+        state.products = allProducts.products;
+
+        // Función para renderizar la tabla con los productos filtrados
+        const renderTable = () => {
+            const productsToRender = state.products;
+            tableBody.innerHTML = ''; // Limpiamos la tabla
+            if (productsToRender.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7">No se encontraron productos con los filtros aplicados.</td></tr>';
+                return;
+            }
+
+            productsToRender.forEach(product => {
+                const category = allCategories.find(cat => cat.id === product.category_id);
+                const categoryName = category ? category.name : 'Sin categoría';
+
+                // Definimos el texto y la clase del botón de estado
+                const toggleButtonText = product.is_active ? 'Desactivar' : 'Activar';
+                const rowClass = product.is_active ? '' : 'inactive-product';
+
+                const productRow = document.createElement('tr');
+                productRow.innerHTML = `
+                    <td>
+                        <img src="http://localhost:3001/api/products/${product.id}/image" alt="${product.name}" class="table-img-preview">
+                    </td>
+                    <td>${product.name}</td>
+                    <td>${categoryName}</td>
+                    <td>${product.price}</td>
+                    <td>${product.size || 'N/A'}</td>
+                    <td>
+                        <span class="status ${product.is_active ? 'active' : 'inactive'}">
+                            ${product.is_active ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </td>
+                    <td class="actions">
+                        <a href="edit-product.html?id=${product.id}" class="admin-btn">Editar</a>
+                        <button class="admin-btn danger" data-id="${product.id}">Eliminar</button>
+                        <button class="admin-btn toggle-status" data-id="${product.id}">${toggleButtonText}</button>
+                    </td>
+                `;
+                tableBody.appendChild(productRow);
+            });
+        };
+
+        // Función para manejar los cambios en los filtros
+        const handleFilterChange = () => {
+            const nameFilter = filterNameInput.value;
+            const categoryFilter = filterCategorySelect.value;
+            const statusFilter = filterStatusSelect.value;
+            // Volvemos a cargar desde la página 1 con los nuevos filtros
+            loadProductsAdminPage(1, { name: nameFilter, category: categoryFilter, status: statusFilter });
+        };
+
+        // --- MEJORA: Implementación de Debounce para evitar peticiones excesivas ---
+        let debounceTimer;
+        const debouncedFilterChange = () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                handleFilterChange();
+            }, 400); // Espera 400ms después de la última pulsación antes de buscar
+        };
+
+        // --- Inicialización ---
+
+        // Populamos el dropdown de categorías para el filtro
+        filterCategorySelect.innerHTML = '<option value="all">Todas las categorías</option>';
+        allCategories.forEach(cat => {
+            // CORRECCIÓN: La API devuelve la propiedad como 'name' debido a un alias.
+            filterCategorySelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+        });
+
+        // --- MEJORA: Preservar el estado de los filtros en la UI ---
+        filterNameInput.value = filters.name || '';
+        filterCategorySelect.value = filters.category || 'all';
+        filterStatusSelect.value = filters.status || 'all';
+
+        // Añadimos los event listeners a los filtros
+        filterNameInput.addEventListener('input', debouncedFilterChange);
+        filterCategorySelect.addEventListener('change', handleFilterChange); // 'change' no necesita debounce
+        filterStatusSelect.addEventListener('change', handleFilterChange); // 'change' no necesita debounce
+
+        // Añadimos listeners a los encabezados de tabla ordenables
+        document.querySelectorAll('.product-table th.sortable').forEach(header => {
+            header.addEventListener('click', () => {
+                const column = header.dataset.sort;
+                let newSortDirection = 'asc';
+                if (state.sortColumn === column) {
+                    newSortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc';
+                }
+                
+                const currentFilters = {
+                    name: filterNameInput.value,
+                    category: filterCategorySelect.value,
+                    status: filterStatusSelect.value,
+                    sortBy: column,
+                    sortOrder: newSortDirection
+                };
+                loadProductsAdminPage(1, currentFilters);
+
+                // Actualizar clases CSS para los indicadores visuales
+                document.querySelectorAll('.product-table th.sortable').forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
+                header.classList.add(state.sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+
+                // Aquí se podría implementar ordenamiento en el backend también, por ahora es solo visual
+            });
+        });
+
+        // Renderizado inicial de la tabla
+        renderTable();
+
+        // Renderizado de la paginación
+        renderPagination(allProducts.totalPages, allProducts.currentPage);
+
+    } catch (error) {
+        console.error('Error al cargar la página de administración de productos:', error);
+        tableBody.innerHTML = '<tr><td colspan="7">Error al cargar los productos. Revise la consola.</td></tr>';
+    }
+
+    // Añadimos el listener para los botones de eliminar después de renderizar la tabla
+    tableBody.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('danger') && e.target.dataset.id) {
+            const productId = e.target.dataset.id;
+            if (confirm('¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.')) {
+                await ProductService.delete(productId);
+                // Recargamos la página actual para reflejar los cambios
+                const currentPage = parseInt(paginationContainer.querySelector('.active')?.textContent || '1');
+                loadProductsAdminPage(currentPage);
+            }
+        } else if (e.target.classList.contains('toggle-status')) {
+            const productId = e.target.dataset.id;
+            const row = e.target.closest('tr');
+            const statusSpan = row.querySelector('.status');
+
+            try {
+                const result = await ProductService.toggleStatus(productId);
+                if (result.success) {
+                    statusSpan.textContent = result.newStatus ? 'Activo' : 'Inactivo';
+                    statusSpan.className = `status ${result.newStatus ? 'active' : 'inactive'}`;
+                    row.classList.toggle('inactive-product', !result.newStatus);
+                    e.target.textContent = result.newStatus ? 'Desactivar' : 'Activar';
+                }
+            } catch (error) {
+                showNotification('Error al cambiar el estado del producto.', 'error');
+            }
+        }
+    });
+
+    function renderPagination(totalPages, currentPage) {
+        let paginationHTML = '';
+        if (!paginationContainer || totalPages <= 1) return;
+
+        if (currentPage > 1) {
+            paginationHTML += `<button class="pagination-btn" data-page="${currentPage - 1}">&laquo; Anterior</button>`;
         }
 
-        products.forEach(product => {
-            const row = document.createElement('tr');
-            // Añadimos una clase si el producto está inactivo para poder darle un estilo diferente
-            if (!product.is_active) {
-                row.classList.add('inactive-product');
-            }
-            row.innerHTML = `
-                <td><img src="${product.img}" alt="${product.name}" class="table-img-preview"></td>
-                <td>${product.name}</td>
-                <td>${product.category}</td>
-                <td>${product.price}</td>
-                <td>${product.size || 'N/A'}</td>
-                <td>${product.is_active ? '<span class="status-active">Activo</span>' : '<span class="status-inactive">Inactivo</span>'}</td>
-                <td class="action-buttons">
-                    <button class="admin-btn toggle-status" data-id="${product.id}">${product.is_active ? 'Deshabilitar' : 'Habilitar'}</button>
-                    <a href="edit-product.html?id=${product.id}" class="admin-btn edit"><i class="fas fa-edit"></i> Editar</a>
-                    <button class="admin-btn delete" data-id="${product.id}"><i class="fas fa-trash"></i> Eliminar</button>
-                </td>
-            `;
-            tableBody.appendChild(row);
+        for (let i = 1; i <= totalPages; i++) {
+            const activeClass = i === currentPage ? 'active' : '';
+            paginationHTML += `<button class="pagination-btn ${activeClass}" data-page="${i}">${i}</button>`;
+        }
+
+        if (currentPage < totalPages) {
+            paginationHTML += `<button class="pagination-btn" data-page="${currentPage + 1}">Siguiente &raquo;</button>`;
+        }
+
+        if (paginationContainer) paginationContainer.innerHTML = paginationHTML;
+
+        paginationContainer.querySelectorAll('.pagination-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const currentFilters = {
+                    name: filters.name,
+                    category: filters.category,
+                    status: filters.status,
+                    sortBy: filters.sortBy,
+                    sortOrder: filters.sortOrder
+                };
+                const newPage = parseInt(button.dataset.page);
+                loadProductsAdminPage(newPage, currentFilters);
+            });
         });
     }
-
-    // 2. Función para manejar los clics en la tabla
-    async function handleTableClick(event) {
-        const deleteButton = event.target.closest('.delete');
-        const toggleButton = event.target.closest('.toggle-status');
-
-        if (deleteButton) {
-            const productId = deleteButton.dataset.id;
-            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-                await ProductService.delete(productId);
-                showNotification('Producto eliminado con éxito.', 'success');
-                await renderTable(); // Re-renderizar la tabla inmediatamente
-            }
-        }
-
-        if (toggleButton) {
-            const productId = toggleButton.dataset.id;
-            if (confirm('¿Estás seguro de que quieres cambiar el estado de este producto?')) {
-                await ProductService.toggleStatus(productId); // 1. Espera a que el backend confirme el cambio.
-                await renderTable(); // 2. Vuelve a dibujar la tabla con los datos actualizados.
-            }
-        }
-    }
-
-    // 3. Asignar el manejador de eventos y renderizar la tabla por primera vez
-    tableBody.addEventListener('click', handleTableClick);
-    await renderTable();
 }
 
 /**
- * Rellena un <select> con las categorías obtenidas de la base de datos.
- * @param {string} selectId - El ID del elemento <select> a rellenar.
- * @param {string|number|null} selectedValue - El valor que debe quedar seleccionado (opcional).
+ * Carga y gestiona la página de categorías.
  */
-async function populateCategoryDropdown(selectId, selectedValue = null) {
+async function loadCategoriesAdminPage() {
+    const tableBody = document.getElementById('categories-table-body');
+    const addForm = document.getElementById('addCategoryForm');
+
+    async function renderCategories() {
+        tableBody.innerHTML = '<tr class="loader-row"><td colspan="2"><div class="spinner"></div></td></tr>';
+        try {
+            const categories = await CategoryService.getAll();
+            if (categories.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="2">No hay categorías creadas.</td></tr>';
+                return;
+            }
+            tableBody.innerHTML = categories.map(cat => `
+                <tr>
+                    <td>${cat.name}</td>
+                    <td class="actions">
+                        <button class="admin-btn danger" data-id="${cat.id}">Eliminar</button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            tableBody.innerHTML = '<tr><td colspan="2">Error al cargar las categorías.</td></tr>';
+        }
+    }
+
+    addForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const categoryNameInput = document.getElementById('category-name');
+        const name = categoryNameInput.value.trim();
+        if (name) {
+            await CategoryService.add({ name });
+            categoryNameInput.value = '';
+            renderCategories(); // Recargar la lista
+        }
+    });
+
+    // Event listener para los botones de eliminar (usando delegación de eventos)
+    tableBody.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('danger')) {
+            const categoryId = e.target.dataset.id;
+            if (confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
+                const result = await CategoryService.delete(categoryId);
+                if (result.success) {
+                    // Si la eliminación fue exitosa, eliminamos la fila y mostramos notificación de éxito.
+                    e.target.closest('tr').remove();
+                    showNotification('Categoría eliminada con éxito.', 'success');
+                } else {
+                    // Si hubo un error (ej: categoría en uso), mostramos el mensaje de error del backend.
+                    showNotification(result.message || 'No se pudo eliminar la categoría.', 'error');
+                }
+            }
+        }
+    });
+
+    renderCategories(); // Carga inicial
+}
+
+/**
+ * Carga las categorías en un <select> para los formularios de productos.
+ * @param {string} selectId - El ID del elemento <select>.
+ * @param {number|null} selectedCategoryId - El ID de la categoría que debe estar preseleccionada.
+ */
+async function populateCategoriesDropdown(selectId, selectedCategoryId = null) {
     const selectElement = document.getElementById(selectId);
-    if (!selectElement) return;
-
-    const categories = await CategoryService.getAll();
-    selectElement.innerHTML = '<option value="">Selecciona una categoría</option>'; // Opción por defecto
-
-    categories.forEach(category => {
-        const option = document.createElement('option');
-        option.value = category.id; // Usamos el ID numérico como valor
-        option.textContent = category.nombre;
-        if (selectedValue && category.id == selectedValue) {
-            option.selected = true;
-        }
-        selectElement.appendChild(option);
-    });
-}
-
-/**
- * Inicializa la lógica para la página de añadir producto.
- */
-async function initAddProductPage() {
-    const form = document.getElementById('addProductForm');
-    if (!form) return;
-
-    // Rellenar el dropdown de categorías
-    await populateCategoryDropdown('product-category');
-
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        // Usamos FormData para poder enviar el archivo de imagen
-        const formData = new FormData(form);
-
-        // El nombre del campo en formData.append debe coincidir con el de upload.single() en el backend
-        // formData.append('product-image', document.getElementById('product-image').files[0]);
-        // FormData ya lo hace automáticamente si el input tiene name="product-image"
-
-        await ProductService.add(formData); // Enviamos el objeto FormData directamente
-        redirectWithNotification('¡Producto añadido con éxito!', 'dashboard.html');
-    });
-}
-
-/**
- * Inicializa la lógica para la página de editar producto.
- */
-async function initEditProductPage() {
-    const form = document.getElementById('editProductForm');
-    if (!form) return;
-
-    const params = new URLSearchParams(window.location.search);
-    const productId = params.get('id');
-
-    if (!productId) {
-        redirectWithNotification('ID de producto no especificado.', 'dashboard.html', 'error');
-        return;
-    }
-
-    // --- ¡AQUÍ ESTÁ LA MEJORA! ---
-    // Ejecutamos ambas peticiones (obtener producto y obtener categorías) en paralelo.
-    const [product, categories] = await Promise.all([
-        ProductService.getById(productId),
-        CategoryService.getAll() // Asumimos que populateCategoryDropdown usa CategoryService.getAll()
-    ]);
-
-    if (!product) {
-        redirectWithNotification('Producto no encontrado.', 'dashboard.html', 'error');
-        return;
-    }
-
-    // Ahora que tenemos los datos, rellenamos el formulario
-    document.getElementById('product-id').value = product.id;
-    document.getElementById('product-name').value = product.name;
-    // El precio se guarda como número, lo formateamos para mostrarlo si es necesario, o lo dejamos como número.
-    document.getElementById('product-price').value = product.price;
-    document.getElementById('product-size').value = product.size || '';
-    document.getElementById('product-description').value = product.description || '';
-    
-    // Rellenamos el dropdown de categorías con los datos que ya obtuvimos
-    const selectElement = document.getElementById('product-category');
-    if (selectElement) {
+    try {
+        const categories = await CategoryService.getAll();
         selectElement.innerHTML = '<option value="">Selecciona una categoría</option>';
-        categories.forEach(category => {
+        categories.forEach(cat => {
             const option = document.createElement('option');
-            option.value = category.id;
-            option.textContent = category.nombre;
-            if (product.category_id && category.id == product.category_id) {
+            option.value = cat.id;
+            option.textContent = cat.name;
+            if (cat.id === selectedCategoryId) {
                 option.selected = true;
             }
             selectElement.appendChild(option);
         });
+    } catch (error) {
+        selectElement.innerHTML = '<option value="">Error al cargar categorías</option>';
+    }
+}
+
+/**
+ * Prepara la página para añadir un nuevo producto.
+ */
+async function loadAddProductPage() {
+    await populateCategoriesDropdown('product-category');
+
+    const addForm = document.getElementById('addProductForm');
+    addForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(addForm);
+        
+        // Renombramos los campos para que coincidan con el backend si es necesario
+        // En este caso, los nombres del formulario coinciden con los de la BD
+        // (name, category_id, price, etc.)
+
+        try {
+            const newProduct = await ProductService.add(formData);
+            showNotification(`Producto "${newProduct.name}" añadido con éxito.`, 'success');
+            window.location.href = 'dashboard.html';
+        } catch (error) {
+            showNotification('Error al añadir el producto. Revisa la consola.', 'error');
+            console.error(error);
+        }
+    });
+}
+
+/**
+ * Prepara la página para editar un producto existente.
+ */
+async function loadEditProductPage() {
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('id');
+    if (!productId) {
+        alert('No se ha especificado un producto para editar.');
+        window.location.href = 'dashboard.html';
+        return;
     }
 
-    // Mostramos la imagen actual del producto
+    // Obtenemos los datos del producto y las categorías en paralelo
+    const [product, _] = await Promise.all([
+        ProductService.getById(productId),
+        populateCategoriesDropdown('product-category') // Llenamos el dropdown mientras esperamos
+    ]);
+
+    if (!product) {
+        alert('Producto no encontrado.');
+        return;
+    }
+
+    // Rellenamos el formulario con los datos del producto
+    document.getElementById('product-id').value = product.id;
+    document.getElementById('product-name').value = product.name;
+    document.getElementById('product-category').value = product.category_id;
+    document.getElementById('product-price').value = product.price;
+    document.getElementById('product-size').value = product.size || '';
+    document.getElementById('product-description').value = product.description || '';
+
+    // Mostramos la imagen actual
     const imagePreview = document.querySelector('#current-image-preview img');
-    if (product.img && imagePreview) {
-        imagePreview.src = product.img;
-        imagePreview.style.display = 'block';
+    imagePreview.src = `http://localhost:3001/api/products/${product.id}/image`;
+    imagePreview.style.display = 'block';
+
+    // Lógica para el envío del formulario de edición
+    const editForm = document.getElementById('editProductForm');
+    editForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(editForm);
+        const updatedProduct = await ProductService.update(productId, formData);
+        showNotification(`Producto actualizado con éxito.`, 'success');
+        window.location.href = 'dashboard.html';
+    });
+}
+
+/**
+ * Carga y gestiona la página de administración de banners.
+ */
+async function loadBannersAdminPage() {
+    const tableBody = document.getElementById('banners-table-body');
+    const addForm = document.getElementById('addBannerForm');
+    const settingsForm = document.getElementById('bannerSettingsForm');
+
+    async function renderBanners() {
+        tableBody.innerHTML = '<tr class="loader-row"><td colspan="4"><div class="spinner"></div></td></tr>';
+        try {
+            const banners = await BannerService.getAll();
+            if (banners.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="3">No hay banners para mostrar.</td></tr>';
+            }
+
+            // Mejora: Ordenamos los banners por la columna 'orden' de la BD
+            // y luego les asignamos un número consecutivo para mostrar.
+            const sortedBanners = banners.sort((a, b) => a.orden - b.orden);
+
+            tableBody.innerHTML = sortedBanners.map((banner, index) => {
+                const displayOrder = index + 1; // Creamos el número de orden consecutivo (1, 2, 3...)
+                const statusClass = banner.activo ? 'active' : 'inactive';
+                const statusText = banner.activo ? 'Activo' : 'Inactivo';
+                const toggleButtonText = banner.activo ? 'Desactivar' : 'Activar';
+                const rowClass = banner.activo ? '' : 'inactive-product';
+
+                return `
+                <tr class="${rowClass}">
+                    <td>
+                        <img src="http://localhost:3001/api/banners/${banner.id}/image" alt="Banner ${banner.id}" class="table-img-preview">
+                    </td>
+                    <td>${displayOrder}</td>
+                    <td class="actions">
+                    <td>
+                        <span class="status ${statusClass}">${statusText}</span>
+                    </td>
+                    <td class="actions">
+                        <button class="admin-btn toggle-status" data-id="${banner.id}">${toggleButtonText}</button>
+                        <button class="admin-btn danger" data-id="${banner.id}">Eliminar</button>
+                    </td>
+                </tr>
+            `}).join('');
+        } catch (error) {
+            console.error('Error al cargar los banners:', error);
+            tableBody.innerHTML = '<tr><td colspan="4">Error al cargar los banners.</td></tr>';
+        }
     }
 
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        // Usamos FormData para poder enviar el archivo de imagen si se selecciona uno nuevo
-        const formData = new FormData(form);
-        const id = formData.get('product-id');
-
-        // El servicio se encargará de enviar el FormData
-        await ProductService.update(id, formData);
-        redirectWithNotification('¡Producto actualizado con éxito!', 'dashboard.html');
-    });
-}
-
-/**
- * Inicializa la lógica para la página de gestión de categorías.
- */
-async function initManageCategoriesPage() {
-    const tableBody = document.getElementById('categories-table-body');
-    const form = document.getElementById('addCategoryForm');
-    if (!tableBody || !form) return;
-
-    // Función para renderizar la tabla de categorías
-    const renderCategories = async () => {
-        tableBody.innerHTML = '<tr><td colspan="2" style="text-align:center;">Cargando categorías...</td></tr>';
-        const categories = await CategoryService.getAll();
-        tableBody.innerHTML = '';
-
-        if (categories.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="2" style="text-align:center;">No hay categorías para mostrar.</td></tr>';
-            return;
-        }
-
-        categories.forEach(category => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${category.nombre}</td>
-                <td class="action-buttons">
-                    <button class="admin-btn edit-category" data-id="${category.id}" data-name="${category.nombre}"><i class="fas fa-edit"></i> Editar</button>
-                    <button class="admin-btn delete-category" data-id="${category.id}"><i class="fas fa-trash"></i> Eliminar</button>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
-    };
-
-    // Manejar la adición de una nueva categoría
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const categoryNameInput = document.getElementById('category-name');
-        const newName = categoryNameInput.value.trim();
-        if (newName) {
-            await CategoryService.add({ nombre: newName });
-            showNotification('Categoría añadida con éxito.');
-            categoryNameInput.value = ''; // Limpiar el input
-            await renderCategories();
+    addForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(addForm);
+        if (formData.get('banner-image').size > 0) {
+            await BannerService.add(formData);
+            addForm.reset();
+            renderBanners(); // Recargar la lista
+        } else {
+            alert('Por favor, selecciona una imagen para el banner.');
         }
     });
 
-    // Manejar clics en botones de editar y eliminar
-    tableBody.addEventListener('click', async (event) => {
-        const editButton = event.target.closest('.edit-category');
-        const deleteButton = event.target.closest('.delete-category');
-
-        if (editButton) {
-            const categoryId = editButton.dataset.id;
-            const currentName = editButton.dataset.name;
-            const newName = prompt('Introduce el nuevo nombre para la categoría:', currentName);
-            if (newName && newName.trim() !== '' && newName !== currentName) {
-                await CategoryService.update(categoryId, { nombre: newName });
-                showNotification('Categoría actualizada con éxito.');
-                await renderCategories();
-            }
-        }
-
-        if (deleteButton) {
-            const categoryId = deleteButton.dataset.id;
-            if (confirm('¿Estás seguro de que quieres eliminar esta categoría? Ten en cuenta que los productos asociados a ella no se eliminarán, pero quedarán sin categoría visible.')) {
-                await CategoryService.delete(categoryId);
-                showNotification('Categoría eliminada con éxito.');
-                await renderCategories();
-            }
-        }
-    });
-
-    await renderCategories();
-}
-
-/**
- * Inicializa la lógica para la página de gestión de banners.
- */
-async function initManageBannersPage() {
-    const tableBody = document.getElementById('banners-table-body');
-    const form = document.getElementById('addBannerForm');
-    if (!tableBody || !form) return;
-
-    // Función para renderizar la tabla de banners
-    const renderBanners = async () => {
-        tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Cargando banners...</td></tr>';
-        const banners = await BannerService.getAll();
-        tableBody.innerHTML = '';
-
-        if (banners.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay banners para mostrar.</td></tr>';
-            return;
-        }
-
-        banners.forEach(banner => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><img src="${banner.img}" alt="Banner ${banner.id}" class="table-img-preview"></td>
-                <td>Banner #${banner.id}</td>
-                <td>${banner.activo ? '<span class="status-active">Activo</span>' : '<span class="status-inactive">Inactivo</span>'}</td>
-                <td class="action-buttons">
-                    <button class="admin-btn toggle-status-banner" data-id="${banner.id}">${banner.activo ? 'Deshabilitar' : 'Habilitar'}</button>
-                    <a href="edit-banner.html?id=${banner.id}" class="admin-btn edit"><i class="fas fa-edit"></i> Editar</a>
-                    <button class="admin-btn delete-banner" data-id="${banner.id}"><i class="fas fa-trash"></i> Eliminar</button>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
-    };
-
-    // Manejar la adición de un nuevo banner
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const formData = new FormData(form);
-        await BannerService.add(formData);
-        showNotification('Banner añadido con éxito.');
-        form.reset(); // Limpiar el formulario
-        await renderBanners();
-    });
-
-    // Manejar el guardado de la velocidad del carrusel
-    const settingsForm = document.getElementById('bannerSettingsForm');
+    // Lógica para el formulario de ajustes de velocidad
     const speedInput = document.getElementById('banner-speed');
-
     // Cargar la velocidad guardada al iniciar
-    speedInput.value = localStorage.getItem('bannerSpeedInSeconds') || 5;
+    const currentSpeedMs = localStorage.getItem('bannerSpeed') || 5000;
+    speedInput.value = currentSpeedMs / 1000;
 
-    settingsForm.addEventListener('submit', (event) => {
-        event.preventDefault();
+    settingsForm.addEventListener('submit', (e) => {
+        e.preventDefault();
         const speedInSeconds = speedInput.value;
-        // Guardamos el valor en milisegundos para usarlo directamente en el script.js
         localStorage.setItem('bannerSpeed', speedInSeconds * 1000);
-        // Guardamos también el valor en segundos para mostrarlo en el input
-        localStorage.setItem('bannerSpeedInSeconds', speedInSeconds);
-        showNotification('Velocidad del carrusel guardada.', 'success');
+        showNotification(`Velocidad guardada en ${speedInSeconds} segundos.`, 'success');
     });
 
-    // Manejar clics en botones de la tabla
-    tableBody.addEventListener('click', async (event) => {
-        const toggleButton = event.target.closest('.toggle-status-banner');
-        const deleteButton = event.target.closest('.delete-banner');
-
-        if (toggleButton) {
-            const bannerId = toggleButton.dataset.id;
-            await BannerService.toggleStatus(bannerId);
-            await renderBanners();
-        }
-
-        if (deleteButton) {
-            const bannerId = deleteButton.dataset.id;
+    tableBody.addEventListener('click', async (e) => {
+        const target = e.target;
+        if (target.classList.contains('danger')) {
+            const bannerId = e.target.dataset.id;
             if (confirm('¿Estás seguro de que quieres eliminar este banner?')) {
                 await BannerService.delete(bannerId);
-                showNotification('Banner eliminado con éxito.');
-                await renderBanners();
+                renderBanners(); // Recargar la lista
+            }
+        } else if (target.classList.contains('toggle-status')) {
+            const bannerId = target.dataset.id;
+            const row = target.closest('tr');
+            const statusSpan = row.querySelector('.status');
+
+            try {
+                const result = await BannerService.toggleStatus(bannerId);
+                if (result.success) {
+                    statusSpan.textContent = result.newStatus ? 'Activo' : 'Inactivo';
+                    statusSpan.className = `status ${result.newStatus ? 'active' : 'inactive'}`;
+                    target.textContent = result.newStatus ? 'Desactivar' : 'Activar';
+                    row.classList.toggle('inactive-product', !result.newStatus);
+                }
+            } catch (error) {
+                showNotification('Error al cambiar el estado del banner.', 'error');
             }
         }
     });
 
-    await renderBanners();
+    renderBanners(); // Carga inicial
 }
-
-/**
- * Inicializa la lógica para la página de editar banner.
- */
-async function initEditBannerPage() {
-    const form = document.getElementById('editBannerForm');
-    if (!form) return;
-
-    const params = new URLSearchParams(window.location.search);
-    const bannerId = params.get('id');
-
-    if (!bannerId) {
-        return redirectWithNotification('ID de banner no especificado.', 'manage-banners.html', 'error');
-    }
-
-    // 1. Cargar datos del banner
-    const banner = await BannerService.getById(bannerId);
-    if (!banner) {
-        return redirectWithNotification('Banner no encontrado.', 'manage-banners.html', 'error');
-    }
-
-    // 2. Rellenar el formulario
-    const imagePreview = document.getElementById('current-banner-image');
-    if (banner.img) {
-        imagePreview.src = banner.img;
-        imagePreview.style.display = 'block';
-    } else {
-        imagePreview.style.display = 'none';
-    }
-
-    // 3. Manejar el envío del formulario
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const formData = new FormData(form);
-        
-        // El servicio se encarga de enviar el FormData al backend
-        const result = await BannerService.update(bannerId, formData);
-
-        if (result) {
-            redirectWithNotification('¡Banner actualizado con éxito!', 'manage-banners.html');
-        } else {
-            showNotification('Error al actualizar el banner.', 'error');
-        }
-    });
-}
-
-/**
- * Objeto principal de la aplicación de administración.
- */
-const AdminApp = {
-    init() {
-        this.initMenu();
-        this.runPageInitializer();
-    },
-
-    initMenu() {
-        const hamburger = document.querySelector(".hamburger");
-        const navMenu = document.querySelector(".nav-menu");
-
-        if (hamburger && navMenu) {
-            hamburger.addEventListener("click", () => {
-                hamburger.classList.toggle("active");
-                navMenu.classList.toggle("active");
-            });
-
-            // Cierra el menú si se hace clic en un enlace
-            document.querySelectorAll(".nav-link").forEach(n => n.addEventListener("click", () => {
-                // No cerramos si es un enlace para ver el sitio en una nueva pestaña
-                if (!n.closest('.nav-item a[target="_blank"]')) {
-                    hamburger.classList.remove("active");
-                    navMenu.classList.remove("active");
-                }
-            }));
-        }
-    },
-
-    runPageInitializer() {
-        const pageInitializers = {
-            'admin-dashboard': initDashboardPage,
-            'admin-add-product': initAddProductPage,
-            'admin-edit-product': initEditProductPage,
-            'admin-manage-categories': initManageCategoriesPage,
-            'admin-manage-banners': initManageBannersPage,
-            'admin-edit-banner': initEditBannerPage,
-        };
-        const pageId = document.body.id;
-        const initFunction = pageInitializers[pageId];
-        if (initFunction) {
-            initFunction();
-        }
-    }
-};
-
-document.addEventListener('DOMContentLoaded', () => AdminApp.init());
