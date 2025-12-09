@@ -10,15 +10,19 @@ const API_BASE_URL = 'http://localhost:3001';
  */
 function createProductCard(product) {
     const buttonText = product.price === 'Cotizar' ? 'Cotizar' : 'Añadir al Carrito';
+    // Envolvemos la tarjeta en un enlace <a> para la navegación y añadimos la clase .product-card
+    // para una mejor semántica, accesibilidad y SEO.
     return `
-        <div class="product-card" data-id="${product.id}">
-            <img src="${API_BASE_URL}/api/products/${product.id}/image" alt="${product.name}">
-            <div class="product-info">
-                <h3 class="product-name">${product.name}</h3>
-                <p class="product-price">${product.price}</p>
-                <button class="add-to-cart-btn" data-id="${product.id}">${buttonText}</button>
+        <a href="/pages/product-detail.html?id=${product.id}" class="product-card-link">
+            <div class="product-card">
+                <img src="${API_BASE_URL}/api/products/${product.id}/image" alt="${product.name}">
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-price">${product.price}</p>
+                    <button class="add-to-cart-btn" data-id="${product.id}">${buttonText}</button>
+                </div>
             </div>
-        </div>
+        </a>
     `;
 }
 
@@ -98,7 +102,7 @@ async function renderProductDetailPage() {
     const categoryName = category ? category.name : 'Categoría desconocida';
 
     // Actualizamos el título de la página
-    document.title = `${product.name} - Cookies and Cakes`;
+    document.title = `${product.name} - C & C Cookies and Cakes`;
 
     // Creamos el HTML para el detalle del producto
     container.innerHTML = `
@@ -144,19 +148,35 @@ async function renderCategoryPage() {
         return;
     }
 
-    const { categoryName, products } = await ProductService.getByCategoryId(categoryId);
+    try {
+        // Hacemos dos peticiones en paralelo: una para obtener los detalles de la categoría (como el nombre)
+        // y otra para obtener los productos filtrados por esa categoría.
+        const [allCategories, products] = await Promise.all([
+            CategoryService.getAll(),
+            ProductService.getAll(false, { category: categoryId, limit: 1000 }) // Usamos el filtro de categoría. Aumentamos el límite para asegurar que se carguen todos los productos.
+        ]);
 
-    document.title = `${categoryName} - Cookies and Cakes`;
-    titleElement.textContent = categoryName;
+        // Buscamos el nombre de la categoría entre todas las que obtuvimos.
+        const category = allCategories.find(cat => cat.id == categoryId); // Usamos '==' para comparar string con número.
+        const categoryName = category ? category.name : 'Categoría Desconocida';
 
-    if (products.length === 0) {
-        gridContainer.innerHTML = '<p>No hay productos disponibles en esta categoría en este momento.</p>';
-    } else {
-        gridContainer.innerHTML = products.map(createProductCard).join('');
+        document.title = `${categoryName} - C & C Cookies and Cakes`;
+        titleElement.textContent = categoryName;
+
+        if (!products || products.length === 0) {
+            gridContainer.innerHTML = '<p>No hay productos disponibles en esta categoría en este momento.</p>';
+        } else {
+            gridContainer.innerHTML = products.map(createProductCard).join('');
+        }
+
+        // Añadimos el listener de eventos para los botones de "Añadir al carrito".
+        gridContainer.addEventListener('click', handleProductCardClick);
+
+    } catch (error) {
+        console.error("Error al renderizar la página de categoría:", error);
+        titleElement.textContent = 'Error al cargar';
+        gridContainer.innerHTML = '<p>Ocurrió un error al cargar los productos. Por favor, intente más tarde.</p>';
     }
-
-    // Añadimos el listener de eventos para los botones de "Añadir al carrito".
-    gridContainer.addEventListener('click', handleProductCardClick);
 }
 
 /**
@@ -164,22 +184,22 @@ async function renderCategoryPage() {
  * @param {Event} event - El evento de clic.
  */
 function handleProductCardClick(event) {
-    const card = event.target.closest('.product-card');
-    if (!card) return;
-
-    const productId = card.dataset.id;
+    // Buscamos si el clic fue en un botón de "Añadir al Carrito".
     const addToCartBtn = event.target.closest('.add-to-cart-btn');
 
     if (addToCartBtn) {
-        event.preventDefault();
+        // Si se hizo clic en el botón, prevenimos la navegación del enlace <a> padre.
+        event.preventDefault(); 
+        const productId = addToCartBtn.dataset.id;
         const buttonText = addToCartBtn.textContent;
+
         if (buttonText === 'Cotizar') {
             window.location.href = `mailto:hola@pastelarte.cl?subject=Cotización para producto ID: ${productId}`;
         } else {
             App.cart.addProduct(productId);
+            // Mostramos una notificación de éxito.
+            showToast('¡Producto añadido al carrito!');
         }
-    } else {
-        window.location.href = `/pages/product-detail.html?id=${productId}`;
     }
 }
 
@@ -235,102 +255,185 @@ async function renderHeroBanners() {
  * Inicializa un carrusel de productos para una sección específica.
  * @param {string} selectorSeccion - El selector CSS de la sección del carrusel (ej: '#tortas-kuchen').
  */
-function inicializarCarrusel(selectorSeccion) {
-    // --- 1. Selección de Elementos y Estado Inicial ---
+function inicializarCarrusel(selectorSeccion) {    
+    // --- 1. Selección de Elementos ---
     const seccion = document.querySelector(selectorSeccion);
-    if (!seccion) return; // Si la sección no existe, no hace nada
+    if (!seccion) return;
 
     const productGrid = seccion.querySelector('.product-grid');
     const prevArrow = seccion.querySelector('.prev-arrow');
     const nextArrow = seccion.querySelector('.next-arrow');
-    const productCards = Array.from(productGrid.children);
+    const paginationContainer = seccion.querySelector('.carousel-pagination');
 
-    // --- ¡AQUÍ ESTÁ LA SOLUCIÓN! ---
-    // Si no hay productos en esta sección, no inicializamos el carrusel.
-    if (productCards.length === 0) return;
+    // Guardamos las tarjetas originales para poder reconstruir el carrusel al cambiar el tamaño de la ventana.
+    const originalProductCards = Array.from(productGrid.children);
+    const totalRealProducts = originalProductCards.length;
 
-    let currentIndex;
+    if (!productGrid || !prevArrow || !nextArrow || totalRealProducts === 0) {
+        if(prevArrow) prevArrow.style.display = 'none';
+        if(nextArrow) nextArrow.style.display = 'none';
+        if(paginationContainer) paginationContainer.style.display = 'none';
+        return;
+    }
+
+    // --- 2. Estado del Carrusel ---
+    let currentIndex = 0;
     let itemsToShow;
-    let totalProducts = productCards.length;
+    let isTransitioning = false;
 
-    // --- 2. Funciones Principales del Carrusel ---
-
-    const updateCarousel = (withTransition = true) => {
+    // --- 3. Funciones Auxiliares ---
+    const getScrollAmount = () => {
+        if (productGrid.children.length === 0) return 0;
         const cardWidth = productGrid.children[0].getBoundingClientRect().width;
-        const gap = parseInt(window.getComputedStyle(productGrid).gap);
-        const scrollAmount = cardWidth + gap;
-        
-        productGrid.style.transition = withTransition ? 'transform 0.5s ease-in-out' : 'none';
+        const gap = parseInt(window.getComputedStyle(productGrid).gap) || 20;
+        return cardWidth + gap;
+    };
+
+    const updateCarouselPosition = (withTransition = true) => {
+        const scrollAmount = getScrollAmount();
+        productGrid.style.transition = 'transform 0.5s ease-in-out';
         productGrid.style.transform = `translateX(-${currentIndex * scrollAmount}px)`;
     };
 
-    const handleTransitionEnd = () => {
-        if (currentIndex >= totalProducts + itemsToShow) {
-            currentIndex = itemsToShow;
-            updateCarousel(false);
+    const updateActiveDot = () => {
+        if (!paginationContainer) return;
+        const dots = paginationContainer.children;
+        if (dots.length === 0) return;
+
+        // Calculamos el índice del primer producto *real* que está visible.
+        let realIndex = currentIndex - itemsToShow;
+        // Normalizamos el índice para que esté siempre entre 0 y (totalRealProducts - 1).
+        realIndex = (realIndex % totalRealProducts + totalRealProducts) % totalRealProducts;
+
+        // Quitamos la clase activa de todos los puntos y se la añadimos al actual.
+        for (let i = 0; i < dots.length; i++) {
+            dots[i].classList.remove('active');
         }
-        if (currentIndex <= 0) {
-            currentIndex = totalProducts;
-            updateCarousel(false);
+        if (dots[realIndex]) {
+            dots[realIndex].classList.add('active');
         }
     };
 
-    const moveNext = () => {
+    // --- 4. Lógica del Bucle Infinito (El "Salto Mágico") ---
+    const handleLoop = () => {
+        isTransitioning = false;
+        // Si hemos llegado a los clones del final (que son una copia del principio)...
+        if (currentIndex >= totalRealProducts + itemsToShow) {
+            currentIndex = itemsToShow; // ...saltamos sin animación al primer set de items reales.
+            updateCarouselPosition(false);
+        }
+        // Si hemos llegado a los clones del principio (que son una copia del final)...
+        else if (currentIndex < itemsToShow) {
+            currentIndex = totalRealProducts + currentIndex; // ...saltamos sin animación al set de items reales equivalente al final.
+            updateCarouselPosition(false);
+        }
+        // Actualizamos el punto activo después de cada transición.
+        updateActiveDot();
+    };
+
+    // --- 5. Controles de Navegación ---
+    nextArrow.addEventListener('click', () => {
+        if (isTransitioning) return;
+        isTransitioning = true;
         currentIndex++;
-        updateCarousel();
-    };
+        updateCarouselPosition();
+    });
 
-    const movePrev = () => {
+    prevArrow.addEventListener('click', () => {
+        if (isTransitioning) return;
+        isTransitioning = true;
         currentIndex--;
-        updateCarousel();
-    };
+        updateCarouselPosition();
+    });
 
-    // --- 3. Función para Construir y Reconstruir el Carrusel ---
+    // --- 6. Función para Construir/Reconstruir el Carrusel ---
     const buildCarousel = () => {
-        // Limpiar clones y listeners anteriores
-        productGrid.querySelectorAll('.clone').forEach(clone => clone.remove());
-        productGrid.innerHTML = productCards.map(card => card.outerHTML).join('');
+        productGrid.innerHTML = originalProductCards.map(card => card.outerHTML).join('');
+        const cardWidth = totalRealProducts > 0 ? originalProductCards[0].getBoundingClientRect().width : 0;
+        const gap = parseInt(window.getComputedStyle(productGrid).gap) || 20;
+        itemsToShow = cardWidth > 0 ? Math.floor(productGrid.parentElement.offsetWidth / (cardWidth + gap)) : 1;
 
-        totalProducts = productGrid.children.length;
-        if (totalProducts === 0) return;
-
-        itemsToShow = window.innerWidth <= 768 ? 1 : 4;
-
-        // Si no hay productos, no hay nada que clonar.
-        if (totalProducts === 0) return;
-
-        // Añadir nuevos clones
-        for (let i = 0; i < itemsToShow; i++) {
-            productGrid.appendChild(productGrid.children[i].cloneNode(true)).classList.add('clone');
+        if (totalRealProducts <= itemsToShow) {
+            prevArrow.style.display = 'none';
+            nextArrow.style.display = 'none';
+            if (paginationContainer) paginationContainer.style.display = 'none';
+            // AÑADIDO: Centramos la grilla si no hay suficientes productos para un carrusel.
+            productGrid.classList.add('centered');
+            return;
         }
-        for (let i = totalProducts - 1; i >= totalProducts - itemsToShow; i--) {
-            // CORRECCIÓN: Verificamos que el nodo exista antes de clonar e insertar.
-            const nodeToClone = productGrid.children[i];
-            if (nodeToClone) productGrid.insertBefore(nodeToClone.cloneNode(true), productGrid.firstChild).classList.add('clone');
+
+        prevArrow.style.display = 'block';
+        nextArrow.style.display = 'block';
+        if (paginationContainer) paginationContainer.style.display = 'flex';
+
+        const lastItems = originalProductCards.slice(-itemsToShow);
+        lastItems.reverse().forEach(card => productGrid.prepend(card.cloneNode(true)));
+        const firstItems = originalProductCards.slice(0, itemsToShow);
+        firstItems.forEach(card => productGrid.append(card.cloneNode(true)));
+
+        // Generamos los puntos de paginación
+        if (paginationContainer) {
+            paginationContainer.innerHTML = '';
+            for (let i = 0; i < totalRealProducts; i++) {
+                const dot = document.createElement('button');
+                dot.classList.add('pagination-dot');
+                dot.dataset.index = i;
+                paginationContainer.appendChild(dot);
+            }
         }
 
         currentIndex = itemsToShow;
-        updateCarousel(false);
+        updateCarouselPosition(false);
+        updateActiveDot();
     };
 
-    // --- 4. Asignación de Eventos y Ejecución Inicial ---
-    nextArrow.addEventListener('click', moveNext);
-    prevArrow.addEventListener('click', movePrev);
-    productGrid.addEventListener('transitionend', handleTransitionEnd);
+    // --- 7. Asignación de Eventos ---
+    productGrid.addEventListener('transitionend', handleLoop);
 
-    // Inicializa la posición del carrusel
-    // Usamos un pequeño timeout para asegurar que el DOM está completamente renderizado
-    setTimeout(() => updateCarousel(false), 100);
+    if (paginationContainer) {
+        paginationContainer.addEventListener('click', (e) => {
+            if (isTransitioning || !e.target.matches('.pagination-dot')) return;
+            
+            isTransitioning = true;
+            const targetIndex = parseInt(e.target.dataset.index, 10);
+            
+            // Movemos el carrusel a la posición del producto real correspondiente.
+            currentIndex = itemsToShow + targetIndex;
+            updateCarouselPosition();
+        });
+    }
 
-    // Re-inicializar en cambio de tamaño de ventana si cambia el número de items visibles
+    let resizeTimeout;
     window.addEventListener('resize', () => {
-        const newItemsToShow = window.innerWidth <= 768 ? 1 : 4;
-        if (newItemsToShow !== itemsToShow) {
-            buildCarousel(); // Reconstruye el carrusel en lugar de recargar
-        }
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(buildCarousel, 250);
     });
 
-    buildCarousel(); // Construye el carrusel por primera vez
+    setTimeout(buildCarousel, 100);
+}
+
+/**
+ * Muestra una notificación temporal (toast) en la pantalla.
+ * @param {string} message - El mensaje a mostrar.
+ * @param {string} type - El tipo de notificación ('success' o 'error').
+ */
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    // Hacemos que aparezca
+    setTimeout(() => {
+        toast.classList.add('visible');
+    }, 10);
+
+    // Hacemos que desaparezca y la eliminamos del DOM
+    setTimeout(() => {
+        toast.classList.remove('visible');
+        toast.addEventListener('transitionend', () => toast.remove());
+    }, 3000); // La notificación dura 3 segundos
 }
 
 /**
@@ -375,20 +478,25 @@ const App = {
         ]);
 
         const allSectionsHTML = categories.map(category => {
-            // CORRECCIÓN: `allProducts` es ahora un array, por lo que .filter funcionará.
+            // `allProducts` es el array de productos devuelto por el servicio, por lo que .filter funcionará.
             const productsForCategory = allProducts.filter(p => p.category_id === category.id);
             if (productsForCategory.length === 0) return '';
+
+            const productCount = productsForCategory.length;
+            const productCountText = productCount === 1 ? '1 producto' : `${productCount} productos`;
 
             const sectionId = `category-${category.id}`;
             return `
                 <section class="featured-products" id="${sectionId}">
                     <h2 class="section-title">${category.name}</h2>
+                    <p class="section-subtitle">Contamos con ${productCountText} en esta categoría.</p>
                     <div class="product-slider-container">
                         <button class="slider-arrow prev-arrow"><i class="fas fa-chevron-left"></i></button>
                         <div class="product-slider-wrapper">
                             <div class="product-grid">${productsForCategory.map(createProductCard).join('')}</div>
                         </div>
                         <button class="slider-arrow next-arrow"><i class="fas fa-chevron-right"></i></button>
+                        <div class="carousel-pagination"></div>
                     </div>
                     <div class="view-all-container">
                         <a href="/pages/category.html?id=${category.id}" class="view-all-btn">Ver todos los productos</a>

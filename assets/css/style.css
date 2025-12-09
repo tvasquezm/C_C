@@ -284,6 +284,9 @@ body {
     display: grid;
     /* Crea columnas flexibles que se ajustan al tamaño de la pantalla */
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    /* MEJORA: Se usa un tamaño fijo para estandarizar las tarjetas y se centra la grilla. */
+    grid-template-columns: repeat(auto-fit, 300px);
+    justify-content: center;
     gap: 2rem;
     max-width: 1200px;
     margin: 0 auto;
@@ -518,6 +521,14 @@ body {
     color: var(--dark-color);
 }
 
+.section-subtitle {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #777;
+    margin-top: -2rem; /* Para acercarlo al título */
+    margin-bottom: 2.5rem;
+}
+
 .product-slider-container {
     position: relative;
     max-width: 1280px; /* Ancho máximo para 4 productos + flechas */
@@ -543,14 +554,10 @@ body {
 }
 
 /* Estilos específicos para las tarjetas DENTRO del carrusel */
-.product-grid .product-card {
+/* MEJORA: Aplicamos el tamaño al enlace (el item directo del flexbox) y no a la tarjeta interna. */
+.product-grid .product-card-link {
     flex: 0 0 calc(25% - 1.5rem); /* Muestra 4 productos (25% cada uno) y ajusta por el gap */
     max-width: calc(25% - 1.5rem);
-    background-color: var(--light-color);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: var(--box-shadow);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Estilos generales para TODAS las tarjetas de producto */
@@ -560,12 +567,19 @@ body {
     overflow: hidden;
     box-shadow: var(--box-shadow);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* --- MEJORA: Usamos Flexbox para estandarizar la altura y alinear el contenido. --- */
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Asegura que la tarjeta ocupe todo el espacio de la celda del grid. */
 }
 
 /* Enlace que envuelve la tarjeta de producto */
 .product-card-link {
     text-decoration: none;
     color: inherit; /* Hereda el color del texto para no tener links azules */
+    /* Hacemos que el enlace ocupe el espacio de la celda del grid y se comporte como un bloque */
+    display: block; 
+    height: 100%;
 }
 
 .product-card:hover {
@@ -582,6 +596,10 @@ body {
 .product-info {
     padding: 1.5rem;
     text-align: center;
+    /* --- MEJORA: Hacemos que esta sección crezca para empujar el botón hacia abajo. --- */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .product-name {
@@ -607,6 +625,8 @@ body {
     font-family: var(--font-body);
     font-weight: 500;
     transition: background-color 0.3s ease;
+    /* --- MEJORA: Empuja el botón a la parte inferior de la tarjeta. --- */
+    margin-top: auto;
 }
 
 .add-to-cart-btn:hover {
@@ -660,6 +680,29 @@ body {
     color: var(--light-color);
     border-color: var(--primary-color);
 }
+
+/* --- MEJORA: Estilos para Notificación Toast --- */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px); /* Empieza fuera de la pantalla */
+    background-color: var(--dark-color);
+    color: var(--light-color);
+    padding: 12px 25px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    font-weight: 500;
+}
+
+.toast-notification.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0); /* Se desliza a su posición */
+}
+
 
 /* ==================== FOOTER ==================== */
 .main-footer {

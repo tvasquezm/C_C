@@ -437,6 +437,7 @@ async function loadBannersAdminPage() {
     const tableBody = document.getElementById('banners-table-body');
     const addForm = document.getElementById('addBannerForm');
     const settingsForm = document.getElementById('bannerSettingsForm');
+    const saveOrderBtn = document.getElementById('save-banner-order-btn');
 
     async function renderBanners() {
         tableBody.innerHTML = '<tr class="loader-row"><td colspan="4"><div class="spinner"></div></td></tr>';
@@ -458,12 +459,11 @@ async function loadBannersAdminPage() {
                 const rowClass = banner.activo ? '' : 'inactive-product';
 
                 return `
-                <tr class="${rowClass}">
+                <tr class="${rowClass}" data-id="${banner.id}">
                     <td>
                         <img src="http://localhost:3001/api/banners/${banner.id}/image" alt="Banner ${banner.id}" class="table-img-preview">
                     </td>
                     <td>${displayOrder}</td>
-                    <td class="actions">
                     <td>
                         <span class="status ${statusClass}">${statusText}</span>
                     </td>
@@ -478,6 +478,26 @@ async function loadBannersAdminPage() {
             tableBody.innerHTML = '<tr><td colspan="4">Error al cargar los banners.</td></tr>';
         }
     }
+
+    // Inicializar la funcionalidad de arrastrar y soltar
+    const sortable = new Sortable(tableBody, {
+        animation: 150, // Animación suave al arrastrar
+        handle: 'tr', // Permite arrastrar desde cualquier parte de la fila
+        onUpdate: () => {
+            // Mostramos el botón de guardar solo cuando se ha hecho un cambio.
+            saveOrderBtn.style.display = 'inline-block';
+        }
+    });
+
+    // Guardar el nuevo orden
+    saveOrderBtn.addEventListener('click', async () => {
+        const orderedIds = sortable.toArray(); // Obtiene los IDs en el nuevo orden
+        await BannerService.updateOrder(orderedIds);
+        showNotification('Orden de los banners guardado con éxito.', 'success');
+        saveOrderBtn.style.display = 'none'; // Ocultamos el botón de nuevo
+        // Recargamos para mostrar el número de orden actualizado
+        renderBanners();
+    });
 
     addForm.addEventListener('submit', async (e) => {
         e.preventDefault();

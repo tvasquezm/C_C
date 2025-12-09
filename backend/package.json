@@ -1,7 +1,7 @@
 {
-  "name": "cookies-and-cakes-backend",
+  "name": "c-and-c-cookies-and-cakes-backend",
   "version": "1.0.0",
-  "description": "Backend server for Cookies and Cakes",
+  "description": "Backend server for C & C Cookies and Cakes",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
