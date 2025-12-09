@@ -85,16 +85,25 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Botón para guardar el orden de los banners -->
+            <div style="text-align: right; margin-top: 20px;">
+                <button id="save-banner-order-btn" class="admin-btn primary" style="display: none;">
+                    <i class="fas fa-save"></i> Guardar Orden
+                </button>
+            </div>
         </div>
     </main>
 
     <footer class="main-footer">
         <div class="footer-bottom">
-            <p>&copy; 2025 Panel de Administración de C & C Cookies and Cakes.</p>
+            <p>&copy; 2024 Panel de Administración de C & C Cookies and Cakes.</p>
         </div>
     </footer>
 
     <!-- Scripts necesarios -->
+    <!-- Carga de la librería SortableJS para la funcionalidad de arrastrar y soltar -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script src="../assets/js/banner-service.js"></script>
     <script src="../assets/js/utils.js"></script>
     <script src="admin.js"></script>

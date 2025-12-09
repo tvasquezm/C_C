@@ -9,7 +9,28 @@ const API_BASE_URL = 'http://localhost:3001';
  * @returns {string} - El string HTML de la tarjeta.
  */
 function createProductCard(product) {
-    const buttonText = product.price === 'Cotizar' ? 'Cotizar' : 'Añadir al Carrito';
+    // --- INICIO DE MEJORA DE VISUALIZACIÓN ---
+    // Se unifica la apariencia del precio y del botón para mayor consistencia.
+    let priceDisplay;
+    // --- INICIO DE CORRECCIÓN DE PRECIOS ---
+    // Se limpia el string del precio para asegurar que parseFloat funcione correctamente.
+    // Esto maneja valores como "$12.000" o "15.000" que antes fallaban.
+    const cleanedPrice = String(product.price || '').replace(/[$.]/g, '');
+    const numericPrice = parseFloat(cleanedPrice);
+    // --- FIN DE CORRECCIÓN DE PRECIOS ---
+
+    // Si el precio es un número válido y mayor a cero, se formatea como moneda.
+    if (!isNaN(numericPrice) && numericPrice > 0) {
+        priceDisplay = `$${numericPrice.toLocaleString('es-CL')}`;
+    } else {
+        // De lo contrario, se muestra "A cotizar".
+        priceDisplay = 'A cotizar';
+    }
+
+    // El texto del botón es siempre el mismo, ya que la acción es añadir al carrito en todos los casos.
+    const buttonText = 'Añadir al Carrito';
+    // --- FIN DE MEJORA DE VISUALIZACIÓN ---
+
     // Envolvemos la tarjeta en un enlace <a> para la navegación y añadimos la clase .product-card
     // para una mejor semántica, accesibilidad y SEO.
     return `
@@ -18,7 +39,7 @@ function createProductCard(product) {
                 <img src="${API_BASE_URL}/api/products/${product.id}/image" alt="${product.name}">
                 <div class="product-info">
                     <h3 class="product-name">${product.name}</h3>
-                    <p class="product-price">${product.price}</p>
+                    <p class="product-price">${priceDisplay}</p>
                     <button class="add-to-cart-btn" data-id="${product.id}">${buttonText}</button>
                 </div>
             </div>
@@ -101,6 +122,22 @@ async function renderProductDetailPage() {
     const category = allCategories.find(cat => cat.id === product.category_id);
     const categoryName = category ? category.name : 'Categoría desconocida';
 
+    // --- INICIO DE MEJORA DE VISUALIZACIÓN ---
+    // Se aplica el mismo formato de precio que en las tarjetas de producto para mantener la consistencia.
+    let priceDisplay;
+    // --- INICIO DE CORRECCIÓN DE PRECIOS ---
+    // Se limpia el string del precio para asegurar que parseFloat funcione correctamente.
+    const cleanedPrice = String(product.price || '').replace(/[$.]/g, '');
+    const numericPrice = parseFloat(cleanedPrice);
+    // --- FIN DE CORRECCIÓN DE PRECIOS ---
+
+    if (!isNaN(numericPrice) && numericPrice > 0) {
+        priceDisplay = `$${numericPrice.toLocaleString('es-CL')}`;
+    } else {
+        priceDisplay = 'A cotizar';
+    }
+    // --- FIN DE MEJORA DE VISUALIZACIÓN ---
+
     // Actualizamos el título de la página
     document.title = `${product.name} - C & C Cookies and Cakes`;
 
@@ -112,7 +149,7 @@ async function renderProductDetailPage() {
         <div class="product-detail-info">
             <h1 class="product-detail-title">${product.name}</h1>
             <p class="product-detail-category">${categoryName}</p>
-            <p class="product-detail-price">${product.price}</p>
+            <p class="product-detail-price">${priceDisplay}</p>
             <p class="product-detail-description">
                 ${product.description || 'Descripción no disponible.'}
             </p>
@@ -184,22 +221,18 @@ async function renderCategoryPage() {
  * @param {Event} event - El evento de clic.
  */
 function handleProductCardClick(event) {
-    // Buscamos si el clic fue en un botón de "Añadir al Carrito".
+    // Buscamos si el clic fue en un botón de "Añadir al Carrito" o "Cotizar".
     const addToCartBtn = event.target.closest('.add-to-cart-btn');
 
     if (addToCartBtn) {
         // Si se hizo clic en el botón, prevenimos la navegación del enlace <a> padre.
         event.preventDefault(); 
         const productId = addToCartBtn.dataset.id;
-        const buttonText = addToCartBtn.textContent;
-
-        if (buttonText === 'Cotizar') {
-            window.location.href = `mailto:hola@pastelarte.cl?subject=Cotización para producto ID: ${productId}`;
-        } else {
-            App.cart.addProduct(productId);
-            // Mostramos una notificación de éxito.
-            showToast('¡Producto añadido al carrito!');
-        }
+        // Unificamos la lógica: siempre se añade el producto al carrito.
+        // La clase ShoppingCart ya sabe cómo manejar productos con y sin precio.
+        App.cart.addProduct(productId);
+        // Mostramos una notificación de éxito.
+        showToast('¡Producto añadido al carrito!');
     }
 }
 
@@ -280,6 +313,7 @@ function inicializarCarrusel(selectorSeccion) {
     let currentIndex = 0;
     let itemsToShow;
     let isTransitioning = false;
+    let activeProductCount = 0; // Contará los productos *actualmente* en el carrusel (puede cambiar en responsive).
 
     // --- 3. Funciones Auxiliares ---
     const getScrollAmount = () => {
@@ -291,7 +325,8 @@ function inicializarCarrusel(selectorSeccion) {
 
     const updateCarouselPosition = (withTransition = true) => {
         const scrollAmount = getScrollAmount();
-        productGrid.style.transition = 'transform 0.5s ease-in-out';
+        // CORRECCIÓN: Se aplica la transición solo cuando es necesario (withTransition = true).
+        productGrid.style.transition = withTransition ? 'transform 0.5s ease-in-out' : 'none';
         productGrid.style.transform = `translateX(-${currentIndex * scrollAmount}px)`;
     };
 
@@ -301,9 +336,9 @@ function inicializarCarrusel(selectorSeccion) {
         if (dots.length === 0) return;
 
         // Calculamos el índice del primer producto *real* que está visible.
-        let realIndex = currentIndex - itemsToShow;
-        // Normalizamos el índice para que esté siempre entre 0 y (totalRealProducts - 1).
-        realIndex = (realIndex % totalRealProducts + totalRealProducts) % totalRealProducts;
+        let realIndex = currentIndex - itemsToShow; // El índice relativo al inicio de los items reales.
+        // Normalizamos el índice para que esté siempre entre 0 y (activeProductCount - 1).
+        realIndex = (realIndex % activeProductCount + activeProductCount) % activeProductCount;
 
         // Quitamos la clase activa de todos los puntos y se la añadimos al actual.
         for (let i = 0; i < dots.length; i++) {
@@ -318,13 +353,13 @@ function inicializarCarrusel(selectorSeccion) {
     const handleLoop = () => {
         isTransitioning = false;
         // Si hemos llegado a los clones del final (que son una copia del principio)...
-        if (currentIndex >= totalRealProducts + itemsToShow) {
+        if (currentIndex >= activeProductCount + itemsToShow) {
             currentIndex = itemsToShow; // ...saltamos sin animación al primer set de items reales.
             updateCarouselPosition(false);
         }
         // Si hemos llegado a los clones del principio (que son una copia del final)...
         else if (currentIndex < itemsToShow) {
-            currentIndex = totalRealProducts + currentIndex; // ...saltamos sin animación al set de items reales equivalente al final.
+            currentIndex = activeProductCount + currentIndex; // ...saltamos sin animación al set de items reales equivalente al final.
             updateCarouselPosition(false);
         }
         // Actualizamos el punto activo después de cada transición.
@@ -348,33 +383,61 @@ function inicializarCarrusel(selectorSeccion) {
 
     // --- 6. Función para Construir/Reconstruir el Carrusel ---
     const buildCarousel = () => {
-        productGrid.innerHTML = originalProductCards.map(card => card.outerHTML).join('');
-        const cardWidth = totalRealProducts > 0 ? originalProductCards[0].getBoundingClientRect().width : 0;
-        const gap = parseInt(window.getComputedStyle(productGrid).gap) || 20;
-        itemsToShow = cardWidth > 0 ? Math.floor(productGrid.parentElement.offsetWidth / (cardWidth + gap)) : 1;
+        // --- INICIO DE OPTIMIZACIÓN Y LÓGICA RESPONSIVA UNIFICADA ---
+        // Se calcula el estado deseado (cuántos productos mostrar y cuáles usar).
+        const screenWidth = window.innerWidth;
+        const isMobileView = screenWidth < 680;
+        
+        const cardsToUse = (isMobileView && originalProductCards.length > 4) 
+            ? originalProductCards.slice(0, 4) 
+            : originalProductCards;
+        
+        const newActiveProductCount = cardsToUse.length;
 
-        if (totalRealProducts <= itemsToShow) {
+        let desiredItemsToShow;
+        if (isMobileView) {
+            desiredItemsToShow = 1;
+        } else if (screenWidth <= 1024) { // Tablets grandes
+            desiredItemsToShow = 2;
+        } else { // Escritorio: ahora muestra 5 productos, como solicitaste.
+            desiredItemsToShow = 5;
+        }
+        const newItemsToShow = Math.min(newActiveProductCount, desiredItemsToShow);
+
+        // Si el número de items a mostrar no ha cambiado y el carrusel ya está construido (tiene clones),
+        // se evita la reconstrucción completa para prevenir el "lag" al hacer scroll o redimensionar.
+        if (newItemsToShow === itemsToShow && productGrid.children.length > activeProductCount) {
+            return; // Salimos para no hacer trabajo innecesario.
+        }
+        
+        // Se actualiza el estado y se reconstruye el DOM
+        itemsToShow = newItemsToShow;
+        activeProductCount = newActiveProductCount;
+        productGrid.innerHTML = cardsToUse.map(card => card.outerHTML).join('');
+        // --- FIN DE OPTIMIZACIÓN Y LÓGICA RESPONSIVA UNIFICADA ---
+
+        if (activeProductCount <= itemsToShow) {
             prevArrow.style.display = 'none';
             nextArrow.style.display = 'none';
             if (paginationContainer) paginationContainer.style.display = 'none';
-            // AÑADIDO: Centramos la grilla si no hay suficientes productos para un carrusel.
             productGrid.classList.add('centered');
             return;
         }
 
+        productGrid.classList.remove('centered'); // Si el carrusel es necesario, no debe estar centrado.
         prevArrow.style.display = 'block';
         nextArrow.style.display = 'block';
         if (paginationContainer) paginationContainer.style.display = 'flex';
 
-        const lastItems = originalProductCards.slice(-itemsToShow);
+        const lastItems = cardsToUse.slice(-itemsToShow);
         lastItems.reverse().forEach(card => productGrid.prepend(card.cloneNode(true)));
-        const firstItems = originalProductCards.slice(0, itemsToShow);
+        const firstItems = cardsToUse.slice(0, itemsToShow);
         firstItems.forEach(card => productGrid.append(card.cloneNode(true)));
 
         // Generamos los puntos de paginación
         if (paginationContainer) {
             paginationContainer.innerHTML = '';
-            for (let i = 0; i < totalRealProducts; i++) {
+            for (let i = 0; i < activeProductCount; i++) {
                 const dot = document.createElement('button');
                 dot.classList.add('pagination-dot');
                 dot.dataset.index = i;
@@ -388,7 +451,15 @@ function inicializarCarrusel(selectorSeccion) {
     };
 
     // --- 7. Asignación de Eventos ---
-    productGrid.addEventListener('transitionend', handleLoop);
+    // CORRECCIÓN DE ESTABILIDAD: Se añade una comprobación en el listener de 'transitionend'.
+    // Esto asegura que el carrusel solo reaccione a su propia animación de deslizamiento
+    // y no a otras animaciones que puedan ocurrir a su alrededor (como la animación de aparición de la sección
+    // o el efecto 'hover' en las tarjetas). Esto previene que el estado del carrusel se corrompa y "desaparezca".
+    productGrid.addEventListener('transitionend', (e) => {
+        if (e.target === productGrid) {
+            handleLoop();
+        }
+    });
 
     if (paginationContainer) {
         paginationContainer.addEventListener('click', (e) => {
@@ -478,11 +549,14 @@ const App = {
         ]);
 
         const allSectionsHTML = categories.map(category => {
-            // `allProducts` es el array de productos devuelto por el servicio, por lo que .filter funcionará.
-            const productsForCategory = allProducts.filter(p => p.category_id === category.id);
-            if (productsForCategory.length === 0) return '';
+            const originalProductsForCategory = allProducts.filter(p => p.category_id === category.id);
+            if (originalProductsForCategory.length === 0) return '';
 
-            const productCount = productsForCategory.length;
+            // Se eliminó el límite de 4 productos de aquí. Ahora la lógica está dentro de `inicializarCarrusel`
+            // para que pueda adaptarse dinámicamente al tamaño de la pantalla.
+            const productsForCarousel = originalProductsForCategory;
+
+            const productCount = originalProductsForCategory.length; // Usamos el conteo original para el subtítulo.
             const productCountText = productCount === 1 ? '1 producto' : `${productCount} productos`;
 
             const sectionId = `category-${category.id}`;
@@ -493,7 +567,7 @@ const App = {
                     <div class="product-slider-container">
                         <button class="slider-arrow prev-arrow"><i class="fas fa-chevron-left"></i></button>
                         <div class="product-slider-wrapper">
-                            <div class="product-grid">${productsForCategory.map(createProductCard).join('')}</div>
+                            <div class="product-grid">${productsForCarousel.map(createProductCard).join('')}</div>
                         </div>
                         <button class="slider-arrow next-arrow"><i class="fas fa-chevron-right"></i></button>
                         <div class="carousel-pagination"></div>

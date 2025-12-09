@@ -541,10 +541,9 @@ body {
 }
 
 .product-grid {
-    display: flex; /* Cambiado de grid a flex */
+    display: flex; /* Por defecto, es un carrusel flexible */
     flex-wrap: nowrap; /* Evita que los productos salten a la siguiente línea */
     gap: 2rem;
-    transition: transform 0.5s ease-in-out; /* Animación de deslizamiento */
 }
 
 /* Clase para centrar el grid cuando no hay suficientes productos para un carrusel */
@@ -553,11 +552,11 @@ body {
     flex-wrap: wrap; /* Permite que los elementos se ajusten si es necesario */
 }
 
-/* Estilos específicos para las tarjetas DENTRO del carrusel */
-/* MEJORA: Aplicamos el tamaño al enlace (el item directo del flexbox) y no a la tarjeta interna. */
+/* Estilos para las tarjetas DENTRO del carrusel en escritorio */
 .product-grid .product-card-link {
-    flex: 0 0 calc(25% - 1.5rem); /* Muestra 4 productos (25% cada uno) y ajusta por el gap */
-    max-width: calc(25% - 1.5rem);
+    /* Por defecto (escritorio > 1024px), la lógica de JS ahora muestra 5 productos. */
+    flex: 0 0 calc(20% - 1.6rem); /* 5 tarjetas con un gap de 2rem */
+    max-width: calc(20% - 1.6rem);
 }
 
 /* Estilos generales para TODAS las tarjetas de producto */
@@ -591,6 +590,10 @@ body {
     width: 100%;
     height: 220px;
     object-fit: cover;
+    /* Se elimina la altura fija y se reemplaza por 'aspect-ratio' para evitar que la imagen se "aplaste". */
+    /* Esto mantiene una proporción cuadrada (1/1) y la altura se ajustará automáticamente al ancho. */
+    aspect-ratio: 1 / 1;
+    object-fit: cover; /* Asegura que la imagen cubra el área sin deformarse, recortando el exceso. */
 }
 
 .product-info {
@@ -825,21 +828,80 @@ body {
 
     /* Ajustes para el carrusel en móvil */
     .product-slider-container {
-        padding: 0 40px; /* Menos espacio para flechas */
+        padding: 0 20px; /* Menos espacio para flechas en pantallas más pequeñas */
     }
-
-    .product-grid .product-card {
-        /* Muestra 1 producto a la vez en pantallas pequeñas */
-        flex: 0 0 calc(100% - 1.5rem);
-        max-width: calc(100% - 1.5rem);
-    }
-
-    .slider-arrow {
-        width: 35px; height: 35px; font-size: 1rem;
-    }
-
+ 
     /* Ajustes para el detalle de producto en móvil */
     .product-detail-container {
         grid-template-columns: 1fr; /* Una sola columna */
+    }
+}
+
+/* ===================================================================
+   REFACTORIZACIÓN DE ESTILOS RESPONSIVOS DEL CARRUSEL
+   Estos estilos se alinean con los breakpoints definidos en script.js
+   para un comportamiento consistente en todos los dispositivos.
+   =================================================================== */
+
+/* --- Tablets (hasta 1024px): JS muestra 2 productos --- */
+@media (max-width: 1024px) {
+    .product-grid .product-card-link {
+        flex: 0 0 calc(50% - 1rem); /* 2 tarjetas con un gap de 2rem */
+        max-width: calc(50% - 1rem);
+    }
+}
+
+/* --- Móviles (< 680px): JS muestra 1 producto --- */
+@media (max-width: 679px) {
+    .product-slider-wrapper {
+        /* Añadimos padding para que la tarjeta no ocupe toda la pantalla y se vea centrada. */
+        padding: 0 12%;
+    }
+    .product-grid .product-card-link {
+        /* La tarjeta ocupa el 100% del wrapper (que ahora tiene padding) */
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* ===============================================
+   ESTILOS RESPONSIVOS PARA TARJETAS DE PRODUCTO
+   =============================================== */
+
+/* --- Media Query para pantallas pequeñas (móviles) --- */
+/* Cuando la pantalla tiene 680px de ancho o menos, estos estilos se aplican para hacer las tarjetas más compactas. */
+@media (max-width: 680px) {
+    .product-card img {
+        height: 180px;
+    }
+    /* La altura de la imagen ahora es controlada por 'aspect-ratio', por lo que este estilo ya no es necesario. */
+    .product-info {
+        padding: 12px;
+    }
+    .product-name {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+    .product-price {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+    .add-to-cart-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Opcional: Un ajuste extra para pantallas muy pequeñas (menos de 400px) */
+@media (max-width: 400px) {
+    .product-card img {
+        height: 160px; /* Hacemos la imagen aún más pequeña */
+    }
+    /* La altura de la imagen ahora es controlada por 'aspect-ratio'. */
+    .product-name {
+        font-size: 0.9rem;
+    }
+    .product-price {
+        font-size: 1rem;
     }
 }
