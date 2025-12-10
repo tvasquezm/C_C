@@ -22,7 +22,6 @@ body {
     font-family: var(--font-body);
     color: var(--dark-color);
     line-height: 1.6;
-    /* Efecto de fondo mágico con gradiente */
     background-color: var(--secondary-color); /* Color de respaldo */
     background-image: linear-gradient(180deg, #f7f2fa 0%, var(--secondary-color) 100%);
 }
@@ -68,7 +67,7 @@ body {
 }
 
 .nav-logo img {
-    height: 50px; /* Ajusta este valor al tamaño que prefieras */
+    height: 50px;
     width: auto;
 }
 
@@ -139,14 +138,13 @@ body {
     justify-content: center;
     text-align: center;
     color: var(--light-color);
-    height: 75vh; /* Aún más alto para un efecto más inmersivo */
+    height: 75vh;
     position: relative;
     background-size: cover;
     background-position: center;
-    transition: background-image 1.5s ease-in-out; /* Transición más suave para el carrusel */
+    transition: background-image 1.5s ease-in-out;
 }
 
-/* Overlay con gradiente para un look más mágico */
 .hero::before {
     content: '';
     position: absolute;
@@ -158,16 +156,16 @@ body {
 .hero-content {
     max-width: 600px;
     padding: 0 1rem;
-    position: relative; /* Para que el texto esté sobre el overlay */
+    position: relative;
     z-index: 2;
 }
 
 .hero h1 {
-    font-family: var(--font-special); /* Usamos la nueva fuente especial */
-    font-size: 5rem; /* Más grande para un efecto dramático */
+    font-family: var(--font-special);
+    font-size: 5rem;
     margin-bottom: 1rem;
     font-weight: 500;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.5); /* Sombra para legibilidad */
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
 }
 
 .hero p {
@@ -187,7 +185,7 @@ body {
 
 .cta-button:hover {
     background-color: var(--accent-color);
-    box-shadow: var(--box-shadow-glow); /* Efecto de brillo al pasar el mouse */
+    box-shadow: var(--box-shadow-glow);
 }
 
 /* --- NUEVO: Estilos para secciones de información (Sobre Nosotros, Contacto) --- */
@@ -204,7 +202,6 @@ body {
     margin: 0 auto;
     text-align: center;
     font-size: 1.1rem;
-    /* --- MEJORA: Marco con brillo sutil --- */
     background-color: var(--light-color);
     padding: 3rem;
     border-radius: 20px;
@@ -214,8 +211,8 @@ body {
 }
 
 .info-section-content:hover {
-    transform: translateY(-5px); /* Ligero efecto de elevación al pasar el mouse */
-    box-shadow: 0 10px 30px rgba(208, 162, 224, 0.5); /* Sombra más pronunciada */
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(208, 162, 224, 0.5);
 }
 
 .info-section-content p {
@@ -225,7 +222,7 @@ body {
 .info-section-content .whatsapp-contact-btn {
     margin-top: 1rem;
     margin-bottom: 1rem;
-    background-color: #25D366; /* Color de WhatsApp */
+    background-color: #25D366;
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -246,8 +243,8 @@ body {
 }
 
 .info-section-content .social-icons a {
-    font-size: 2.5rem; /* Iconos más grandes */
-    color: var(--dark-color); /* Color base */
+    font-size: 2.5rem;
+    color: var(--dark-color);
     opacity: 0.8;
     transition: transform 0.3s ease, color 0.3s ease;
 }
@@ -259,17 +256,17 @@ body {
 
 /* Colores específicos para cada red social */
 .info-section-content .social-icons a[aria-label="Instagram"]:hover {
-    color: #E1306C; /* Color de Instagram */
+    color: #E1306C;
 }
 .info-section-content .social-icons a[aria-label="WhatsApp"]:hover {
-    color: #25D366; /* Color de WhatsApp */
+    color: #25D366;
 }
 
 /* ==================== ESTILOS PARA PÁGINAS DE CATEGORÍA ==================== */
 .category-page {
     padding: 4rem 2rem;
     background-color: var(--secondary-color);
-    min-height: 70vh; /* Asegura que la página tenga un alto mínimo */
+    min-height: 70vh;
 }
 
 .page-title {
@@ -282,9 +279,7 @@ body {
 
 .product-grid-full {
     display: grid;
-    /* Crea columnas flexibles que se ajustan al tamaño de la pantalla */
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    /* MEJORA: Se usa un tamaño fijo para estandarizar las tarjetas y se centra la grilla. */
     grid-template-columns: repeat(auto-fit, 300px);
     justify-content: center;
     gap: 2rem;
@@ -296,9 +291,9 @@ body {
 .cart-sidebar {
     position: fixed;
     top: 0;
-    right: -100%; /* Empieza fuera de la pantalla */
+    right: -100%;
     width: 100%;
-    max-width: 380px; /* Ancho máximo del carrito */
+    max-width: 380px;
     height: 100%;
     background-color: var(--light-color);
     box-shadow: -5px 0 15px rgba(0,0,0,0.2);
@@ -309,7 +304,7 @@ body {
 }
 
 .cart-sidebar.active {
-    right: 0; /* Se desliza a la vista */
+    right: 0;
 }
 
 .cart-header {
@@ -398,8 +393,8 @@ body {
 }
 
 .quantity-btn:active {
-    transform: scale(0.95); /* Efecto de "presionado" */
-    background-color: #d1d5db; /* Un gris ligeramente más oscuro */
+    transform: scale(0.95);
+    background-color: #d1d5db;
 }
 
 .cart-item-remove {
@@ -418,13 +413,13 @@ body {
 }
 
 .cart-item-remove:hover {
-    background-color: #dc3545; /* Rojo de peligro */
+    background-color: #dc3545;
     color: white;
     opacity: 1;
     transform: scale(1.1);
 }
 .cart-item-remove:active {
-    background-color: #c82333; /* Un rojo más oscuro al presionar */
+    background-color: #c82333;
     transform: scale(0.95);
 }
 
@@ -448,7 +443,7 @@ body {
 }
 
 .checkout-btn:hover {
-    background-color: #d14a7a; /* Un tono más oscuro del rosa */
+    background-color: #d14a7a;
 }
 
 .cart-empty-msg {
@@ -504,7 +499,7 @@ body {
 .add-to-cart-btn.large {
     padding: 15px 30px;
     font-size: 1.1rem;
-    align-self: flex-start; /* Para que el botón no ocupe todo el ancho */
+    align-self: flex-start;
 }
 
 /* ==================== SECCIÓN DE PRODUCTOS ==================== */
@@ -515,7 +510,7 @@ body {
 
 .section-title {
     text-align: center;
-    font-family: var(--font-special); /* Usamos la nueva fuente especial */
+    font-family: var(--font-special);
     font-size: 3rem;
     margin-bottom: 3rem;
     color: var(--dark-color);
@@ -525,15 +520,15 @@ body {
     text-align: center;
     font-size: 1.1rem;
     color: #777;
-    margin-top: -2rem; /* Para acercarlo al título */
+    margin-top: -2rem;
     margin-bottom: 2.5rem;
 }
 
 .product-slider-container {
     position: relative;
-    max-width: 1280px; /* Ancho máximo para 4 productos + flechas */
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 0 50px; /* Espacio para las flechas */
+    padding: 0 50px;
 }
 
 .product-slider-wrapper {
@@ -541,21 +536,20 @@ body {
 }
 
 .product-grid {
-    display: flex; /* Por defecto, es un carrusel flexible */
-    flex-wrap: nowrap; /* Evita que los productos salten a la siguiente línea */
+    display: flex;
+    flex-wrap: nowrap;
     gap: 2rem;
 }
 
 /* Clase para centrar el grid cuando no hay suficientes productos para un carrusel */
 .product-grid.centered {
     justify-content: center;
-    flex-wrap: wrap; /* Permite que los elementos se ajusten si es necesario */
+    flex-wrap: wrap;
 }
 
 /* Estilos para las tarjetas DENTRO del carrusel en escritorio */
 .product-grid .product-card-link {
-    /* Por defecto (escritorio > 1024px), la lógica de JS ahora muestra 5 productos. */
-    flex: 0 0 calc(20% - 1.6rem); /* 5 tarjetas con un gap de 2rem */
+    flex: 0 0 calc(20% - 1.6rem);
     max-width: calc(20% - 1.6rem);
 }
 
@@ -566,17 +560,15 @@ body {
     overflow: hidden;
     box-shadow: var(--box-shadow);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    /* --- MEJORA: Usamos Flexbox para estandarizar la altura y alinear el contenido. --- */
     display: flex;
     flex-direction: column;
-    height: 100%; /* Asegura que la tarjeta ocupe todo el espacio de la celda del grid. */
+    height: 100%;
 }
 
 /* Enlace que envuelve la tarjeta de producto */
 .product-card-link {
     text-decoration: none;
-    color: inherit; /* Hereda el color del texto para no tener links azules */
-    /* Hacemos que el enlace ocupe el espacio de la celda del grid y se comporte como un bloque */
+    color: inherit;
     display: block; 
     height: 100%;
 }
@@ -589,17 +581,13 @@ body {
 .product-card img {
     width: 100%;
     height: 220px;
-    object-fit: cover;
-    /* Se elimina la altura fija y se reemplaza por 'aspect-ratio' para evitar que la imagen se "aplaste". */
-    /* Esto mantiene una proporción cuadrada (1/1) y la altura se ajustará automáticamente al ancho. */
     aspect-ratio: 1 / 1;
-    object-fit: cover; /* Asegura que la imagen cubra el área sin deformarse, recortando el exceso. */
+    object-fit: cover;
 }
 
 .product-info {
     padding: 1.5rem;
     text-align: center;
-    /* --- MEJORA: Hacemos que esta sección crezca para empujar el botón hacia abajo. --- */
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -628,7 +616,6 @@ body {
     font-family: var(--font-body);
     font-weight: 500;
     transition: background-color 0.3s ease;
-    /* --- MEJORA: Empuja el botón a la parte inferior de la tarjeta. --- */
     margin-top: auto;
 }
 
@@ -684,7 +671,6 @@ body {
     border-color: var(--primary-color);
 }
 
-/* --- MEJORA: Estilos para Notificación Toast --- */
 .toast-notification {
     position: fixed;
     bottom: 20px;
@@ -703,7 +689,7 @@ body {
 
 .toast-notification.visible {
     opacity: 1;
-    transform: translateX(-50%) translateY(0); /* Se desliza a su posición */
+    transform: translateX(-50%) translateY(0);
 }
 
 
@@ -780,7 +766,7 @@ body {
     .nav-menu {
         position: fixed;
         left: -100%;
-        top: 70px; /* Altura del header */
+        top: 70px;
         flex-direction: column;
         background-color: var(--light-color);
         width: 100%;
@@ -828,12 +814,12 @@ body {
 
     /* Ajustes para el carrusel en móvil */
     .product-slider-container {
-        padding: 0 20px; /* Menos espacio para flechas en pantallas más pequeñas */
+        padding: 0 20px;
     }
  
     /* Ajustes para el detalle de producto en móvil */
     .product-detail-container {
-        grid-template-columns: 1fr; /* Una sola columna */
+        grid-template-columns: 1fr;
     }
 }
 
@@ -846,7 +832,7 @@ body {
 /* --- Tablets (hasta 1024px): JS muestra 2 productos --- */
 @media (max-width: 1024px) {
     .product-grid .product-card-link {
-        flex: 0 0 calc(50% - 1rem); /* 2 tarjetas con un gap de 2rem */
+        flex: 0 0 calc(50% - 1rem);
         max-width: calc(50% - 1rem);
     }
 }
@@ -854,11 +840,9 @@ body {
 /* --- Móviles (< 680px): JS muestra 1 producto --- */
 @media (max-width: 679px) {
     .product-slider-wrapper {
-        /* Añadimos padding para que la tarjeta no ocupe toda la pantalla y se vea centrada. */
         padding: 0 12%;
     }
     .product-grid .product-card-link {
-        /* La tarjeta ocupa el 100% del wrapper (que ahora tiene padding) */
         flex: 0 0 100%;
         max-width: 100%;
     }
@@ -871,10 +855,6 @@ body {
 /* --- Media Query para pantallas pequeñas (móviles) --- */
 /* Cuando la pantalla tiene 680px de ancho o menos, estos estilos se aplican para hacer las tarjetas más compactas. */
 @media (max-width: 680px) {
-    .product-card img {
-        height: 180px;
-    }
-    /* La altura de la imagen ahora es controlada por 'aspect-ratio', por lo que este estilo ya no es necesario. */
     .product-info {
         padding: 12px;
     }
@@ -894,10 +874,6 @@ body {
 
 /* Opcional: Un ajuste extra para pantallas muy pequeñas (menos de 400px) */
 @media (max-width: 400px) {
-    .product-card img {
-        height: 160px; /* Hacemos la imagen aún más pequeña */
-    }
-    /* La altura de la imagen ahora es controlada por 'aspect-ratio'. */
     .product-name {
         font-size: 0.9rem;
     }

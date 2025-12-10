@@ -10,14 +10,12 @@ class ShoppingCart {
         this.closeCartBtn = document.getElementById('close-cart-btn');
         this.cartItemsContainer = document.getElementById('cart-items');
         this.checkoutBtn = document.querySelector('.checkout-btn');
-        // --- INICIO DE CREACIÓN DE ELEMENTO PARA TOTAL ---
         // Se crea dinámicamente un contenedor para el total, que se insertará antes del botón de checkout.
         this.cartTotalEl = document.createElement('div');
         this.cartTotalEl.className = 'cart-total';
         if (this.checkoutBtn && this.checkoutBtn.parentElement) {
             this.checkoutBtn.parentElement.insertBefore(this.cartTotalEl, this.checkoutBtn);
         }
-        // --- FIN DE CREACIÓN DE ELEMENTO PARA TOTAL ---
         this.cart = this._getCart();
         this._addEventListeners();
         this.updateUI();
@@ -33,7 +31,6 @@ class ShoppingCart {
     }
 
     async addProduct(productId) {
-        // CORRECCIÓN: Convertimos el ID a número para asegurar una comparación correcta.
         const numericProductId = parseInt(productId, 10);
         const product = await ProductService.getById(productId);
         if (!product) return;
@@ -43,7 +40,6 @@ class ShoppingCart {
         if (existingItem) {
             existingItem.quantity++;
         } else {
-            // --- INICIO DE CORRECCIÓN DE PRECIOS EN CARRITO ---
             // Limpiamos y convertimos el precio a un número antes de guardarlo.
             // Esto asegura que las operaciones (suma, formato) funcionen correctamente.
             const cleanedPrice = String(product.price || '').replace(/[$.]/g, '');
@@ -59,7 +55,6 @@ class ShoppingCart {
         }
 
         this._saveCart();
-        console.log(`Producto "${product.name}" añadido al carrito.`);
         this.open();
     }
 
@@ -99,7 +94,6 @@ class ShoppingCart {
                 const cartItemEl = document.createElement('div');
                 cartItemEl.className = 'cart-item';
 
-                // --- INICIO DE CÁLCULO DE SUBTOTAL ---
                 const itemSubtotal = item.price * item.quantity;
                 let subtotalDisplay;
 
@@ -112,11 +106,9 @@ class ShoppingCart {
                     // Si es a cotizar, no hay subtotal numérico.
                     subtotalDisplay = 'A cotizar';
                 }
-                // --- FIN DE CÁLCULO DE SUBTOTAL ---
 
                 const priceDisplay = item.price > 0 ? `$${item.price.toLocaleString('es-CL')}` : 'A cotizar';
                 
-                // Se modifica el HTML para incluir el subtotal por ítem y clarificar el precio unitario.
                 cartItemEl.innerHTML = `
                     <img src="${item.img}" alt="${item.name}">
                     <div class="cart-item-info">
@@ -139,10 +131,7 @@ class ShoppingCart {
         const totalItems = this.cart.reduce((sum, item) => sum + item.quantity, 0);
         this.cartIcon.dataset.count = totalItems > 0 ? totalItems : '';
 
-        // --- INICIO DE ACTUALIZACIÓN DE TOTAL GENERAL ---
-        // Actualiza el contenedor del total general.
         this._updateGrandTotal(grandTotal, hasItemsToQuote);
-        // --- FIN DE ACTUALIZACIÓN DE TOTAL GENERAL ---
     }
 
     open() {
@@ -160,7 +149,6 @@ class ShoppingCart {
             showNotification('Tu carrito está vacío. Añade productos antes de finalizar la compra.', 'error');
             return;
         }
-        // --- INICIO DE MEJORA DEL MENSAJE DE WHATSAPP ---
         // Se reconstruye el mensaje para incluir precios, subtotales y el total general.
         let message = '¡Hola Cookies and Cakes! Quisiera cotizar el siguiente pedido:\n\n';
         let grandTotal = 0;
@@ -186,7 +174,6 @@ class ShoppingCart {
             message += `\n*TOTAL (referencial):* $${grandTotal.toLocaleString('es-CL')}\n`;
         }
         message += `\nQuedo a la espera de su confirmación. ¡Gracias!`;
-        // --- FIN DE MEJORA DEL MENSAJE DE WHATSAPP ---
         
         const phoneNumber = '56992228157';
         const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
@@ -225,7 +212,6 @@ class ShoppingCart {
 
         this.cartItemsContainer.addEventListener('click', (event) => {
             const target = event.target;
-            // CORRECCIÓN: Convertimos el ID del dataset (que es un string) a un número.
             const productId = parseInt(target.dataset.id, 10);
             if (target.classList.contains('cart-item-remove')) this._removeFromCart(productId);
             if (target.classList.contains('increase-quantity')) this._increaseQuantity(productId);

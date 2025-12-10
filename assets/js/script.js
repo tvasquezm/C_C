@@ -9,27 +9,17 @@ const API_BASE_URL = 'http://localhost:3001';
  * @returns {string} - El string HTML de la tarjeta.
  */
 function createProductCard(product) {
-    // --- INICIO DE MEJORA DE VISUALIZACIÓN ---
-    // Se unifica la apariencia del precio y del botón para mayor consistencia.
     let priceDisplay;
-    // --- INICIO DE CORRECCIÓN DE PRECIOS ---
-    // Se limpia el string del precio para asegurar que parseFloat funcione correctamente.
-    // Esto maneja valores como "$12.000" o "15.000" que antes fallaban.
     const cleanedPrice = String(product.price || '').replace(/[$.]/g, '');
     const numericPrice = parseFloat(cleanedPrice);
-    // --- FIN DE CORRECCIÓN DE PRECIOS ---
 
-    // Si el precio es un número válido y mayor a cero, se formatea como moneda.
     if (!isNaN(numericPrice) && numericPrice > 0) {
         priceDisplay = `$${numericPrice.toLocaleString('es-CL')}`;
     } else {
-        // De lo contrario, se muestra "A cotizar".
         priceDisplay = 'A cotizar';
     }
 
-    // El texto del botón es siempre el mismo, ya que la acción es añadir al carrito en todos los casos.
     const buttonText = 'Añadir al Carrito';
-    // --- FIN DE MEJORA DE VISUALIZACIÓN ---
 
     // Envolvemos la tarjeta en un enlace <a> para la navegación y añadimos la clase .product-card
     // para una mejor semántica, accesibilidad y SEO.
@@ -60,33 +50,9 @@ async function renderProducts(sectionSelector, categoryFilter = null) {
     container.innerHTML = '<p>Cargando productos...</p>'; // Mensaje de carga
     const allProducts = await ProductService.getAll(false); 
 
-    // --- ¡AQUÍ ESTÁ EL ESPÍA! ---
-    console.log('Productos recibidos del servidor:', allProducts);
-
     const productsToRender = categoryFilter ? allProducts.filter(p => p.category === categoryFilter) : allProducts;
 
     container.innerHTML = productsToRender.map(createProductCard).join('');
-
-    // Añadimos un listener de eventos al contenedor para manejar los clics
-    container.addEventListener('click', (event) => {
-        const card = event.target.closest('.product-card');
-        if (!card) return; // Si no se hizo clic en una tarjeta, no hacemos nada
-
-        const productId = card.dataset.id;
-
-        // Si se hizo clic en el botón de "Añadir al Carrito", no redirigimos.
-        // Esto nos permitirá añadir lógica al carrito en el futuro.
-        const addToCartBtn = event.target.closest('.add-to-cart-btn');
-        if (addToCartBtn) {
-            event.preventDefault(); // Prevenir la navegación si el botón está dentro de un <a>
-            const buttonText = addToCartBtn.textContent;
-            handleProductCardClick(event);
-        } else {
-            // Si se hizo clic en cualquier otra parte de la tarjeta, redirigimos.
-            // Usamos una ruta relativa para mayor compatibilidad con servidores de desarrollo.
-            window.location.href = `/pages/product-detail.html?id=${productId}`;
-        }
-    });
 
     // Una vez que los productos están renderizados, inicializamos el carrusel de esa sección.
     inicializarCarrusel(sectionSelector);
@@ -122,21 +88,15 @@ async function renderProductDetailPage() {
     const category = allCategories.find(cat => cat.id === product.category_id);
     const categoryName = category ? category.name : 'Categoría desconocida';
 
-    // --- INICIO DE MEJORA DE VISUALIZACIÓN ---
-    // Se aplica el mismo formato de precio que en las tarjetas de producto para mantener la consistencia.
     let priceDisplay;
-    // --- INICIO DE CORRECCIÓN DE PRECIOS ---
-    // Se limpia el string del precio para asegurar que parseFloat funcione correctamente.
     const cleanedPrice = String(product.price || '').replace(/[$.]/g, '');
     const numericPrice = parseFloat(cleanedPrice);
-    // --- FIN DE CORRECCIÓN DE PRECIOS ---
 
     if (!isNaN(numericPrice) && numericPrice > 0) {
         priceDisplay = `$${numericPrice.toLocaleString('es-CL')}`;
     } else {
         priceDisplay = 'A cotizar';
     }
-    // --- FIN DE MEJORA DE VISUALIZACIÓN ---
 
     // Actualizamos el título de la página
     document.title = `${product.name} - C & C Cookies and Cakes`;
@@ -157,14 +117,6 @@ async function renderProductDetailPage() {
         </div>
     `;
 
-    // --- ¡AQUÍ ESTÁ LA SOLUCIÓN! ---
-    // Añadimos un listener de eventos al botón recién creado.
-    const addToCartBtn = container.querySelector('.add-to-cart-btn');
-    if (addToCartBtn) {
-        addToCartBtn.addEventListener('click', () => {
-            App.cart.addProduct(product.id);
-        });
-    }
 }
 
 /**
@@ -221,17 +173,12 @@ async function renderCategoryPage() {
  * @param {Event} event - El evento de clic.
  */
 function handleProductCardClick(event) {
-    // Buscamos si el clic fue en un botón de "Añadir al Carrito" o "Cotizar".
     const addToCartBtn = event.target.closest('.add-to-cart-btn');
 
     if (addToCartBtn) {
-        // Si se hizo clic en el botón, prevenimos la navegación del enlace <a> padre.
         event.preventDefault(); 
         const productId = addToCartBtn.dataset.id;
-        // Unificamos la lógica: siempre se añade el producto al carrito.
-        // La clase ShoppingCart ya sabe cómo manejar productos con y sin precio.
         App.cart.addProduct(productId);
-        // Mostramos una notificación de éxito.
         showToast('¡Producto añadido al carrito!');
     }
 }
@@ -244,11 +191,9 @@ function handleProductCardClick(event) {
  */
 async function renderHeroBanners() {
     const heroContainer = document.getElementById('hero-banner-container');
-    // Si no estamos en una página con el hero banner, no hacemos nada.
     if (!heroContainer) return;
 
     try {
-        // CORRECCIÓN: Usamos getActive() para obtener solo los banners activos y ordenados.
         const banners = await BannerService.getActive();
 
         if (!banners || banners.length === 0) {
@@ -260,14 +205,11 @@ async function renderHeroBanners() {
 
         function showBanner(index) {
             const banner = banners[index];
-            // Usamos el estilo 'background-image' para un mejor ajuste y efecto visual.
             heroContainer.style.backgroundImage = `url('${API_BASE_URL}/api/banners/${banner.id}/image')`;
-            // El contenido de texto ahora es estático y está en el index.html
         }
 
         showBanner(currentBannerIndex);
 
-        // Leemos la velocidad guardada desde localStorage, con 5 segundos como valor por defecto.
         const bannerSpeed = localStorage.getItem('bannerSpeed') || 5000;
 
         // Cambiar el banner cada 5 segundos
@@ -383,15 +325,11 @@ function inicializarCarrusel(selectorSeccion) {
 
     // --- 6. Función para Construir/Reconstruir el Carrusel ---
     const buildCarousel = () => {
-        // --- INICIO DE OPTIMIZACIÓN Y LÓGICA RESPONSIVA UNIFICADA ---
-        // Se calcula el estado deseado (cuántos productos mostrar y cuáles usar).
         const screenWidth = window.innerWidth;
         const isMobileView = screenWidth < 680;
-        
         const cardsToUse = (isMobileView && originalProductCards.length > 4) 
             ? originalProductCards.slice(0, 4) 
             : originalProductCards;
-        
         const newActiveProductCount = cardsToUse.length;
 
         let desiredItemsToShow;
@@ -404,17 +342,13 @@ function inicializarCarrusel(selectorSeccion) {
         }
         const newItemsToShow = Math.min(newActiveProductCount, desiredItemsToShow);
 
-        // Si el número de items a mostrar no ha cambiado y el carrusel ya está construido (tiene clones),
-        // se evita la reconstrucción completa para prevenir el "lag" al hacer scroll o redimensionar.
         if (newItemsToShow === itemsToShow && productGrid.children.length > activeProductCount) {
-            return; // Salimos para no hacer trabajo innecesario.
+            return;
         }
-        
-        // Se actualiza el estado y se reconstruye el DOM
+
         itemsToShow = newItemsToShow;
         activeProductCount = newActiveProductCount;
         productGrid.innerHTML = cardsToUse.map(card => card.outerHTML).join('');
-        // --- FIN DE OPTIMIZACIÓN Y LÓGICA RESPONSIVA UNIFICADA ---
 
         if (activeProductCount <= itemsToShow) {
             prevArrow.style.display = 'none';
@@ -424,7 +358,7 @@ function inicializarCarrusel(selectorSeccion) {
             return;
         }
 
-        productGrid.classList.remove('centered'); // Si el carrusel es necesario, no debe estar centrado.
+        productGrid.classList.remove('centered');
         prevArrow.style.display = 'block';
         nextArrow.style.display = 'block';
         if (paginationContainer) paginationContainer.style.display = 'flex';
@@ -451,10 +385,6 @@ function inicializarCarrusel(selectorSeccion) {
     };
 
     // --- 7. Asignación de Eventos ---
-    // CORRECCIÓN DE ESTABILIDAD: Se añade una comprobación en el listener de 'transitionend'.
-    // Esto asegura que el carrusel solo reaccione a su propia animación de deslizamiento
-    // y no a otras animaciones que puedan ocurrir a su alrededor (como la animación de aparición de la sección
-    // o el efecto 'hover' en las tarjetas). Esto previene que el estado del carrusel se corrompa y "desaparezca".
     productGrid.addEventListener('transitionend', (e) => {
         if (e.target === productGrid) {
             handleLoop();
@@ -467,8 +397,6 @@ function inicializarCarrusel(selectorSeccion) {
             
             isTransitioning = true;
             const targetIndex = parseInt(e.target.dataset.index, 10);
-            
-            // Movemos el carrusel a la posición del producto real correspondiente.
             currentIndex = itemsToShow + targetIndex;
             updateCarouselPosition();
         });
@@ -495,12 +423,10 @@ function showToast(message, type = 'success') {
 
     document.body.appendChild(toast);
 
-    // Hacemos que aparezca
     setTimeout(() => {
         toast.classList.add('visible');
     }, 10);
 
-    // Hacemos que desaparezca y la eliminamos del DOM
     setTimeout(() => {
         toast.classList.remove('visible');
         toast.addEventListener('transitionend', () => toast.remove());
@@ -552,11 +478,9 @@ const App = {
             const originalProductsForCategory = allProducts.filter(p => p.category_id === category.id);
             if (originalProductsForCategory.length === 0) return '';
 
-            // Se eliminó el límite de 4 productos de aquí. Ahora la lógica está dentro de `inicializarCarrusel`
-            // para que pueda adaptarse dinámicamente al tamaño de la pantalla.
             const productsForCarousel = originalProductsForCategory;
 
-            const productCount = originalProductsForCategory.length; // Usamos el conteo original para el subtítulo.
+            const productCount = originalProductsForCategory.length;
             const productCountText = productCount === 1 ? '1 producto' : `${productCount} productos`;
 
             const sectionId = `category-${category.id}`;
@@ -585,7 +509,6 @@ const App = {
             const sectionElement = document.getElementById(sectionId);
             if (sectionElement) {
                 inicializarCarrusel(`#${sectionId}`);
-                // Añadimos el listener para los botones "Añadir al carrito"
                 sectionElement.querySelector('.product-grid').addEventListener('click', handleProductCardClick);
             }
         });

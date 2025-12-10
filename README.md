@@ -1,16 +1,23 @@
-# Cookies and Cakes - Proyecto de Repostería
+# C & C Cookies and Cakes - Sitio Web
 
-Este es el repositorio para el sitio web de "Cookies and Cakes", una pastelería real. El proyecto incluye una vista pública para clientes y un panel de administración privado para gestionar el catálogo de productos.
-
-El sistema está construido con un frontend de HTML, CSS y JavaScript puro, y un backend (API) desarrollado con Node.js y Express, conectado a una base de datos MySQL.
+Este repositorio contiene el código fuente completo para el sitio web de la pastelería "C & C Cookies and Cakes". El proyecto está listo para ser desplegado en un entorno de producción.
 
 ## 📋 Características Principales
 
+El sitio web está diseñado para ofrecer una experiencia de usuario fluida y profesional, con un fuerte enfoque en el rendimiento y la responsividad.
+
 ### Sitio Público
-- **Página de Inicio (`index.html`):** Presenta la marca y muestra carruseles de productos destacados por categoría.
-- **Página de Detalle de Producto (`pages/product-detail.html`):** Una página plantilla que carga dinámicamente la información de cualquier producto basándose en un ID en la URL.
-- **Carrito de Compras:** Funcionalidad para añadir productos, ajustar cantidades y finalizar la cotización a través de un mensaje pre-generado de WhatsApp.
-- **Diseño Responsivo:** Adaptable a dispositivos móviles y de escritorio.
+- **Página de Inicio Dinámica:** La página principal se construye automáticamente a partir de las categorías de la base de datos, creando una sección con un carrusel de productos para cada una.
+- **Carruseles Optimizados:**
+    - **Responsivos:** Muestran 5 productos en escritorio, 2 en tablets y 1 en móviles, con un diseño adaptado para cada vista.
+    - **Estables y Fluidos:** Se ha corregido el "lag" al hacer scroll y se han solucionado problemas de estabilidad que hacían desaparecer elementos.
+- **Páginas de Categoría:** Vistas de cuadrícula que muestran todos los productos de una categoría seleccionada.
+- **Página de Detalle de Producto:** Carga dinámica de la información completa de un producto.
+- **Carrito de Compras Avanzado:**
+    - Permite añadir cualquier producto, incluyendo aquellos sin precio (para cotizar).
+    - Muestra subtotales por producto y un total general de la compra.
+    - Genera un mensaje de WhatsApp detallado para finalizar la cotización, incluyendo cantidades, precios y totales.
+- **Animaciones Modernas:** Elementos que aparecen suavemente al hacer scroll para una navegación más agradable.
 
 ### Panel de Administración (`/admin`)
 - **Dashboard (`admin/dashboard.html`):** Muestra todos los productos en una tabla. Permite editar, eliminar y habilitar/deshabilitar productos.
@@ -18,7 +25,6 @@ El sistema está construido con un frontend de HTML, CSS y JavaScript puro, y un
 - **Editar Producto (`admin/edit-product.html`):** Formulario para modificar un producto existente.
 - **Gestión de Categorías (`admin/manage-categories.html`):** Interfaz para crear, editar y eliminar las categorías de productos.
 - **Gestión de Banners:** El backend y el servicio frontend están preparados para administrar los banners del carrusel principal. Se requiere implementar la interfaz de usuario en el panel de administración.
-- **Notificaciones:** Sistema de notificaciones para confirmar acciones (ej. "Producto añadido con éxito").
 
 ---
 
@@ -26,78 +32,55 @@ El sistema está construido con un frontend de HTML, CSS y JavaScript puro, y un
 
 *   **Frontend:** HTML5, CSS3, JavaScript (ES6+)
 *   **Backend:** Node.js, Express.js
-*   **Base de Datos:** MySQL
-*   **Comunicación:** API RESTful
+*   **Base de Datos:** SQLite (archivo `pasteleria.db` incluido en el repositorio)
 
 ---
 
-## 🚀 Configuración del Entorno de Desarrollo Local
+## 🚀 Guía de Despliegue
 
-Sigue estos pasos para configurar y ejecutar el proyecto completo en tu computadora.
+Esta guía está dirigida al equipo encargado de poner el sitio en producción.
 
-### 1. Prerrequisitos
+### Estructura del Proyecto
+- **Frontend (Raíz del proyecto):** Contiene todos los archivos públicos del sitio web (`index.html`, `assets/`, `pages/`). Es un sitio estático que consume datos de una API.
+- **Backend (`/backend`):** Una aplicación Node.js con Express y SQLite que funciona como la API del sitio.
 
-Asegúrate de tener instalado el siguiente software:
-- **Node.js:** (Versión LTS recomendada). Puedes descargarlo desde nodejs.org.
-- **XAMPP:** Para tener un servidor Apache y MySQL. Puedes descargarlo desde apachefriends.org.
-- **Git:** Para clonar el repositorio. Puedes descargarlo desde git-scm.com.
+### 1. Despliegue del Backend
 
-### 2. Clonar el Repositorio
+El backend es el cerebro de la aplicación y debe estar en línea para que el sitio funcione.
 
-Abre una terminal y clona el proyecto en tu máquina:
-```bash
-git clone <URL_DEL_REPOSITORIO>
-cd pasteleria
-```
+-   **Requisito:** Se necesita un entorno de hosting que soporte **Node.js** (ej: Heroku, Vercel, Render, un VPS, etc.).
+-   **Procedimiento:**
+    1.  Subir la carpeta `backend` al servicio de hosting.
+    2.  Instalar las dependencias ejecutando `npm install` dentro de la carpeta `backend`.
+    3.  Iniciar el servidor con `npm start`.
+-   **Base de Datos:** La base de datos es un archivo SQLite (`backend/db/pasteleria.db`) que está incluido en el repositorio. No se requiere ninguna configuración adicional; el backend la encontrará y usará automáticamente.
+-   **Resultado:** Una vez desplegado, el backend tendrá una **URL pública** (ej: `https://api-pastelarte.com`). Esta URL es fundamental para el siguiente paso.
 
-### 3. Configuración de la Base de Datos
+### 2. Configuración del Frontend
 
-El proyecto utiliza una base de datos MySQL para almacenar toda la información.
+El frontend necesita saber dónde encontrar el backend en internet.
 
-1.  **Inicia XAMPP:** Abre el panel de control de XAMPP y presiona "Start" en los módulos de **Apache** y **MySQL**.
-2.  **Abre phpMyAdmin:** En tu navegador, ve a la dirección `http://localhost/phpmyadmin`.
-3.  **Importa el Script:**
-    - En phpMyAdmin, crea una nueva base de datos llamada `pasteleria_db`.
-    - **Nota:** El script creará una base de datos llamada `pasteleriadb` (sin guion bajo). Si ya existe, puedes omitir este paso.
-    - Selecciona la base de datos recién creada y ve a la pestaña **"Importar"**.
-    - Haz clic en "Seleccionar archivo" y busca el archivo `database/pasteleriadb.sql` dentro de la carpeta del proyecto.
-    - Haz clic en el botón **"Importar"** para ejecutar el script.
+-   **Procedimiento:**
+    1.  Obtener la URL pública del backend desplegado en el paso anterior.
+    2.  Abrir los siguientes archivos del frontend y reemplazar la URL de desarrollo (`http://localhost:3001`) por la **URL pública del backend**.
 
-Esto creará las tablas y los datos de ejemplo necesarios en tu base de datos.
+-   **Archivos a modificar:**
+    -   `assets/js/script.js`
+    -   `assets/js/product-service.js`
+    -   `assets/js/category-service.js`
+    -   `assets/js/banner-service.js`
 
-### 4. Configuración del Backend (Servidor API)
+    **Ejemplo de cambio en `script.js`:**
+    ```javascript
+    // ANTES:
+    const API_BASE_URL = 'http://localhost:3001';
 
-El backend es el encargado de conectar la base de datos con el sitio web.
-
-1.  **Abre una terminal** en la carpeta `backend` del proyecto.
-2.  **Instala las dependencias:** Ejecuta el siguiente comando para descargar los paquetes necesarios (Express, CORS, etc.).
-    ```bash
-    npm install
+    // DESPUÉS (ejemplo con la URL pública):
+    const API_BASE_URL = 'https://api-pastelarte.com';
     ```
-3.  **Inicia el servidor:** Una vez instaladas las dependencias, ejecuta el siguiente comando para poner en marcha la API:
-    ```bash
-    npm start
-    ```
-    Si todo está correcto, verás el mensaje `Servidor corriendo en http://localhost:3000` en la terminal. **No cierres esta terminal**, ya que el servidor debe estar corriendo para que el sitio funcione.
 
-### 5. Ejecutar el Frontend (Sitio Web)
+### 3. Despliegue del Frontend
 
-Con el backend y la base de datos funcionando, ya puedes usar el sitio.
+Una vez que el frontend ha sido configurado con la URL correcta del backend, se puede subir a cualquier servicio de hosting para sitios estáticos (ej: Netlify, Vercel, GitHub Pages, o el mismo servidor donde está el backend).
 
-1.  Navega a la carpeta raíz del proyecto (`pasteleria/`).
-2.  Abre el archivo `index.html` en tu navegador web (puedes hacer doble clic en él).
-
-¡Y listo! Ahora deberías poder ver el sitio completo, con los productos cargados desde la base de datos, y utilizar el panel de administración.
-
----
-
-### Flujo de Trabajo Diario (Resumen)
-
-Cada vez que quieras trabajar en el proyecto, sigue estos 3 pasos:
-
-1.  **Inicia XAMPP:** Asegúrate de que los servicios de **Apache** y **MySQL** estén corriendo.
-2.  **Inicia el Backend:** Abre una terminal en la carpeta `backend` y ejecuta `npm start`. No cierres esta terminal.
-3.  **Abre el Frontend:** Abre el archivo `index.html` en tu navegador.
-
-> **¿El sitio no carga los productos?**
-> Lo más probable es que el servidor backend no esté corriendo o no se pueda conectar a la base de datos. Revisa siempre la terminal donde ejecutaste `npm start` en busca de mensajes de error.
+Con estos pasos, el sitio web estará completamente funcional en producción.
