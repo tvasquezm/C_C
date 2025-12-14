@@ -37,25 +37,32 @@ router.delete('/:id', async (req, res) => {
         const { id } = req.params;
 
         // 1. Verificar si la categoría está en uso por algún producto.
-        const [products] = await pool.query('SELECT COUNT(*) AS count FROM productos WHERE category_id = ?', [id]);
-        const productCount = products[0].count;
+        const checkQuery = 'SELECT COUNT(*) AS productCount FROM productos WHERE category_id = ?';
+        const [rows] = await pool.query(checkQuery, [id]);
+        const { productCount } = rows[0];
 
         if (productCount > 0) {
-            // 2. Si está en uso, devolver un error 409 (Conflicto).
-            return res.status(409).json({ message: `No se puede eliminar. Hay ${productCount} producto(s) usando esta categoría.` });
+            // 2. Si está en uso, devolver un error. 400 (Bad Request) es una buena opción.
+            return res.status(400).json({
+                ok: false,
+                msg: `No se puede eliminar. La categoría está asignada a ${productCount} producto(s).`
+            });
         }
 
         // 3. Si no está en uso, proceder con la eliminación.
         const [deleteResult] = await pool.query('DELETE FROM categorias WHERE id_categoria = ?', [id]);
 
         if (deleteResult.affectedRows > 0) {
-            res.json({ success: true, message: 'Categoría eliminada.' });
+            // 4. Éxito. Es una buena práctica responder con 204 (No Content) en un DELETE exitoso.
+            res.status(204).send();
         } else {
-            res.status(404).json({ message: 'Categoría no encontrada.' });
+            // Si no se afectaron filas, la categoría con ese ID no existía.
+            res.status(404).json({ ok: false, msg: 'Categoría no encontrada.' });
         }
     } catch (error) {
         console.error('Error al eliminar la categoría:', error);
-        res.status(500).json({ message: 'Error interno del servidor. Asegúrate de que no haya productos usando esta categoría.' });
+        // Mensaje genérico para errores 500.
+        res.status(500).json({ ok: false, msg: 'Error interno del servidor. Por favor, contacte al administrador.' });
     }
 });
 
