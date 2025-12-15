@@ -2,7 +2,7 @@
 
 const ProductService = {
     // La URL base de nuestra API de productos. Apunta al servidor local que crearemos.
-    _apiUrl: 'http://localhost:3001/api/products',
+    _apiUrl: 'http://localhost/C_C/backend/api/products',
 
     /**
      * Maneja las respuestas de la API, convirtiendo errores HTTP en excepciones de JavaScript.

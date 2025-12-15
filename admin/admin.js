@@ -114,7 +114,7 @@ async function loadProductsAdminPage(page = 1, filters = {}) {
                 const productRow = document.createElement('tr');
                 productRow.innerHTML = `
                     <td>
-                        <img src="http://localhost:3001/api/products/${product.id}/image" alt="${product.name}" class="table-img-preview">
+                        <img src="/C_C/backend/api/products/${product.id}/image" alt="${product.name}" class="table-img-preview">
                     </td>
                     <td>${product.name}</td>
                     <td>${categoryName}</td>
@@ -416,7 +416,7 @@ async function loadEditProductPage() {
 
     // Mostramos la imagen actual
     const imagePreview = document.querySelector('#current-image-preview img');
-    imagePreview.src = `http://localhost:3001/api/products/${product.id}/image`;
+    imagePreview.src = `/C_C/backend/api/products/${product.id}/image`;
     imagePreview.style.display = 'block';
 
     // Lógica para el envío del formulario de edición
@@ -461,7 +461,7 @@ async function loadBannersAdminPage() {
                 return `
                 <tr class="${rowClass}" data-id="${banner.id}">
                     <td>
-                        <img src="http://localhost:3001/api/banners/${banner.id}/image" alt="Banner ${banner.id}" class="table-img-preview">
+                        <img src="/backend/api/banners/${banner.id}/image" alt="Banner ${banner.id}" class="table-img-preview">
                     </td>
                     <td>${displayOrder}</td>
                     <td>

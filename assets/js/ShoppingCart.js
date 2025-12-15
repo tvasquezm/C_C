@@ -49,7 +49,7 @@ class ShoppingCart {
                 name: product.name,
                 price: numericPrice,
                 quantity: 1,
-                img: `${API_BASE_URL}/api/products/${product.id}/image`
+                img: `${API_BASE_URL}/products/${product.id}/image`
             };
             this.cart.push(cartItem);
         }

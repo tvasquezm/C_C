@@ -1,5 +1,5 @@
 // Constante para la URL base de la API, facilitando cambios futuros.
-const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = 'http://localhost/C_C/backend/api';
 
 // ==================== RENDERIZADO DINÁMICO DE PRODUCTOS ====================
 
@@ -26,7 +26,7 @@ function createProductCard(product) {
     return `
         <a href="/pages/product-detail.html?id=${product.id}" class="product-card-link">
             <div class="product-card">
-                <img src="${API_BASE_URL}/api/products/${product.id}/image" alt="${product.name}">
+                <img src="${API_BASE_URL}/products/${product.id}/image" alt="${product.name}">
                 <div class="product-info">
                     <h3 class="product-name">${product.name}</h3>
                     <p class="product-price">${priceDisplay}</p>
@@ -104,7 +104,7 @@ async function renderProductDetailPage() {
     // Creamos el HTML para el detalle del producto
     container.innerHTML = `
         <div class="product-detail-image">
-            <img src="${API_BASE_URL}/api/products/${product.id}/image" alt="${product.name}">
+            <img src="${API_BASE_URL}/products/${product.id}/image" alt="${product.name}">
         </div>
         <div class="product-detail-info">
             <h1 class="product-detail-title">${product.name}</h1>
@@ -205,7 +205,7 @@ async function renderHeroBanners() {
 
         function showBanner(index) {
             const banner = banners[index];
-            heroContainer.style.backgroundImage = `url('${API_BASE_URL}/api/banners/${banner.id}/image')`;
+            heroContainer.style.backgroundImage = `url('${API_BASE_URL}/banners/${banner.id}/image')`;
         }
 
         showBanner(currentBannerIndex);

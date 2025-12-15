@@ -1,7 +1,7 @@
 // ==================== SERVICIO DE CATEGORÍAS (CONEXIÓN CON BACKEND) ====================
 
 const CategoryService = {
-    _apiUrl: 'http://localhost:3001/api/categories',
+    _apiUrl: 'http://localhost/C_C/backend/api/categories',
 
     /**
      * Obtiene todas las categorías desde el backend.
