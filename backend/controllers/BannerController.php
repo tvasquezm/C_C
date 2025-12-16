@@ -35,6 +35,16 @@ class BannerController {
             case 'PUT':
                 if (preg_match('/^\/(\d+)\/status$/', $path, $matches)) {
                     $this->toggleStatus($matches[1]);
+                } elseif (preg_match('/^\/(\d+)$/', $path, $matches)) {
+                    $this->update($matches[1]);
+                } else {
+                    http_response_code(404);
+                    echo json_encode(['message' => 'Ruta no encontrada']);
+                }
+                break;
+            case 'PATCH':
+                if ($path === '/order') {
+                    $this->updateOrder();
                 } else {
                     http_response_code(404);
                     echo json_encode(['message' => 'Ruta no encontrada']);
@@ -82,19 +92,49 @@ class BannerController {
             echo json_encode(['message' => 'La imagen del banner es requerida']);
             return;
         }
-
         $data = [
-            'titulo' => $_POST['titulo'] ?? null,
             'image' => $_FILES['banner-image']
         ];
 
         $result = $this->bannerModel->create($data);
         if ($result['success']) {
             http_response_code(201);
-            echo json_encode(['id' => $result['id'], 'titulo' => $data['titulo']]);
+            echo json_encode(['id' => $result['id']]);
         } else {
             http_response_code(500);
             echo json_encode(['message' => $result['message']]);
+        }
+    }
+
+    private function update($id) {
+        // For updates that may include an image we accept form-data via POST with method override
+        // If request body is form-data, use $_POST/$_FILES; otherwise try parsing JSON
+        // Determine image input: accept multipart/form-data even if $_POST is empty
+        $image = null;
+        if (!empty($_FILES) && isset($_FILES['banner-image']) && isset($_FILES['banner-image']['error']) && $_FILES['banner-image']['error'] === UPLOAD_ERR_OK) {
+            $image = $_FILES['banner-image'];
+        }
+
+        $result = $this->bannerModel->update($id, ['image' => $image]);
+        if ($result['success']) {
+            echo json_encode(['success' => true, 'id' => $id]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => $result['message']]);
+        }
+    }
+
+    private function updateOrder() {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $ids = $data['ids'] ?? [];
+        if (!is_array($ids)) $ids = [];
+
+        $result = $this->bannerModel->updateOrder($ids);
+        if ($result['success']) {
+            echo json_encode(['success' => true]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => $result['message']]);
         }
     }
 

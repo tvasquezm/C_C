@@ -145,7 +145,15 @@ class Product {
     }
 
     private function uploadImage($file) {
-        $targetDir = '../uploads/';
+        // Validate upload
+        if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
+            return false;
+        }
+
+        $targetDir = __DIR__ . '/../uploads/';
+        if (!is_dir($targetDir)) {
+            @mkdir($targetDir, 0755, true);
+        }
         $fileName = uniqid() . '_' . basename($file['name']);
         $targetFile = $targetDir . $fileName;
 

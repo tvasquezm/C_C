@@ -72,8 +72,28 @@
         </div>
     </footer>
 
+    <!-- Modal para reasignar o eliminar en cascada categorías -->
+    <div id="category-delete-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3 id="modal-title">La categoría tiene productos</h3>
+            <p id="modal-message">Esta categoría tiene <span id="modal-count">0</span> producto(s).</p>
+            <div class="form-group">
+                <label for="reassign-category-select">Reasignar a:</label>
+                <select id="reassign-category-select">
+                    <option value="">-- Selecciona una categoría --</option>
+                </select>
+            </div>
+            <div class="modal-actions" style="margin-top:1rem; display:flex; gap:0.5rem; justify-content:flex-end;">
+                <button id="modal-cancel" class="admin-btn secondary">Cancelar</button>
+                <button id="modal-cascade" class="admin-btn delete">Eliminar productos (cascade)</button>
+                <button id="modal-reassign" class="admin-btn primary">Reasignar y eliminar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts necesarios -->
     <script src="../assets/js/category-service.js"></script>
+    <script src="../assets/js/product-service.js"></script>
     <script src="../assets/js/utils.js"></script>
     <script src="admin.js"></script>
 </body>

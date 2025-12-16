@@ -24,7 +24,11 @@ class Banner {
         $stmt = $this->db->prepare('SELECT img_path FROM banners WHERE id = ?');
         $stmt->execute([$id]);
         $result = $stmt->fetch();
-        return $result ? '../uploads/' . $result['img_path'] : null;
+        if (!$result) return null;
+        // If DB stored a subfolder (e.g. 'banners/xxx'), normalize to basename
+        $file = basename($result['img_path']);
+        // Return relative path consistent with Product model
+        return '../uploads/' . $file;
     }
 
     public function create($data) {
@@ -32,13 +36,61 @@ class Banner {
         if (!$imagePath) {
             return ['success' => false, 'message' => 'Error al subir la imagen'];
         }
-
-        $stmt = $this->db->prepare('INSERT INTO banners (titulo, img_path, activo, orden) VALUES (?, ?, 1, 0)');
+        // Insert without 'titulo' since it's no longer used
+        $stmt = $this->db->prepare('INSERT INTO banners (img_path, activo, orden) VALUES (?, 1, 0)');
         try {
-            $stmt->execute([$data['titulo'], $imagePath]);
+            $stmt->execute([$imagePath]);
             return ['success' => true, 'id' => $this->db->lastInsertId()];
         } catch (Exception $e) {
             return ['success' => false, 'message' => 'Error al crear el banner: ' . $e->getMessage()];
+        }
+    }
+
+    public function update($id, $data) {
+        $params = [];
+        $setParts = [];
+
+        // 'titulo' was removed; only image updates are supported now
+
+        if (isset($data['image']) && $data['image']) {
+            $imagePath = $this->uploadImage($data['image']);
+            if (!$imagePath) {
+                return ['success' => false, 'message' => 'Error al subir la imagen'];
+            }
+            $setParts[] = 'img_path = ?';
+            $params[] = $imagePath;
+        }
+
+        if (empty($setParts)) {
+            return ['success' => true];
+        }
+
+        $params[] = $id;
+        $query = 'UPDATE banners SET ' . implode(', ', $setParts) . ' WHERE id = ?';
+        $stmt = $this->db->prepare($query);
+        try {
+            $stmt->execute($params);
+            return ['success' => true];
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Error al actualizar el banner: ' . $e->getMessage()];
+        }
+    }
+
+    public function updateOrder($ids) {
+        // $ids is expected as an array of banner IDs in the desired order
+        try {
+            $this->db->beginTransaction();
+            $order = 0;
+            $stmt = $this->db->prepare('UPDATE banners SET orden = ? WHERE id = ?');
+            foreach ($ids as $id) {
+                $stmt->execute([$order, $id]);
+                $order++;
+            }
+            $this->db->commit();
+            return ['success' => true];
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            return ['success' => false, 'message' => 'Error al reordenar banners: ' . $e->getMessage()];
         }
     }
 
@@ -66,7 +118,10 @@ class Banner {
     }
 
     private function uploadImage($file) {
-        $targetDir = '../uploads/';
+        $targetDir = __DIR__ . '/../uploads/';
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
         $fileName = uniqid() . '_' . basename($file['name']);
         $targetFile = $targetDir . $fileName;
 

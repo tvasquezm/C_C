@@ -3,7 +3,7 @@
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -17,8 +17,15 @@ require_once '../controllers/CategoryController.php';
 require_once '../controllers/BannerController.php';
 
 // Obtener la URI y método
+// Allow method override via `_method` param (form POST) or header `X-HTTP-Method-Override`
 $requestUri = $_SERVER['REQUEST_URI'];
 $requestMethod = $_SERVER['REQUEST_METHOD'];
+// Check for override in POST payload or querystring
+if (isset($_REQUEST['_method']) && !empty($_REQUEST['_method'])) {
+    $requestMethod = strtoupper($_REQUEST['_method']);
+} elseif (!empty($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
+    $requestMethod = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
+}
 
 // Remover query string
 $uri = parse_url($requestUri, PHP_URL_PATH);

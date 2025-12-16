@@ -79,8 +79,9 @@ const BannerService = {
      */
     update: async function(id, bannerData) {
         try {
-            const response = await fetch(`${this._apiUrl}/${id}`, {
-                method: 'PUT',
+            // Use POST with method override so PHP can receive multipart/form-data
+            const response = await fetch(`${this._apiUrl}/${id}?_method=PUT`, {
+                method: 'POST',
                 body: bannerData
             });
             if (!response.ok) throw new Error('Error al actualizar el banner.');

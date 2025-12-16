@@ -64,14 +64,26 @@ const CategoryService = {
      * --- CONEXIÓN BACKEND ---
      * Endpoint: DELETE /api/categories/:id
      */
-    delete: async function(id) {
+    delete: async function(id, options = {}) {
         try {
-            const response = await fetch(`${this._apiUrl}/${id}`, {
+            const params = new URLSearchParams();
+            if (options.reassignTo) params.append('reassign_to', options.reassignTo);
+            if (options.force) params.append('force', '1');
+
+            const url = `${this._apiUrl}/${id}` + (params.toString() ? `?${params.toString()}` : '');
+            const response = await fetch(url, {
                 method: 'DELETE'
             });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Error al eliminar la categoría.');
-            return { success: true, ...data };
+            if (response.status === 204) {
+                return { success: true };
+            }
+            const data = await response.json().catch(() => null);
+            if (response.ok) {
+                return { success: true, ...data };
+            }
+            // Return backend message when possible
+            const msg = (data && (data.msg || data.message)) || JSON.stringify(data) || 'Error al eliminar la categoría.';
+            return { success: false, message: msg };
         } catch (error) {
             console.error('CategoryService Error:', error);
             return { success: false, message: error.message };

@@ -73,8 +73,10 @@ const ProductService = {
      * @returns {Promise<Object>} El producto actualizado.
      */
     async update(id, formData) {
-        const response = await fetch(`${this._apiUrl}/${id}`, {
-            method: 'PUT',
+        // Use POST with method override so PHP can receive multipart/form-data
+        const url = `${this._apiUrl}/${id}?_method=PUT`;
+        const response = await fetch(url, {
+            method: 'POST',
             body: formData,
         });
         return this._handleResponse(response);

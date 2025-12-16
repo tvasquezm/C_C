@@ -28,6 +28,14 @@ class CategoryController {
                     echo json_encode(['message' => 'Ruta no encontrada']);
                 }
                 break;
+            case 'PUT':
+                if (preg_match('/^\/(\d+)$/', $path, $matches)) {
+                    $this->update($matches[1]);
+                } else {
+                    http_response_code(404);
+                    echo json_encode(['message' => 'Ruta no encontrada']);
+                }
+                break;
             case 'DELETE':
                 if (preg_match('/^\/(\d+)$/', $path, $matches)) {
                     $this->delete($matches[1]);
@@ -61,11 +69,28 @@ class CategoryController {
         }
     }
 
+    private function update($id) {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $name = $data['name'] ?? '';
+
+        $result = $this->categoryModel->update($id, $name);
+        if ($result['success']) {
+            echo json_encode(['success' => true, 'id' => $id, 'name' => $name]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => $result['message']]);
+        }
+    }
+
     private function delete($id) {
-        $result = $this->categoryModel->delete($id);
+        // Support query params: reassign_to=<id> or force=1 for cascade delete
+        $reassignTo = $_GET['reassign_to'] ?? null;
+        $force = isset($_GET['force']) && ($_GET['force'] === '1' || $_GET['force'] === 'true');
+
+        $result = $this->categoryModel->delete($id, $reassignTo, $force);
         if ($result['success']) {
             http_response_code(204);
-        } elseif ($result['error'] === 'in_use') {
+        } elseif (!empty($result['error']) && $result['error'] === 'in_use') {
             http_response_code(400);
             echo json_encode(['ok' => false, 'msg' => $result['message']]);
         } else {

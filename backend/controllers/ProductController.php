@@ -121,13 +121,50 @@ class ProductController {
     }
 
     private function update($id) {
+        // Fetch current product to avoid writing NULLs to DB
+        $existing = $this->productModel->getById($id);
+        if (!$existing) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Producto no encontrado']);
+            return;
+        }
+
+        // Determine input source: prefer form-data ($_POST/$_FILES), else JSON body
+        $jsonBody = json_decode(file_get_contents('php://input'), true);
+
+        // Helper to get a field from POST, JSON or fallback to existing
+        $getField = function($postKeys, $jsonKeys, $existingValue) use ($jsonBody) {
+            foreach ($postKeys as $k) {
+                if (isset($_POST[$k])) return $_POST[$k];
+            }
+            if (is_array($jsonBody)) {
+                foreach ($jsonKeys as $k) {
+                    if (array_key_exists($k, $jsonBody) && $jsonBody[$k] !== null) return $jsonBody[$k];
+                }
+            }
+            return $existingValue;
+        };
+
+        $name = $getField(['product-name', 'name'], ['name', 'product-name'], $existing['name']);
+        $category_id = $getField(['product-category', 'category_id'], ['category_id', 'category'], $existing['category_id']);
+        $price = $getField(['product-price', 'price'], ['price'], $existing['price']);
+        $size = $getField(['product-size', 'size'], ['size'], $existing['size']);
+        $description = $getField(['product-description', 'description'], ['description'], $existing['description']);
+
+        // Image handling: prefer uploaded file only if it was actually uploaded without errors
+        $image = null;
+        if (isset($_FILES['product-image']) && isset($_FILES['product-image']['error']) && $_FILES['product-image']['error'] === UPLOAD_ERR_OK) {
+            $image = $_FILES['product-image'];
+        }
+        // If no uploaded file, image remains null so model will keep existing
+
         $data = [
-            'name' => $_POST['product-name'] ?? '',
-            'category_id' => $_POST['product-category'] ?? '',
-            'price' => $_POST['product-price'] ?? '',
-            'size' => $_POST['product-size'] ?? '',
-            'description' => $_POST['product-description'] ?? '',
-            'image' => $_FILES['product-image'] ?? null
+            'name' => $name,
+            'category_id' => $category_id,
+            'price' => $price,
+            'size' => $size,
+            'description' => $description,
+            'image' => $image
         ];
 
         $result = $this->productModel->update($id, $data);

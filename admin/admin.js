@@ -15,11 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
         case 'admin-edit-product':
             loadEditProductPage();
             break;
+        case 'admin-edit-banner':
+            loadEditBannerPage();
+            break;
         case 'admin-manage-banners':
             loadBannersAdminPage();
             break;
     }
 });
+
+// Fallback notification function in case `utils.js` failed to load
+if (typeof showNotification !== 'function') {
+    window.showNotification = function(message, type = 'success') {
+        try {
+            console[type === 'error' ? 'error' : 'log']('[notification]', message);
+        } catch (e) {}
+        // Minimal UI fallback
+        if (typeof alert === 'function') alert(message);
+    };
+}
 
 /**
  * Inicializa la funcionalidad del menú hamburguesa en el panel de administración.
@@ -46,13 +60,16 @@ function initAdminMenu() {
 function initFileInputs() {
     document.querySelectorAll('input[type="file"]').forEach(fileInput => {
         fileInput.addEventListener('change', (e) => {
-            const fileNameSpan = e.target.closest('.file-input-wrapper').querySelector('.file-name');
-            if (e.target.files.length > 0) {
-                fileNameSpan.textContent = e.target.files[0].name;
-                fileNameSpan.style.color = 'var(--dark-color)';
-            } else {
-                fileNameSpan.textContent = 'Ningún archivo seleccionado';
-                fileNameSpan.style.color = '#6c757d';
+            const wrapper = e.target.closest('.file-input-wrapper');
+            const fileNameSpan = wrapper ? wrapper.querySelector('.file-name') : null;
+            if (fileNameSpan) {
+                if (e.target.files && e.target.files.length > 0) {
+                    fileNameSpan.textContent = e.target.files[0].name;
+                    fileNameSpan.style.color = 'var(--dark-color)';
+                } else {
+                    fileNameSpan.textContent = 'Ningún archivo seleccionado';
+                    fileNameSpan.style.color = '#6c757d';
+                }
             }
         });
     });
@@ -113,9 +130,9 @@ async function loadProductsAdminPage(page = 1, filters = {}) {
 
                 const productRow = document.createElement('tr');
                 productRow.innerHTML = `
-                    <td>
-                        <img src="/C_C/backend/api/products/${product.id}/image" alt="${product.name}" class="table-img-preview">
-                    </td>
+                        <td>
+                            <img src="${window.location.origin}/C_C/backend/api/products/${product.id}/image" alt="${product.name}" class="table-img-preview">
+                        </td>
                     <td>${product.name}</td>
                     <td>${categoryName}</td>
                     <td>${product.price}</td>
@@ -292,6 +309,7 @@ async function loadCategoriesAdminPage() {
                 <tr>
                     <td>${cat.name}</td>
                     <td class="actions">
+                        <button class="admin-btn edit-category" data-id="${cat.id}" data-name="${cat.name}">Editar</button>
                         <button class="admin-btn danger" data-id="${cat.id}">Eliminar</button>
                     </td>
                 </tr>
@@ -314,17 +332,154 @@ async function loadCategoriesAdminPage() {
 
     // Event listener para los botones de eliminar (usando delegación de eventos)
     tableBody.addEventListener('click', async (e) => {
-        if (e.target.classList.contains('danger')) {
+        if (e.target.classList.contains('edit-category')) {
             const categoryId = e.target.dataset.id;
-            if (confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
+            const currentName = e.target.dataset.name || '';
+            const newName = prompt('Editar nombre de la categoría:', currentName);
+            if (newName && newName.trim() !== '' && newName !== currentName) {
+                const res = await CategoryService.update(categoryId, { name: newName });
+                if (res) {
+                    showNotification('Categoría actualizada.', 'success');
+                    renderCategories();
+                } else {
+                    showNotification('Error al actualizar la categoría.', 'error');
+                }
+            }
+        } else if (e.target.classList.contains('danger')) {
+            const categoryId = e.target.dataset.id;
+                if (confirm('¿Estás seguro de que quieres eliminar esta categoría?')) {
+                console.log('Attempting to delete category', categoryId);
                 const result = await CategoryService.delete(categoryId);
+                console.log('Delete result for category', categoryId, result);
                 if (result.success) {
                     // Si la eliminación fue exitosa, eliminamos la fila y mostramos notificación de éxito.
                     e.target.closest('tr').remove();
                     showNotification('Categoría eliminada con éxito.', 'success');
                 } else {
-                    // Si hubo un error (ej: categoría en uso), mostramos el mensaje de error del backend.
-                    showNotification(result.message || 'No se pudo eliminar la categoría.', 'error');
+                    const msg = result.message || 'No se pudo eliminar la categoría.';
+                    if (/asignad|asignar|asignada|asignados|asignados/i.test(msg)) {
+                        console.log('Backend reports category in use; preparing modal.', msg);
+                        // La categoría tiene productos: preferimos abrir modal para elegir acción
+                            const modal = document.getElementById('category-delete-modal');
+                            const countSpan = document.getElementById('modal-count');
+                            const select = document.getElementById('reassign-category-select');
+                            const title = document.getElementById('modal-title');
+                            const message = document.getElementById('modal-message');
+
+                            // Si por alguna razón el modal no está en el DOM, hacemos fallback al prompt anterior
+                            if (!modal || !countSpan || !select || !document.getElementById('modal-cancel')) {
+                                const choice = prompt('La categoría tiene productos. Escribe ID de categoría destino para reasignar, escribe ELIMINAR para borrar los productos en cascada, o deja vacío para cancelar:');
+                                if (choice === null || choice.trim() === '') return; // cancel
+                                if (choice.toUpperCase() === 'ELIMINAR') {
+                                    const res2 = await CategoryService.delete(categoryId, { force: true });
+                                    if (res2.success) {
+                                        e.target.closest('tr').remove();
+                                        showNotification('Categoría y productos eliminados.', 'success');
+                                    } else {
+                                        showNotification(res2.message || 'Error al eliminar en cascada.', 'error');
+                                    }
+                                    return;
+                                }
+                                const targetId = parseInt(choice);
+                                if (isNaN(targetId)) {
+                                    showNotification('ID de categoría inválido.', 'error');
+                                    return;
+                                }
+                                const res3 = await CategoryService.delete(categoryId, { reassignTo: targetId });
+                                if (res3.success) {
+                                    e.target.closest('tr').remove();
+                                    showNotification('Productos reasignados y categoría eliminada.', 'success');
+                                } else {
+                                    showNotification(res3.message || 'Error al reasignar productos.', 'error');
+                                }
+                                return;
+                            }
+
+                            // Cargar número de productos en esa categoría
+                            try {
+                                console.log('Fetching products for category', categoryId);
+                                const products = await ProductService.getAll(true, { category: categoryId });
+                                const count = Array.isArray(products) ? products.length : (products.products ? products.products.length : 0);
+                                console.log('Products count for category', categoryId, count);
+                                countSpan.textContent = count;
+                                message.style.display = 'block';
+                            } catch (err) {
+                                console.error('Error fetching products for modal count:', err);
+                                countSpan.textContent = 'N/A';
+                            }
+
+                            // Poblar select con categorías (excluir la actual)
+                            try {
+                                const cats = await CategoryService.getAll();
+                                console.log('Loaded categories for reassign select, count:', Array.isArray(cats) ? cats.length : 'non-array', cats);
+                                select.innerHTML = '<option value="">-- Selecciona una categoría --</option>';
+                                (Array.isArray(cats) ? cats : []).filter(c => String(c.id) !== String(categoryId)).forEach(c => {
+                                    const opt = document.createElement('option');
+                                    opt.value = c.id;
+                                    opt.textContent = c.name;
+                                    select.appendChild(opt);
+                                });
+                            } catch (err) {
+                                console.error('Error loading categories for modal:', err);
+                                select.innerHTML = '<option value="">Error al cargar categorías</option>';
+                            }
+
+                            // Mostrar modal
+                            console.log('Modal elements exist?', { modal: !!modal, countSpan: !!countSpan, select: !!select });
+                            modal.style.display = 'flex';
+
+                            // Handlers
+                            const btnCancel = document.getElementById('modal-cancel');
+                            const btnCascade = document.getElementById('modal-cascade');
+                            const btnReassign = document.getElementById('modal-reassign');
+
+                            const cleanup = () => {
+                                modal.style.display = 'none';
+                                btnCancel.removeEventListener('click', onCancel);
+                                btnCascade.removeEventListener('click', onCascade);
+                                btnReassign.removeEventListener('click', onReassign);
+                            };
+
+                            const onCancel = (ev) => { ev.preventDefault(); cleanup(); };
+                            const onCascade = async (ev) => {
+                                ev.preventDefault();
+                                btnCascade.disabled = true; btnReassign.disabled = true;
+                                const res = await CategoryService.delete(categoryId, { force: true });
+                                if (res.success) {
+                                    e.target.closest('tr').remove();
+                                    showNotification('Categoría y productos eliminados.', 'success');
+                                    cleanup();
+                                } else {
+                                    showNotification(res.message || 'Error al eliminar en cascada.', 'error');
+                                    btnCascade.disabled = false; btnReassign.disabled = false;
+                                }
+                            };
+
+                            const onReassign = async (ev) => {
+                                ev.preventDefault();
+                                const selected = select.value;
+                                if (!selected) {
+                                    showNotification('Selecciona una categoría destino.', 'error');
+                                    return;
+                                }
+                                btnReassign.disabled = true; btnCascade.disabled = true;
+                                const res = await CategoryService.delete(categoryId, { reassignTo: selected });
+                                if (res.success) {
+                                    e.target.closest('tr').remove();
+                                    showNotification('Productos reasignados y categoría eliminada.', 'success');
+                                    cleanup();
+                                } else {
+                                    showNotification(res.message || 'Error al reasignar productos.', 'error');
+                                    btnReassign.disabled = false; btnCascade.disabled = false;
+                                }
+                            };
+
+                            btnCancel.addEventListener('click', onCancel);
+                            btnCascade.addEventListener('click', onCascade);
+                            btnReassign.addEventListener('click', onReassign);
+                    } else {
+                        showNotification(msg, 'error');
+                    }
                 }
             }
         }
@@ -416,7 +571,7 @@ async function loadEditProductPage() {
 
     // Mostramos la imagen actual
     const imagePreview = document.querySelector('#current-image-preview img');
-    imagePreview.src = `/C_C/backend/api/products/${product.id}/image`;
+    imagePreview.src = `${window.location.origin}/C_C/backend/api/products/${product.id}/image`;
     imagePreview.style.display = 'block';
 
     // Lógica para el envío del formulario de edición
@@ -461,13 +616,14 @@ async function loadBannersAdminPage() {
                 return `
                 <tr class="${rowClass}" data-id="${banner.id}">
                     <td>
-                        <img src="/backend/api/banners/${banner.id}/image" alt="Banner ${banner.id}" class="table-img-preview">
+                        <img src="${window.location.origin}/C_C/backend/api/banners/${banner.id}/image" alt="Banner ${banner.id}" class="table-img-preview">
                     </td>
                     <td>${displayOrder}</td>
                     <td>
                         <span class="status ${statusClass}">${statusText}</span>
                     </td>
                     <td class="actions">
+                        <a class="admin-btn" href="edit-banner.html?id=${banner.id}">Editar</a>
                         <button class="admin-btn toggle-status" data-id="${banner.id}">${toggleButtonText}</button>
                         <button class="admin-btn danger" data-id="${banner.id}">Eliminar</button>
                     </td>
@@ -552,4 +708,44 @@ async function loadBannersAdminPage() {
     });
 
     renderBanners(); // Carga inicial
+}
+
+/**
+ * Prepara la página para editar un banner existente.
+ */
+async function loadEditBannerPage() {
+    const params = new URLSearchParams(window.location.search);
+    const bannerId = params.get('id');
+    if (!bannerId) {
+        alert('No se ha especificado un banner para editar.');
+        window.location.href = 'manage-banners.html';
+        return;
+    }
+
+    // Obtener banner (simplemente listamos y filtramos, porque no hay endpoint GET /banners/:id separado)
+    const banners = await BannerService.getAll();
+    const banner = banners.find(b => String(b.id) === String(bannerId));
+    if (!banner) {
+        alert('Banner no encontrado.');
+        return;
+    }
+
+    document.getElementById('banner-id').value = banner.id;
+    const img = document.getElementById('current-banner-image');
+    img.src = `${window.location.origin}/C_C/backend/api/banners/${banner.id}/image`;
+    img.style.display = 'block';
+
+    const form = document.getElementById('editBannerForm');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        const fileInput = document.getElementById('banner-image');
+        if (fileInput.files && fileInput.files.length > 0) {
+            formData.append('banner-image', fileInput.files[0]);
+        }
+        // Use BannerService.update which posts with _method=PUT
+        await BannerService.update(banner.id, formData);
+        showNotification('Banner actualizado con éxito.', 'success');
+        window.location.href = 'manage-banners.html';
+    });
 }
