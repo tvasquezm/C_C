@@ -31,8 +31,8 @@ El sitio web está diseñado para ofrecer una experiencia de usuario fluida y pr
 ## 💻 Tecnologías Utilizadas
 
 *   **Frontend:** HTML5, CSS3, JavaScript (ES6+)
-*   **Backend:** Node.js, Express.js
-*   **Base de Datos:** SQLite (archivo `pasteleria.db` incluido en el repositorio)
+*   **Backend:** PHP 7+, PDO para base de datos
+*   **Base de Datos:** MySQL (archivo `pasteleriadb.sql` incluido en el repositorio)
 
 ---
 
@@ -42,29 +42,25 @@ Esta guía está dirigida al equipo encargado de poner el sitio en producción.
 
 ### Estructura del Proyecto
 - **Frontend (Raíz del proyecto):** Contiene todos los archivos públicos del sitio web (`index.html`, `assets/`, `pages/`). Es un sitio estático que consume datos de una API.
-- **Backend (`/backend`):** Una aplicación Node.js con Express y SQLite que funciona como la API del sitio.
+- **Backend (`/backend`):** Una aplicación PHP con estructura MVC simple (controllers, models, config) que funciona como la API del sitio.
 
 ### 1. Despliegue del Backend
 
 El backend es el cerebro de la aplicación y debe estar en línea para que el sitio funcione.
 
--   **Requisito:** Se necesita un entorno de hosting que soporte **Node.js** (ej: Heroku, Vercel, Render, un VPS, etc.).
+-   **Requisito:** Se necesita un entorno de hosting que soporte **PHP** (la mayoría de hostings compartidos lo hacen).
 -   **Procedimiento:**
-    1.  Subir la carpeta `backend` al servicio de hosting.
-    2.  Instalar las dependencias ejecutando `npm install` dentro de la carpeta `backend`.
-    3.  Iniciar el servidor con `npm start`.
--   **Base de Datos:** La base de datos es un archivo SQLite (`backend/db/pasteleria.db`) que está incluido en el repositorio. No se requiere ninguna configuración adicional; el backend la encontrará y usará automáticamente.
--   **Resultado:** Una vez desplegado, el backend tendrá una **URL pública** (ej: `https://api-pastelarte.com`). Esta URL es fundamental para el siguiente paso.
+    1.  Subir la carpeta `backend` al servidor.
+    2.  Asegurarse de que el archivo `.htaccess` esté presente para el routing.
+    3.  Configurar las variables de entorno en un archivo `.env` o directamente en `config/database.php` (host, usuario, contraseña, base de datos).
+-   **Base de Datos:** Ejecutar el script `database/pasteleriadb.sql` para crear las tablas, y `database/update_schema.sql` para actualizar el esquema (cambio de BLOB a archivos).
+-   **Resultado:** Una vez desplegado, el backend responderá en la ruta `/backend/api/` del dominio.
 
 ### 2. Configuración del Frontend
 
 El frontend necesita saber dónde encontrar el backend en internet.
 
--   **Procedimiento:**
-    1.  Obtener la URL pública del backend desplegado en el paso anterior.
-    2.  Abrir los siguientes archivos del frontend y reemplazar la URL de desarrollo (`http://localhost:3001`) por la **URL pública del backend**.
-
--   **Archivos a modificar:**
+-   **Procedimiento:** Normalmente no requiere cambios si el backend está en `/backend/api/` del mismo dominio. Si está en un dominio diferente, actualizar las URLs en:
     -   `assets/js/script.js`
     -   `assets/js/product-service.js`
     -   `assets/js/category-service.js`
@@ -75,8 +71,8 @@ El frontend necesita saber dónde encontrar el backend en internet.
     // ANTES:
     const API_BASE_URL = 'http://localhost:3001';
 
-    // DESPUÉS (ejemplo con la URL pública):
-    const API_BASE_URL = 'https://api-pastelarte.com';
+    // DESPUÉS (ejemplo con dominio propio):
+    const API_BASE_URL = 'https://tu-dominio.com/backend/api';
     ```
 
 ### 3. Despliegue del Frontend

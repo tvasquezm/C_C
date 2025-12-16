@@ -341,6 +341,40 @@
     animation: spin 1s linear infinite;
 }
 
+/* Modal simple para reasignar/eliminar categorías */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+.modal-content {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+.modal-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+.modal-actions .admin-btn {
+    min-width: 110px;
+}
+.modal .form-group label { margin-bottom: 0.4rem; display:block; }
+.modal .form-group select { width: 100%; }
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);

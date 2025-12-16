@@ -2,7 +2,7 @@
 
 const ProductService = {
     // La URL base de nuestra API de productos. Apunta al servidor local que crearemos.
-    _apiUrl: 'http://localhost:3001/api/products',
+    _apiUrl: 'http://localhost/C_C/backend/api/products',
 
     /**
      * Maneja las respuestas de la API, convirtiendo errores HTTP en excepciones de JavaScript.
@@ -73,8 +73,10 @@ const ProductService = {
      * @returns {Promise<Object>} El producto actualizado.
      */
     async update(id, formData) {
-        const response = await fetch(`${this._apiUrl}/${id}`, {
-            method: 'PUT',
+        // Use POST with method override so PHP can receive multipart/form-data
+        const url = `${this._apiUrl}/${id}?_method=PUT`;
+        const response = await fetch(url, {
+            method: 'POST',
             body: formData,
         });
         return this._handleResponse(response);

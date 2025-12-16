@@ -3,7 +3,7 @@
 
 const BannerService = {
     // --- PUNTO DE CONFIGURACIÓN ---
-    _apiUrl: 'http://localhost:3001/api/banners',
+    _apiUrl: 'http://localhost/C_C/backend/api/banners',
 
     /**
      * Obtiene todos los banners (para el panel de administración).
@@ -79,8 +79,9 @@ const BannerService = {
      */
     update: async function(id, bannerData) {
         try {
-            const response = await fetch(`${this._apiUrl}/${id}`, {
-                method: 'PUT',
+            // Use POST with method override so PHP can receive multipart/form-data
+            const response = await fetch(`${this._apiUrl}/${id}?_method=PUT`, {
+                method: 'POST',
                 body: bannerData
             });
             if (!response.ok) throw new Error('Error al actualizar el banner.');

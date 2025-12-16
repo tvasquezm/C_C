@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteBase /C_C/backend/
+
+# Redirigir todas las solicitudes a api/index.php si no es un archivo o directorio existente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ api/index.php [QSA,L]

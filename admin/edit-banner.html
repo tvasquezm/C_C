@@ -42,6 +42,8 @@
             </div>
 
             <form class="admin-form" id="editBannerForm">
+                <input type="hidden" id="banner-id" name="banner-id">
+                <!-- Title removed: not used -->
                 <div class="form-group">
                     <label for="banner-image">Cambiar Imagen (opcional)</label>
                     <input type="file" id="banner-image" name="banner-image" accept="image/*">
@@ -57,6 +59,7 @@
     </main>
 
     <script src="../assets/js/banner-service.js"></script>
+    <script src="../assets/js/utils.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>
