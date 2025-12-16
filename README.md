@@ -1,3 +1,29 @@
+# C & C Cookies and Cakes — Código fuente
+
+Este repositorio contiene la versión del sitio web de la pastelería "C & C Cookies and Cakes" preparada para producción. El contenido en esta rama incluye únicamente los archivos y carpetas que se utilizan en el sitio público y en el panel de administración.
+
+Contenido principal incluido:
+- `index.html` — Entrada pública del sitio.
+- `assets/` — Recursos públicos: `css/`, `js/`, `images/`, `webfonts/`.
+- `pages/` — Páginas públicas (categorías y detalle de producto).
+- `admin/` — Panel de administración (HTML/CSS/JS) para gestionar productos, categorías y banners.
+- `backend/` — API en PHP (estructura ligera):
+  - `backend/api/` — Punto de entrada de la API.
+  - `backend/controllers/` — Controladores HTTP.
+  - `backend/models/` — Modelos de base de datos.
+  - `backend/config/` — Configuración de conexión PDO.
+  - `backend/uploads/` — Archivos subidos por el sitio.
+- `database/` — Scripts SQL (`pasteleriadb.sql`, `update_schema.sql`).
+- `uploads/` — Archivos de ejemplo / subidos.
+
+Notas rápidas:
+- Dependencias: esta rama no requiere dependencias Node para producción; el proyecto usa PHP + MySQL en backend.
+- Imágenes y archivos subidos se guardan en `backend/uploads/` y `uploads/`.
+- Se han retirado archivos y dependencias de desarrollo no necesarios para el sitio en producción.
+
+Si quieres, agrego un apartado técnico corto (versión mínima de PHP, permisos de carpetas o cómo restaurar la base de datos desde `database/pasteleriadb.sql`).
+
+Fin.
 # C & C Cookies and Cakes - Sitio Web
 
 Este repositorio contiene el código fuente completo para el sitio web de la pastelería "C & C Cookies and Cakes". El proyecto está listo para ser desplegado en un entorno de producción.

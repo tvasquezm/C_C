@@ -1,13 +1,12 @@
 -- =================================================================
---  SCRIPT DE CREACIÓN PARA LA BASE DE DATOS 'pasteleria_db'
+--  SCRIPT DE CREACIÓN PARA LA BASE DE DATOS 'cyccooki_db'
 -- =================================================================
 
 -- 1. CREACIÓN DE LA BASE DE DATOS
 -- Si ya existe, la borra para empezar de cero y evitar errores.
--- Las siguientes líneas se han comentado porque la base de datos 'pasteleria_db' ya existe.
--- DROP DATABASE IF EXISTS `pasteleria_db`;
--- CREATE DATABASE `pasteleria_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `pasteleria_db`;
+-- DROP DATABASE IF EXISTS `cyccooki_db`;
+-- CREATE DATABASE `cyccooki_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `cyccooki_db`;
 
 -- 2. CREACIÓN DE LA TABLA `categorias`
 -- Aquí se guardarán los tipos de productos (Tortas, Galletas, etc.)
