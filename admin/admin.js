@@ -131,7 +131,7 @@ async function loadProductsAdminPage(page = 1, filters = {}) {
                 const productRow = document.createElement('tr');
                 productRow.innerHTML = `
                         <td>
-                            <img src="${window.location.origin}/C_C/backend/api/products/${product.id}/image" alt="${product.name}" class="table-img-preview">
+                            <img src="${window.location.origin}/backend/api/products/${product.id}/image" alt="${product.name}" class="table-img-preview">
                         </td>
                     <td>${product.name}</td>
                     <td>${categoryName}</td>
@@ -571,7 +571,7 @@ async function loadEditProductPage() {
 
     // Mostramos la imagen actual
     const imagePreview = document.querySelector('#current-image-preview img');
-    imagePreview.src = `${window.location.origin}/C_C/backend/api/products/${product.id}/image`;
+    imagePreview.src = `${window.location.origin}/backend/api/products/${product.id}/image`;
     imagePreview.style.display = 'block';
 
     // Lógica para el envío del formulario de edición
@@ -616,7 +616,7 @@ async function loadBannersAdminPage() {
                 return `
                 <tr class="${rowClass}" data-id="${banner.id}">
                     <td>
-                        <img src="${window.location.origin}/C_C/backend/api/banners/${banner.id}/image" alt="Banner ${banner.id}" class="table-img-preview">
+                        <img src="${window.location.origin}/backend/api/banners/${banner.id}/image" alt="Banner ${banner.id}" class="table-img-preview">
                     </td>
                     <td>${displayOrder}</td>
                     <td>
@@ -732,7 +732,7 @@ async function loadEditBannerPage() {
 
     document.getElementById('banner-id').value = banner.id;
     const img = document.getElementById('current-banner-image');
-    img.src = `${window.location.origin}/C_C/backend/api/banners/${banner.id}/image`;
+    img.src = `${window.location.origin}/backend/api/banners/${banner.id}/image`;
     img.style.display = 'block';
 
     const form = document.getElementById('editBannerForm');

@@ -1,5 +1,6 @@
 // Constante para la URL base de la API, facilitando cambios futuros.
-const API_BASE_URL = 'http://localhost/C_C/backend/api';
+// Usar ruta raíz para que funcione en el dominio de producción.
+const API_BASE_URL = '/backend/api';
 
 // ==================== RENDERIZADO DINÁMICO DE PRODUCTOS ====================
 
