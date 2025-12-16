@@ -9,7 +9,7 @@ class Database {
         $host = getenv('DB_HOST') ?: 'localhost';
         $user = getenv('DB_USER') ?: 'root';
         $password = getenv('DB_PASSWORD') ?: '';
-        $dbname = getenv('DB_NAME') ?: 'pasteleriadb';
+        $dbname = getenv('DB_NAME') ?: 'cyccooki_db';
 
         try {
             $this->pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $password);
