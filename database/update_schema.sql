@@ -3,7 +3,7 @@
 --  Cambios: Almacenar imágenes como archivos en lugar de BLOB
 -- =================================================================
 
-USE `pasteleriadb`;
+USE `cyccooki_db`;
 
 -- Actualizar tabla productos
 ALTER TABLE `productos` DROP COLUMN `img`;
