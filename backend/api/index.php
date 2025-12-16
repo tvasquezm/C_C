@@ -29,7 +29,7 @@ if (isset($_REQUEST['_method']) && !empty($_REQUEST['_method'])) {
 
 // Remover query string
 $uri = parse_url($requestUri, PHP_URL_PATH);
-$uri = str_replace('/C_C/backend/api', '', $uri); // Ajustar según la ruta
+$uri = str_replace(array('/C_C/backend/api', '/backend/api'), '', $uri); // Eliminar prefijos posibles en la URI
 
 // Routing simple
 if (preg_match('/^\/products(\/.*)?$/', $uri, $matches)) {

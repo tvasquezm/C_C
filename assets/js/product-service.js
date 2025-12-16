@@ -1,8 +1,8 @@
 // c:/Users/tmmsv/Documents/pasteleria/assets/js/product-service.js
 
 const ProductService = {
-    // La URL base de nuestra API de productos. Apunta al servidor local que crearemos.
-    _apiUrl: 'http://localhost/C_C/backend/api/products',
+    // La URL base de nuestra API de productos. Usar ruta raíz para producción.
+    _apiUrl: '/backend/api/products',
 
     /**
      * Maneja las respuestas de la API, convirtiendo errores HTTP en excepciones de JavaScript.

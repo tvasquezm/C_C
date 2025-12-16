@@ -3,7 +3,7 @@
 
 const BannerService = {
     // --- PUNTO DE CONFIGURACIÓN ---
-    _apiUrl: 'http://localhost/C_C/backend/api/banners',
+    _apiUrl: '/backend/api/banners',
 
     /**
      * Obtiene todos los banners (para el panel de administración).

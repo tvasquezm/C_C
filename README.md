@@ -72,7 +72,7 @@ El frontend necesita saber dónde encontrar el backend en internet.
     const API_BASE_URL = 'http://localhost:3001';
 
     // DESPUÉS (ejemplo con dominio propio):
-    const API_BASE_URL = 'https://tu-dominio.com/backend/api';
+    const API_BASE_URL = 'https://www.cyccookiesandcakes.cl/backend/api';
     ```
 
 ### 3. Despliegue del Frontend
